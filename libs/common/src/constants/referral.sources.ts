@@ -1,0 +1,16 @@
+export const referralSources = [
+  'Instagram',
+  'WhatsApp',
+  'X (Twitter)',
+  'TikTok',
+  'Google Search',
+  'Advertisement',
+  'Facebook',
+  'Referral/Friend',
+  'YouTube',
+  'App Store',
+  'Play Store',
+  'LinkedIn',
+  'Telegram',
+  'Event/Conference',
+];

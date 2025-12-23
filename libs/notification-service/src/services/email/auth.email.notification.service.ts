@@ -1,0 +1,153 @@
+import { Repository } from 'typeorm';
+import { CommandBus } from '@nestjs/cqrs';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { MailerService } from '@nestjs-modules/mailer';
+import { Setting } from '@app/common/src/models/setting.model';
+import { Account } from 'libs/common/src/models/account.model';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { AppLogger } from '../../../../common/src/logger/logger.service';
+import { AccountStatus, UserRole } from 'libs/common/src/constants/enums';
+import { EmailSenderService } from 'libs/helper-service/src/services/email-sender.service';
+import { reset_password_html_content } from '../../templates/emails/auth/reset_password_email_template';
+import { forgot_password_html_content } from '../../templates/emails/auth/forgot_password_email_template';
+import { update_account_email_html_content } from '../../templates/emails/auth/update_account_email_template';
+import { welcome_customer_email_html_content } from '../../templates/emails/auth/welcome_buyer_email_template';
+import { email_verification_html_content } from '../../templates/emails/auth/email_verification_email_template';
+
+@Injectable()
+export class AuthEmailNotificationService implements OnModuleInit  {
+  private adminSettings: Setting;
+
+onModuleInit() {
+    this.initializeAdminSettings();
+  }
+
+  constructor(
+    public commandBus: CommandBus,
+    private configService: ConfigService,
+    private gmailMailerService: MailerService,
+    private emailSenderService: EmailSenderService,
+    @Inject('Logger') private readonly logger: AppLogger,
+    @InjectRepository(Setting)
+    private readonly settingRepository: Repository<Setting>,
+  ) {}
+
+  async initializeAdminSettings() {
+    this.adminSettings = await this.settingRepository.findOne({
+      where: {
+        position: 1,
+      },
+    });
+  }
+
+  async verifyNewAccountEmailNotification(account: Account) {
+    const htmlContent = await update_account_email_html_content(
+      account.firstName,
+      account.activationCode,
+    );
+
+    if(this.adminSettings.isSMTPEnabled === true) {
+      return await this.gmailMailerService.sendMail({
+        html: htmlContent,
+        to: account.email,
+        subject: 'Verify New Account Email',
+        from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+      }); 
+    } else {
+      return this.emailSenderService.sendEmail({
+        html: htmlContent,
+        sub: 'Verify New Account Email',
+        to_email: account.newEmail,
+      });
+    }
+  }
+
+  async resetPasswordNotification(account: Account) {
+    const htmlContent = await reset_password_html_content();
+
+    if(this.adminSettings.isSMTPEnabled === true) {
+      return await this.gmailMailerService.sendMail({
+        html: htmlContent,
+        to: account.email,
+        subject: 'Password Reset',
+        from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+      });
+    } else {
+      return this.emailSenderService.sendEmail({
+        html: htmlContent,
+        sub: 'Password Reset',
+        to_email: account.email,
+      });
+    }
+  }
+
+  async forgotPasswordNotification(account: Account) {
+    const htmlContent = await forgot_password_html_content(
+      account.passwordResetCode,
+    );
+
+    if(this.adminSettings.isSMTPEnabled === true) {
+      return await this.gmailMailerService.sendMail({
+        html: htmlContent,
+        to: account.email,
+        subject: 'Reset Your Password',
+        from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+      });
+    } else {
+      return this.emailSenderService.sendEmail({
+        html: htmlContent,
+        sub: 'Reset Your Password',
+        to_email: account.email,
+      });
+    }
+  }
+
+  async newAccountNotifications(account: Account) {
+    switch (account.role) {
+      case UserRole.CUSTOMER:
+        if (account.status === AccountStatus.ACTIVE) {
+          const htmlContent = await welcome_customer_email_html_content(
+            account.name,
+          );
+
+          if(this.adminSettings.isSMTPEnabled === true) {
+            return await this.gmailMailerService.sendMail({
+              html: htmlContent,
+              to: account.email,
+              subject: 'Welcome to Invia!',
+              from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+            });
+          } else {
+            return this.emailSenderService.sendEmail({
+              html: htmlContent,
+              sub: 'Welcome to Invia!',
+              to_email: account.email,
+            });
+          }
+        } else if (account.status === AccountStatus.PENDING) {
+          const htmlContent = await email_verification_html_content(
+            account.name,
+            account.activationCode,
+          );
+
+          if(this.adminSettings.isSMTPEnabled === true) {
+            return await this.gmailMailerService.sendMail({
+              html: htmlContent,
+              to: account.email,
+              subject: 'Email Verification',
+              from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+            });
+          } else {
+            return this.emailSenderService.sendEmail({
+              html: htmlContent,
+              sub: 'Email Verification',
+              to_email: account.email,
+            });
+          }
+        }
+      default:
+        return;
+    }
+  }
+}
