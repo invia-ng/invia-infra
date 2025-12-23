@@ -8,6 +8,7 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
 import { AuthEmailNotificationService } from 'libs/notification-service/src/services/email/auth.email.notification.service';
+import { AccountStatus } from '@app/common/src/constants/enums';
 
 @CommandHandler(InitializeBusinessProfileCommand)
 export class InitializeBusinessProfileHandler
@@ -36,6 +37,8 @@ export class InitializeBusinessProfileHandler
       }
 
       Object.assign(account, {
+        status: AccountStatus.ACTIVE,
+        isBusinessProfileUpdated: true,
         businessName: payload.businessName,
         businessAvatar: payload.businessAvatar,
       });

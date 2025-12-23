@@ -35,49 +35,49 @@ export class ImageUploadController {
    * @param height - Optional height for image resizing.
    * @returns The URL and public ID of the uploaded image.
    */
-  @Post('image')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Upload an image with optional resizing' })
-  @ApiResponse({
-    description: 'Image uploaded successfully',
-    type: FileUploadResult,
-  })
-  @ApiQuery({
-    name: 'type',
-    required: false,
-    enum: OptimizedImageType,
-  })
-  @ApiQuery({
-    name: 'fileName',
-    required: false,
-    type: String,
-    description: 'The name of the file',
-  })
-  @ApiConsumes('multipart/form-data') // Set content type as multipart/form-data
-  @ApiBody({
-    description: 'Upload an image file',
-    required: true,
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
-  async uploadImage(
-    @UploadedFile() file: Express.Multer.File,
-    @Query('type') type: OptimizedImageType = OptimizedImageType.coverImage,
-    @Query('fileName') fileName?: string,
-  ) {
-    return await this.imageUploadService.uploadImageToAws(
-      file,
-      type,
-      fileName,
-    );
-  }
+  // @Post('image')
+  // @UseInterceptors(FileInterceptor('file'))
+  // @ApiOperation({ summary: 'Upload an image with optional resizing' })
+  // @ApiResponse({
+  //   description: 'Image uploaded successfully',
+  //   type: FileUploadResult,
+  // })
+  // @ApiQuery({
+  //   name: 'type',
+  //   required: false,
+  //   enum: OptimizedImageType,
+  // })
+  // @ApiQuery({
+  //   name: 'fileName',
+  //   required: false,
+  //   type: String,
+  //   description: 'The name of the file',
+  // })
+  // @ApiConsumes('multipart/form-data') // Set content type as multipart/form-data
+  // @ApiBody({
+  //   description: 'Upload an image file',
+  //   required: true,
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       file: {
+  //         type: 'string',
+  //         format: 'binary',
+  //       },
+  //     },
+  //   },
+  // })
+  // async uploadImage(
+  //   @UploadedFile() file: Express.Multer.File,
+  //   @Query('type') type: OptimizedImageType = OptimizedImageType.coverImage,
+  //   @Query('fileName') fileName?: string,
+  // ) {
+  //   return await this.imageUploadService.uploadImageToAws(
+  //     file,
+  //     type,
+  //     fileName,
+  //   );
+  // }
 
   /**
    * Uploads an image to Cloudinary with optional transformations.
@@ -87,7 +87,49 @@ export class ImageUploadController {
    * @param height - Optional height for image resizing.
    * @returns The URL and public ID of the uploaded image.
    */
-  @Post('file')
+  // @Post('file')
+  // @UseInterceptors(FileInterceptor('file'))
+  // @ApiOperation({ summary: 'Upload an file' })
+  // @ApiQuery({
+  //   type: String,
+  //   name: 'fileName',
+  //   required: false,
+  //   description: 'The name of the file',
+  // })
+  // @ApiResponse({
+  //   description: 'File uploaded successfully',
+  //   type: FileUploadResult,
+  // })
+  // @ApiConsumes('multipart/form-data') // Set content type as multipart/form-data
+  // @ApiBody({
+  //   description: 'Upload an file',
+  //   required: true,
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       file: {
+  //         type: 'string',
+  //         format: 'binary',
+  //       },
+  //     },
+  //   },
+  // })
+  // async uploadFile(
+  //   @UploadedFile() file: Express.Multer.File,
+  //   @Query('fileName') fileName?: string,
+  // ) {
+  //   return await this.imageUploadService.uploadFileToAws(file, fileName);
+  // }
+
+  /**
+   * Uploads an image to Cloudinary with optional transformations.
+   *
+   * @param file - The image file to be uploaded, provided by Multer.
+   * @param width - Optional width for image resizing.
+   * @param height - Optional height for image resizing.
+   * @returns The URL and public ID of the uploaded image.
+   */
+  @Post('file/cloudinary')
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Upload an file' })
   @ApiQuery({
@@ -114,10 +156,10 @@ export class ImageUploadController {
       },
     },
   })
-  async uploadFile(
+  async uploadFileToCloudinary(
     @UploadedFile() file: Express.Multer.File,
     @Query('fileName') fileName?: string,
   ) {
-    return await this.imageUploadService.uploadFileToAws(file, fileName);
+    return await this.imageUploadService.uploadFileToCloudinary(file, fileName);
   }
 }

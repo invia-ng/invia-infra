@@ -100,7 +100,7 @@ export class Account {
 
   @Column({
     nullable: true,
-    default: 'https://media.s3.amazonaws.com/avatars/avatar.png',
+    default: 'https://livestocx-media.s3.amazonaws.com/avatars/avatar.png',
   })
   @ApiPropertyOptional({
     example: 'https://media.s3.amazonaws.com/avatars/avatar.png',
@@ -110,7 +110,7 @@ export class Account {
 
   @Column({
     nullable: true,
-    default: 'https://media.s3.amazonaws.com/avatars/avatar.png',
+    default: '',
   })
   @ApiPropertyOptional({
     example: 'https://media.s3.amazonaws.com/avatars/avatar.png',

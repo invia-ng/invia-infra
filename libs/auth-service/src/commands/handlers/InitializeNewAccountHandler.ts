@@ -43,8 +43,6 @@ export class InitializeNewAccountHandler
         ),
       );
 
-      // console.log('[HASH-PAYLOAD] : ', hashPayload);
-
       const hash = createHash('sha256')
         .update(JSON.stringify(hashPayload))
         .digest('hex');

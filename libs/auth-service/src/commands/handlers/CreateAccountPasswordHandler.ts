@@ -40,9 +40,11 @@ export class CreateAccountPasswordHandler
         throw new NotFoundException('Account not found');
       }
 
+      const hashedPassword = await authUtils.hashPassword(payload.password);
+
       Object.assign(account, {
         isPasswordUpdated: true,
-        password: authUtils.hashPassword(payload.password),
+        password: hashedPassword,
       });
 
       await this.userRepository.save(account);

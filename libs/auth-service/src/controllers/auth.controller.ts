@@ -10,7 +10,7 @@ import {
   InitializeBusinessProfileDTO,
 } from '../interface';
 import { AuthService } from '../services/auth.service';
-import { Body, Controller, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Post, Query, Req, UseGuards } from '@nestjs/common';
 import {
   OAuthSigninDTO,
   CreateAccountDTO,
@@ -21,6 +21,7 @@ import {
 } from '../interface';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -43,9 +44,11 @@ import authUtils from 'libs/common/src/security/auth.utils';
 import { AccountInfo } from '@app/common/src/models/account.model';
 import { SecureUserPayload } from '@app/common/src/interface';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
+import { JwtAuthGuard } from '@app/common/src/auth';
 
 @ApiTags('auth')
 @Controller({ path: '' })
+@ApiBearerAuth()
 export class AuthController {
   constructor(
     public command: CommandBus,
@@ -85,6 +88,7 @@ export class AuthController {
   @Post('initialize-account-password')
   @ApiOkResponse({ type: AccountInfo })
   @ApiConflictResponse()
+  @UseGuards(JwtAuthGuard)
   async initializeAccountPassword(
     @Body() body: CreateAccountPasswordDTO,
     @Req() req: Request,
@@ -97,10 +101,11 @@ export class AuthController {
       ),
     );
   }
-
+  
   @Post('initialize-business-profile')
   @ApiOkResponse({ type: AccountInfo })
   @ApiConflictResponse()
+  @UseGuards(JwtAuthGuard)
   async initializeBusinessProfile(
     @Body() body: InitializeBusinessProfileDTO,
     @Req() req: Request,

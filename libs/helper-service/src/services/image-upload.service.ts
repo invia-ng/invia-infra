@@ -1,18 +1,31 @@
 import * as sharp from 'sharp';
 import { randomUUID } from 'crypto';
+import { v2 as cloudinary, ConfigOptions } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
 import { FileUploadResult } from '../interface';
 import { S3UploadService } from './s3-upload.service';
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable, OnModuleInit } from '@nestjs/common';
 import { OptimizedImageType } from 'libs/common/src/constants/enums';
 import { sanitizeString } from '@app/common/src/utils/string.utils';
 
 @Injectable()
-export class ImageUploadService {
+export class ImageUploadService implements OnModuleInit {
+  private cloudinaryConfig: ConfigOptions;
+
   constructor(
     private s3Service: S3UploadService,
     private readonly configService: ConfigService,
   ) {}
+
+  onModuleInit() {
+    this.cloudinaryConfig = {
+      cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
+      api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
+      api_secret: this.configService.get<string>('CLOUDINARY_API_SECRET'),
+    };
+
+    cloudinary.config(this.cloudinaryConfig);
+  }
 
   async uploadImageToAws(
     file: Express.Multer.File,
@@ -87,6 +100,91 @@ export class ImageUploadService {
       };
 
       return uploadResult;
+    } catch (error) {
+      console.log(`Error uploading image: ${error.message}`);
+
+      throw error;
+      // throw new BadGatewayException(`Error uploading image: ${error.message}`);
+    }
+  }
+
+  async uploadFileToCloudinary(
+    file: Express.Multer.File,
+    fileName?: string,
+  ): Promise<any> {
+    try {
+      const originalName = fileName ?? file.originalname;
+      const lastDotIndex = originalName.lastIndexOf('.');
+
+      let nameWithoutExtension: string;
+      let extension: string;
+
+      if (lastDotIndex === -1) {
+        nameWithoutExtension = originalName;
+        // Try to infer extension from mimetype for common types
+        if (file.mimetype === 'application/pdf') {
+          extension = 'pdf';
+        } else if (file.mimetype === 'text/plain') {
+          extension = 'txt';
+        } else if (file.mimetype.startsWith('image/')) {
+          extension = file.mimetype.split('/')[1];
+        } else {
+          extension = '';
+        }
+      } else {
+        nameWithoutExtension = originalName.substring(0, lastDotIndex);
+        extension = originalName.substring(lastDotIndex + 1);
+      }
+
+      const uuid = randomUUID().concat(
+        '_',
+        sanitizeString(nameWithoutExtension),
+        extension ? `.${extension}` : '',
+      );
+
+       const sizeMap: Record<string, { width: number; height?: number }> = {
+        small: { width: 512 },
+      };
+
+      let uploadResult: FileUploadResult;
+
+      if (file.mimetype.startsWith('image/')) {
+        for (const [sizeKey, dimensions] of Object.entries(sizeMap)) {
+          const resizedBuffer = await sharp(file.buffer)
+            .resize(dimensions.width, dimensions.height, {
+              fit: 'contain',
+            })
+            .toBuffer();
+
+          const upload = await cloudinary.uploader.upload(
+            `data:${file.mimetype};base64,${resizedBuffer.toString('base64')}`,
+            {
+              folder: 'versions',
+              public_id: uuid,
+              resource_type: 'image',
+            },
+          );
+
+          uploadResult = {
+            url: upload.secure_url,
+            public_id: upload.public_id,
+          };
+        }
+      } else {
+        const upload = await cloudinary.uploader.upload(
+          `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+          {
+            folder: 'versions',
+            public_id: uuid,
+            resource_type: 'raw',
+          },
+        );
+
+        uploadResult = {
+          url: upload.secure_url,
+          public_id: upload.public_id,
+        };
+      } return uploadResult;
     } catch (error) {
       console.log(`Error uploading image: ${error.message}`);
 

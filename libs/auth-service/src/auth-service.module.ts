@@ -18,6 +18,7 @@ import { Notification } from '@app/common/src/models/notification.model';
 import { AuthHelperController } from './controllers/auth.helper.controller';
 import { HelperServiceModule } from 'libs/helper-service/src/helper-service.module';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
+import { ImageUploadController } from '@app/helper-service/src/controllers/image-upload.controller';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { AuthEmailNotificationService } from '@app/notification-service/src/serv
     ...AuthServiceCommandHandlers,
   ],
   exports: [AuthService],
-  controllers: [AuthController, AuthHelperController,],
+  controllers: [AuthController, AuthHelperController, ImageUploadController],
 })
 export class AuthServiceModule {
   constructor(private configService: ConfigService) {
