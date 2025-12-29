@@ -17,15 +17,6 @@
         "tsConfigPath": "libs/account-service/tsconfig.lib.json"
       }
     },
-    "admin-service": {
-      "type": "library",
-      "root": "libs/admin-service",
-      "entryFile": "index",
-      "sourceRoot": "libs/admin-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/admin-service/tsconfig.lib.json"
-      }
-    },
     "auth-service": {
       "type": "library",
       "root": "libs/auth-service",
@@ -33,6 +24,15 @@
       "sourceRoot": "libs/auth-service/src",
       "compilerOptions": {
         "tsConfigPath": "libs/auth-service/tsconfig.lib.json"
+      }
+    },
+    "notification-service": {
+      "type": "library",
+      "root": "libs/notification-service",
+      "entryFile": "index",
+      "sourceRoot": "libs/notification-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/notification-service/tsconfig.lib.json"
       }
     }
   }
