@@ -60,7 +60,6 @@ export class ManageAccountController {
   ): Promise<AccountInfo> {
     return await this.command.execute(
       new UpdateAccountNameCommand(
-        authUtils.getOriginHeader(req),
         secureUser,
         body,
       ),
@@ -77,7 +76,6 @@ export class ManageAccountController {
   ) {
     return await this.command.execute(
       new UpdateAccountEmailCommand(
-        authUtils.getOriginHeader(req),
         secureUser,
         body,
       ),
@@ -94,7 +92,6 @@ export class ManageAccountController {
   ): Promise<AccountInfo> {
     return await this.command.execute(
       new VerifyNewAccountEmailCommand(
-        authUtils.getOriginHeader(req),
         secureUser,
         body,
       ),
@@ -111,7 +108,6 @@ export class ManageAccountController {
   ): Promise<AccountInfo> {
     return await this.command.execute(
       new UpdateAccountPhoneCommand(
-        authUtils.getOriginHeader(req),
         secureUser,
         body,
       ),
@@ -130,7 +126,6 @@ export class ManageAccountController {
   ): Promise<AccountInfo> {
     return await this.command.execute(
       new UpdateProfileImageCommand(
-        authUtils.getOriginHeader(req),
         secureUser,
         body,
       ),
@@ -147,7 +142,6 @@ export class ManageAccountController {
   ) {
     return await this.command.execute(
       new UpdateAccountPasswordCommand(
-        authUtils.getOriginHeader(req),
         secureUser,
         body,
       ),
@@ -164,7 +158,6 @@ export class ManageAccountController {
   ) {
     return await this.command.execute(
       new DeleteAccountCommand(
-        authUtils.getOriginHeader(req),
         secureUser,
         body,
       ),

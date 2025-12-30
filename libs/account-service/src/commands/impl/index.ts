@@ -13,7 +13,6 @@ import {
 
 export class UpdateAccountFCMTokenCommand {
   constructor(
-    public readonly origin: string,
     public readonly payload: UpdateFCMTokenDTO,
     public readonly secureUser: SecureUserPayload,
   ) {}
@@ -21,15 +20,26 @@ export class UpdateAccountFCMTokenCommand {
 
 export class UpdateProfileImageCommand {
   constructor(
-    public readonly origin: string,
     public readonly secureUser: SecureUserPayload,
     public readonly payload: UpdateProfileImageDTO,
   ) {}
 }
 
+export class UpdateBusinessProfileImageCommand {
+  constructor(
+    public readonly secureUser: SecureUserPayload,
+    public readonly payload: UpdateProfileImageDTO,
+  ) {}
+}
+
+export class DeleteBusinessProfileImageCommand {
+  constructor(
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
 export class UpdateAccountPasswordCommand {
   constructor(
-    public readonly origin: string,
     public readonly secureUser: SecureUserPayload,
     public readonly payload: UpdateAccountPasswordDTO,
   ) {}
@@ -37,7 +47,6 @@ export class UpdateAccountPasswordCommand {
 
 export class DeleteAccountCommand {
   constructor(
-    public readonly origin: string,
     public readonly secureUser: SecureUserPayload,
     public readonly payload: DeleteAccountDTO,
   ) {}
@@ -45,7 +54,13 @@ export class DeleteAccountCommand {
 
 export class UpdateAccountNameCommand {
   constructor(
-    public readonly origin: string,
+    public readonly secureUser: SecureUserPayload,
+    public readonly payload: UpdateAccountNameDTO,
+  ) {}
+}
+
+export class UpdateBusinessNameCommand {
+  constructor(
     public readonly secureUser: SecureUserPayload,
     public readonly payload: UpdateAccountNameDTO,
   ) {}
@@ -53,7 +68,6 @@ export class UpdateAccountNameCommand {
 
 export class UpdateAccountEmailCommand {
   constructor(
-    public readonly origin: string,
     public readonly secureUser: SecureUserPayload,
     public readonly payload: UpdateAccountEmailDTO,
   ) {}
@@ -61,7 +75,6 @@ export class UpdateAccountEmailCommand {
 
 export class VerifyNewAccountEmailCommand {
   constructor(
-    public readonly origin: string,
     public readonly secureUser: SecureUserPayload,
     public readonly payload: VerifyNewAccountEmailDTO,
   ) {}
@@ -69,7 +82,6 @@ export class VerifyNewAccountEmailCommand {
 
 export class UpdateAccountPhoneCommand {
   constructor(
-    public readonly origin: string,
     public readonly secureUser: SecureUserPayload,
     public readonly payload: UpdateAccountPhoneDTO,
   ) {}

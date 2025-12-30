@@ -263,7 +263,7 @@ export class AccountInfo {
   isAccountDisabled: boolean;
 
   @ApiProperty({ example: 'https://lit.jpg' })
-  businessAvatar: string;2
+  businessAvatar: string;
 
   @ApiProperty({ example: 'Ade Events' })
   businessName: string;

@@ -118,7 +118,8 @@
     "moduleNameMapper": {
       "^@app/account-service(|/.*)$": "<rootDir>/libs/account-service/src/$1",
       "^@app/auth-service(|/.*)$": "<rootDir>/libs/auth-service/src/$1",
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/notification-service(|/.*)$": "<rootDir>/libs/notification-service/src/$1"
     }
   }
 }

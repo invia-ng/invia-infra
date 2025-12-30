@@ -135,14 +135,16 @@ export class UpdateAccountNameDTO {
   @IsString()
   @IsNotEmpty()
   name: string;
+}
 
-  // @ApiProperty({
-  //   example: 'Doe',
-  //   description: 'New account last name.',
-  // })
-  // @IsString()
-  // @IsNotEmpty()
-  // lastName: string;
+export class UpdateBusinessNameDTO {
+  @ApiProperty({
+    example: 'Invia Events',
+    description: 'New business name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 }
 
 export class UpdateAccountEmailDTO {

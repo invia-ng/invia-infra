@@ -19,6 +19,7 @@ import { AuthHelperController } from './controllers/auth.helper.controller';
 import { HelperServiceModule } from 'libs/helper-service/src/helper-service.module';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
 import { ImageUploadController } from '@app/helper-service/src/controllers/image-upload.controller';
+import { Business } from '@app/common/src/models/business.model';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ImageUploadController } from '@app/helper-service/src/controllers/image
     TypeOrmModule.forFeature([
       Account,
       Setting,
+      Business,
       Notification,
     ]),
   ],

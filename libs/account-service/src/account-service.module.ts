@@ -10,6 +10,7 @@ import { Account } from 'libs/common/src/models/account.model';
 import { AccountServiceEventHandlers } from './events/handlers';
 import { setupSwaggerDocument } from '../../common/src/swagger';
 import { AccountServiceQueryHandlers } from './queries/handlers';
+import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from '../../common/src/logger/logger.service';
 import { AccountServiceCommandHandlers } from './commands/handlers';
 import { AccountController } from './controllers/account.controller';
@@ -24,6 +25,7 @@ import { ImageUploadController } from '@app/helper-service/src/controllers/image
 import { AccountNotificationService } from '@app/notification-service/src/services/account.notification.service';
 import { AccountNotificationController } from '@app/notification-service/src/controllers/account.notification.controller';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
+import { ManageBusinessController } from './controllers/manage.business.controller';
 
 @Module({
   imports: [
@@ -34,12 +36,14 @@ import { AuthEmailNotificationService } from '@app/notification-service/src/serv
     TypeOrmModule.forFeature([
       Account,
       Setting,
+      Business,
       Notification,
     ]),
   ],
   controllers: [
     AccountController,
     ManageAccountController,
+    ManageBusinessController,
     // SupportController,
     ImageUploadController,
     // AccountNotificationController,

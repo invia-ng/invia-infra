@@ -1,14 +1,14 @@
 import { Repository } from 'typeorm';
-import { Inject } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from '../../services/auth.service';
 import { InitializeBusinessProfileCommand } from '../impl';
+import { AccountStatus } from '@app/common/src/constants/enums';
+import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
-import { AuthEmailNotificationService } from 'libs/notification-service/src/services/email/auth.email.notification.service';
-import { AccountStatus } from '@app/common/src/constants/enums';
 
 @CommandHandler(InitializeBusinessProfileCommand)
 export class InitializeBusinessProfileHandler
@@ -18,6 +18,8 @@ export class InitializeBusinessProfileHandler
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
+    @InjectRepository(Business)
+    private readonly businessRepository: Repository<Business>,
   ) {}
 
   async execute(command: InitializeBusinessProfileCommand) {
@@ -33,14 +35,20 @@ export class InitializeBusinessProfileHandler
       });
 
       if(!account){
-        throw new Error('Account not found');
+        throw new NotFoundException('Account not found');
       }
+
+      const instance = await this.businessRepository.create({
+        account,
+        name: payload.businessName,
+        avatar: payload.businessAvatar
+      })
+
+      const business = await this.businessRepository.save(instance);
 
       Object.assign(account, {
         status: AccountStatus.ACTIVE,
         isBusinessProfileUpdated: true,
-        businessName: payload.businessName,
-        businessAvatar: payload.businessAvatar,
       });
 
       await this.accountRepository.save(account);
