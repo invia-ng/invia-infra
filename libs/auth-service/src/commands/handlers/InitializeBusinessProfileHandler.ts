@@ -1,12 +1,11 @@
 import { Repository } from 'typeorm';
-import { Inject, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AuthService } from '../../services/auth.service';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { InitializeBusinessProfileCommand } from '../impl';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AccountStatus } from '@app/common/src/constants/enums';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
 

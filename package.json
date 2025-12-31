@@ -119,6 +119,8 @@
       "^@app/account-service(|/.*)$": "<rootDir>/libs/account-service/src/$1",
       "^@app/auth-service(|/.*)$": "<rootDir>/libs/auth-service/src/$1",
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/event-service(|/.*)$": "<rootDir>/libs/event-service/src/$1",
+      "^@app/helper-service(|/.*)$": "<rootDir>/libs/helper-service/src/$1",
       "^@app/notification-service(|/.*)$": "<rootDir>/libs/notification-service/src/$1"
     }
   }

@@ -1,37 +1,11 @@
+import { Event, EventInfo } from "../models/event.model";
 import {Account, AccountInfo} from "../models/account.model";
 import { Business, BusinessInfo } from "../models/business.model";
 import { Notification, NotificationInfo } from "../models/notification.model";
+import { EventCategoryEnum, GuestPartyEnum } from "../constants/enums";
+import { EventCategoryInfo, GuestPartyInfo } from "@app/event-service/src/interface/schema";
+import { Guest, GuestInfo } from "../models/guest.model";
 
-export function FormatAccountInfo(
-    account: Account,
-): AccountInfo {
-    return {
-      id: account.id.toString(),
-      name: account.name,
-      firstName: account.firstName,
-      lastName: account.lastName,
-      phoneNumber: account.phoneNumber,
-      businessName: account.businessName,
-      email: account.email,
-      avatar: account.avatar,
-      role: account.role,
-      status: account.status,
-      isAccountDisabled: account.isAccountDisabled,
-      businessAvatar: account.businessAvatar,
-      isPasswordUpdated: account.isPasswordUpdated,
-      isBusinessProfileUpdated: account.isBusinessProfileUpdated,
-    } as unknown as AccountInfo;
-}
-
-export function FormatBusinessInfo(
-    business: Business,
-): BusinessInfo {
-  return {
-    id: business.id.toString(),
-    name: business.name,
-    avatar: business.avatar,
-  } as unknown as BusinessInfo;
-}
 
 export function FormatNotification(
   notification: Notification,
@@ -48,8 +22,140 @@ export function FormatNotification(
   } as unknown as NotificationInfo;
 }
 
+export function FormatAccountInfo(
+    account: Account,
+): AccountInfo {
+    return {
+      id: account.id.toString(),
+      name: account.name,
+      firstName: account.firstName,
+      lastName: account.lastName,
+      phoneNumber: account.phoneNumber,
+      // businessName: account.businessName,
+      email: account.email,
+      avatar: account.avatar,
+      role: account.role,
+      status: account.status,
+      isAccountDisabled: account.isAccountDisabled,
+      // businessAvatar: account.businessAvatar,
+      isPasswordUpdated: account.isPasswordUpdated,
+      isBusinessProfileUpdated: account.isBusinessProfileUpdated,
+    } as unknown as AccountInfo;
+}
+
+export function FormatBusinessInfo(
+    business: Business,
+): BusinessInfo {
+  return {
+    id: business.id.toString(),
+    name: business.name,
+    avatar: business.avatar,
+  } as unknown as BusinessInfo;
+}
+
+export function FormatEventInfo(
+    event: Event,
+    totalInvites: number,
+    sentInvites: number,
+    acceptedInvites: number,
+    pendingInvites: number,
+    failedInvites: number,
+): EventInfo {
+  return {
+    id: event.id.toString(),
+    name: event.name,
+    hash: event.hash,
+    date: event.date,
+    time: event.time,
+    category: event.category,
+    location: event.location,
+    totalInvites,
+    sentInvites,
+    acceptedInvites,
+    pendingInvites,
+    failedInvites,
+  } as unknown as EventInfo;
+}
+
+export function FormatGuestInfo(
+    guest: Guest,
+): GuestInfo {
+  return {
+    id: guest.id.toString(),
+    name: guest.name,
+    party: guest.party,
+    email: guest.email,
+    phone: guest.phone,
+    isInviteSent: guest.isInviteSent,
+    isInviteDelivered: guest.isInviteDelivered,
+    isInviteRSVP: guest.isInviteRSVP,
+  } as unknown as GuestInfo;
+}
+
+export function FormatGuestPartyInfo(
+    guestParty: GuestPartyEnum[],
+): GuestPartyInfo[] {
+    return guestParty.map((category) => {
+      switch(category){
+        case GuestPartyEnum.GROOM:
+          return {
+            title: 'Groom',
+            value: category,
+          } 
+        case GuestPartyEnum.BRIDE:
+          return {
+            title: 'Bride',
+            value: category,
+          } 
+        default:
+          return {
+            title: category,
+            value: category,
+          } 
+      }
+    }) as unknown as GuestPartyInfo[];
+}
+
+export function FormatEventCategoryInfo(
+    eventCategory: EventCategoryEnum[],
+): EventCategoryInfo[] {
+    return eventCategory.map((category) => {
+      switch(category){
+        case EventCategoryEnum.OTHERS:
+          return {
+            title: 'Others',
+            value: category,
+          } 
+        case EventCategoryEnum.WEDDING:
+          return {
+            title: 'Wedding',
+            value: category,
+          } 
+        case EventCategoryEnum.CORPORATE:
+          return {
+            title: 'Corporate',
+            value: category,
+          } 
+        case EventCategoryEnum.PARTY:
+          return {
+            title: 'Party',
+            value: category,
+          } 
+        default:
+          return {
+            title: category,
+            value: category,
+          } 
+      }
+    }) as unknown as EventCategoryInfo[];
+}
+
 export default {
-    FormatAccountInfo,
-    FormatNotification,
-    FormatBusinessInfo,
+  FormatGuestInfo,
+  FormatEventInfo,
+  FormatAccountInfo,
+  FormatNotification,
+  FormatBusinessInfo,
+  FormatGuestPartyInfo,
+  FormatEventCategoryInfo,
 };

@@ -11,6 +11,7 @@ import { HealthModule } from './health/health.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthServiceModule } from '@app/auth-service/src';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { EventServiceModule } from '@app/event-service/src';
 import { CommonModule } from '@app/common/src/common.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AccountServiceModule } from '@app/account-service/src';
@@ -25,6 +26,7 @@ import { NotificationServiceModule } from '@app/notification-service/src/notific
     HealthModule,
     CommonModule,
     AuthServiceModule,
+    EventServiceModule,
     AccountServiceModule,
     NotificationServiceModule,
     TypeOrmModule.forRoot(DatabaseSource),
@@ -66,6 +68,10 @@ import { NotificationServiceModule } from '@app/notification-service/src/notific
       {
         path: 'v1/auth',
         module: AuthServiceModule,
+      },
+      {
+        path: 'v1/event',
+        module: EventServiceModule,
       },
     ]),
   ],

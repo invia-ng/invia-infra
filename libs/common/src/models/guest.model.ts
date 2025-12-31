@@ -1,0 +1,153 @@
+import {
+  Index,
+  Column,
+  Entity,
+  OneToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Event } from './event.model';
+import { GuestPartyEnum } from '../constants/enums';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+@Entity()
+export class Guest {
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+  })
+  id: number;
+
+  @Column({
+    nullable: true,
+    type: 'enum',
+    enum: GuestPartyEnum,
+    default: GuestPartyEnum.GROOM,
+  })
+  @ApiPropertyOptional({
+    description: 'Guest party',
+    example: GuestPartyEnum.GROOM,
+  })
+  party: GuestPartyEnum;
+
+  @Column({
+    nullable: true,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    example: 'Tunde Ajebo',
+    description: 'Guest name',
+  })
+  name: string;
+  
+  @Column({
+    nullable: true,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    example: 'tunde@gmail.com',
+    description: 'Guest email',
+  })
+  email: string;
+  
+  @Column({
+    nullable: true,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    example: '+2348012345678',
+    description: 'Guest phone',
+  })
+  phone: string;
+  
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Guest invite sent',
+  })
+  isInviteSent: boolean;
+  
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Guest invite delivered',
+  })
+  isInviteDelivered: boolean;
+  
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Guest RSVP status',
+  })
+  isInviteRSVP: boolean;
+
+  @OneToOne(() => Event, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  @JoinColumn({ name: 'event' })
+  event: Event;
+
+  @CreateDateColumn({ nullable: true })
+  createdAt: Date;
+
+  @UpdateDateColumn({ nullable: true })
+  updatedAt: Date;
+}
+
+export class GuestInfo {
+  @ApiProperty({ example: '75' })
+  id: string;
+
+  @ApiProperty({ example: 'Ibrahim' })
+  name: string;
+
+  @ApiProperty({ 
+    enum: GuestPartyEnum,
+    example: GuestPartyEnum.GROOM,
+  })
+  party: GuestPartyEnum;
+
+  @ApiProperty({ example: 'tunde@gmail.com' })
+  email: string;
+
+  @ApiProperty({ example: '+2348012345678' })
+  phone: string;
+
+  @ApiProperty({ example: false })
+  isInviteSent: boolean;
+
+  @ApiProperty({ example: false })
+  isInviteDelivered: boolean;
+
+  @ApiProperty({ example: false })
+  isInviteRSVP: boolean;
+}
+
+export class GuestsResponse {
+  @ApiProperty({
+    isArray: true,
+    type: GuestInfo,
+  })
+  guests: GuestInfo[];
+
+  @ApiProperty({
+    example: 1,
+  })
+  totalPages: number;
+
+  @ApiProperty({
+    example: true,
+  })
+  hasNextPage: boolean;
+}

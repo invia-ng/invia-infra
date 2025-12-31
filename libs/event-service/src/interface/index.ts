@@ -1,0 +1,65 @@
+import {
+  IsHash,
+  IsEnum,
+  IsEmail,
+  IsString,
+  MaxLength,
+  MinLength,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsNumberString,
+  IsArray,
+  ValidateNested,
+  IsDate,
+} from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  trimTransformer,
+  toLowerCaseTransformer,
+} from '@app/common/src/helpers/local-class-validator';
+import { EventCategoryEnum } from '@app/common/src/constants/enums';
+
+export class CreateEventDTO {
+  @ApiProperty({
+    example: 'Bunke Dinner',
+    description: 'Event name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    enum: EventCategoryEnum,
+    description: 'Event category.',
+    example: EventCategoryEnum.OTHERS,
+  })
+  @IsNotEmpty()
+  @IsEnum(EventCategoryEnum)
+  category: EventCategoryEnum;
+
+  @ApiProperty({
+    example: '2025-12-30T21:55:28.000Z',
+    description: 'Event date.',
+  })
+  @IsNotEmpty()
+  @IsDate()
+  date: Date;
+
+  @ApiProperty({
+    example: '14:00',
+    description: 'Event time.',
+  })
+  @IsNotEmpty()
+  @IsString()
+  time: string;
+
+  @ApiProperty({
+    example: 'Zumji Event Center',
+    description: 'Event location.',
+  })
+  @IsNotEmpty()
+  @IsString()
+  location: string;
+}

@@ -74,7 +74,7 @@ export class AccountServiceModule {
         .addServer(this.configService.get<string>('API_HOST'))
         .setTitle('Account Docs')
         .setDescription('Account endpoints...')
-        .setVersion('2.0')
+        .setVersion('1.0')
         .build(),
     )(AccountServiceModule);
   }

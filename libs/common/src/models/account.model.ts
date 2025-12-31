@@ -262,11 +262,11 @@ export class AccountInfo {
   @ApiProperty({ example: false })
   isAccountDisabled: boolean;
 
-  @ApiProperty({ example: 'https://lit.jpg' })
-  businessAvatar: string;
+  // @ApiProperty({ example: 'https://lit.jpg' })
+  // businessAvatar: string;
 
-  @ApiProperty({ example: 'Ade Events' })
-  businessName: string;
+  // @ApiProperty({ example: 'Ade Events' })
+  // businessName: string;
 
   @ApiProperty({ example: false })
   isPasswordUpdated: boolean;

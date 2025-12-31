@@ -20,8 +20,9 @@ export class FetchBusinessInfoQueryHandler implements IQueryHandler<
 
   async execute(query: FetchBusinessInfoQuery) {
     try {
+      this.logger.log('[FETCH-BUSINESS-INFO-PROCESSING]');
+      
       const { secureUser } = query;
-
       
       const business = await this.businessRepository.findOne({
         where: [
@@ -39,7 +40,7 @@ export class FetchBusinessInfoQueryHandler implements IQueryHandler<
       });
 
       if (!business) {
-        throw new NotFoundException(`Business record not found for user ${secureUser.id}`);
+        throw new NotFoundException(`Business record not found for user`);
       }
 
       this.logger.log('[FETCH-BUSINESS-INFO-SUCCESS]');

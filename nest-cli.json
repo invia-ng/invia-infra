@@ -34,6 +34,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/notification-service/tsconfig.lib.json"
       }
+    },
+    "event-service": {
+      "type": "library",
+      "root": "libs/event-service",
+      "entryFile": "index",
+      "sourceRoot": "libs/event-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/event-service/tsconfig.lib.json"
+      }
     }
   }
 }

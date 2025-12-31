@@ -23,11 +23,16 @@ export enum NotificationType {
   PRODUCT = 'PRODUCT',
 }
 
-export enum PremiumSubscriptionPlanEnum {
-  ONE_MONTH = 'ONE_MONTH',
-  THREE_MONTHS = 'THREE_MONTHS',
-  SIX_MONTHS = 'SIX_MONTHS',
-  ONE_YEAR = 'ONE_YEAR',
+export enum EventCategoryEnum {
+  WEDDING = 'WEDDING',
+  PARTY = 'PARTY',
+  CORPORATE = 'CORPORATE',
+  OTHERS = 'OTHERS',
+}
+
+export enum GuestPartyEnum {
+  GROOM = 'GROOM',
+  BRIDE = 'BRIDE',
 }
 
 export enum UserRole {
