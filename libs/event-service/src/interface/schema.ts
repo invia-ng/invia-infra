@@ -26,3 +26,16 @@ export class GuestPartyInfo {
   })
   value: GuestPartyEnum;
 }
+
+export class DeleteDataInstanceInfo {
+  @ApiProperty({
+    example: true,
+  })
+  status: boolean;
+
+  @ApiProperty({
+    example: 'Instance deleted successfully.',
+  })
+  message: string;
+
+}

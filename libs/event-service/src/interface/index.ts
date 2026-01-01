@@ -19,7 +19,7 @@ import {
   trimTransformer,
   toLowerCaseTransformer,
 } from '@app/common/src/helpers/local-class-validator';
-import { EventCategoryEnum } from '@app/common/src/constants/enums';
+import { EventCategoryEnum, GuestPartyEnum } from '@app/common/src/constants/enums';
 
 export class CreateEventDTO {
   @ApiProperty({
@@ -62,4 +62,59 @@ export class CreateEventDTO {
   @IsNotEmpty()
   @IsString()
   location: string;
+}
+
+export class NewGuestDto {
+  @ApiProperty({
+    example: 'John Doe',
+    description: 'Guest name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    example: 'John Doe',
+    description: 'Guest name.',
+  })
+  @IsEnum(GuestPartyEnum)
+  @IsNotEmpty()
+  party: GuestPartyEnum;
+
+  @ApiProperty({
+    example: '+251911223344',
+    description: 'Guest phone.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
+
+  @ApiProperty({
+    example: 'john.doe@gmail.com',
+    description: 'Guest email.',
+  })
+  @IsString()
+  @IsOptional()
+  email?: string;
+}
+
+export class AddEventGuestsDTO {
+  @ApiProperty({
+    isArray: true,
+    type: NewGuestDto,
+    description: 'Array of product guests',
+    example: [
+      {
+        name: 'John Doe',
+        phone: '+251911223344',
+        party: GuestPartyEnum.GROOM,
+        email: 'john.doe@gmail.com',
+      },
+    ],
+  })
+  @IsArray()
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => NewGuestDto)
+  guests: NewGuestDto[];
 }

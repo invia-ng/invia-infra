@@ -6,6 +6,7 @@ import {
   Post,
   Body,
   Query,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,16 +15,17 @@ import {
   ApiInternalServerErrorResponse,
   ApiQuery,
 } from '@nestjs/swagger';
-import { CreateEventDTO } from '../interface';
+import { AddEventGuestsDTO, CreateEventDTO } from '../interface';
 import { FetchEventGuestsQuery, FetchEventsQuery } from '../queries/impl';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateEventCommand } from '../commands/impl';
+import { AddEventGuestsCommand, CreateEventCommand, DeleteEventGuestCommand } from '../commands/impl';
 import { EventService } from '../services/event.service';
 import { SecureUserPayload } from '@app/common/src/interface';
 import { EventInfo, EventsResponse } from '@app/common/src/models/event.model';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
-import { GuestsResponse } from '@app/common/src/models/guest.model';
+import { GuestInfo, GuestsResponse } from '@app/common/src/models/guest.model';
+import { DeleteDataInstanceInfo } from '../interface/schema';
 
 @ApiTags('event')
 @Controller({ path: '' })
@@ -64,6 +66,22 @@ export class EventController {
         page,
         pageSize,
         secureUser,
+      ),
+    );
+  }
+
+  @Post('create')
+  @ApiOkResponse({ type:  EventInfo })
+  @ApiInternalServerErrorResponse()
+  async createEvent(
+    @Req() req: Request,
+    @Body() body: CreateEventDTO,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<EventInfo> {
+    return await this.command.execute(
+      new CreateEventCommand(
+        secureUser,
+        body,
       ),
     );
   }
@@ -109,18 +127,57 @@ export class EventController {
     );
   }
 
-  @Post('create')
-  @ApiOkResponse({ type:  EventInfo })
+  @Post('guests/add')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiOkResponse({ type:  GuestInfo, isArray: true })
   @ApiInternalServerErrorResponse()
-  async createEvent(
-    @Req() req: Request,
-    @Body() body: CreateEventDTO,
+  async addEventGuests(
+    @Body() body: AddEventGuestsDTO,
+    @Query('eventId') eventId: number,
     @SecureUser() secureUser: SecureUserPayload,
-  ): Promise<EventInfo> {
+  ): Promise<GuestInfo[]> {
     return await this.command.execute(
-      new CreateEventCommand(
-        secureUser,
+      new AddEventGuestsCommand(
+        eventId,
         body,
+        secureUser,
+      ),
+    );
+  }
+
+  @Delete('guests/delete')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'guestId',
+    description: 'Guest Primary ID',
+  })
+  @ApiOkResponse({ type:  DeleteDataInstanceInfo, })
+  @ApiInternalServerErrorResponse()
+  async deleteEventGuest(
+    @Query('guestId') guestId: number,
+    @Query('eventId') eventId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<DeleteDataInstanceInfo> {
+    return await this.command.execute(
+      new DeleteEventGuestCommand(
+        guestId,
+        eventId,
+        secureUser,
       ),
     );
   }

@@ -2,7 +2,7 @@ import {
   Index,
   Column,
   Entity,
-  OneToOne,
+  ManyToOne,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
@@ -11,6 +11,7 @@ import {
 import { Event } from './event.model';
 import { GuestPartyEnum } from '../constants/enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { GuestPartyInfo } from '@app/event-service/src/interface/schema';
 
 @Entity()
 export class Guest {
@@ -91,7 +92,7 @@ export class Guest {
   })
   isInviteRSVP: boolean;
 
-  @OneToOne(() => Event, {
+  @ManyToOne(() => Event, {
     onDelete: 'CASCADE',
     eager: true,
   })
@@ -140,6 +141,23 @@ export class GuestsResponse {
     type: GuestInfo,
   })
   guests: GuestInfo[];
+
+  @ApiProperty({
+    isArray: true,
+    type: GuestPartyInfo,
+    description: 'Guest parties',
+    example: [
+      {
+        title:'Groom', 
+        value:GuestPartyEnum.GROOM
+      },
+      {
+        title:'Bride', 
+        value:GuestPartyEnum.BRIDE
+      },
+    ],
+  })
+  guestParties: GuestPartyInfo[];
 
   @ApiProperty({
     example: 1,

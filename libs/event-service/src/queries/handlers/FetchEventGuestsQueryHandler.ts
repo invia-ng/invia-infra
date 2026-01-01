@@ -1,9 +1,8 @@
+import { Inject } from '@nestjs/common';
 import { Raw, Repository } from 'typeorm';
 import { FetchEventGuestsQuery } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Inject, NotFoundException } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
@@ -17,8 +16,6 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Guest)
     private readonly guestRepository: Repository<Guest>,
-    @InjectRepository(Business)
-    private readonly businessRepository: Repository<Business>,
   ) {}
 
   async execute(query: FetchEventGuestsQuery) {
@@ -50,6 +47,7 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
         totalPages,
         totalInvites: totalCount,
 				guests: guests.map((guest) => modelsFormatter.FormatGuestInfo(guest)),
+        guestParties: modelsFormatter.FormatGuestPartyInfo(guests.map((guest) => guest.party)),
 			} as unknown as GuestsResponse;
     }catch(error){
 			this.logger.error('[FETCH-EVENT-GUESTS-QUERY-ERROR]', error);
