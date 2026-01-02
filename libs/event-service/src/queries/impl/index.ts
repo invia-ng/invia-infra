@@ -24,3 +24,23 @@ export class FetchEventGuestsQuery {
 		public readonly secureUser: SecureUserPayload,
 	){}
 }
+
+export class FetchMessageTemplateVariablesQuery {
+	constructor(){}
+}
+
+export class FetchMessageTemplatesQuery {
+	constructor(
+		public readonly page: number,
+		public readonly pageSize: number,
+		public readonly secureUser: SecureUserPayload,
+	){}
+}
+
+export class FetchMessageTemplateFollowupConditionsQuery {
+	constructor(){}
+}
+
+export class FetchMessageTemplateFollowupIntervalsQuery {
+	constructor(){}
+}

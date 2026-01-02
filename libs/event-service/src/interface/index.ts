@@ -12,6 +12,8 @@ import {
   IsArray,
   ValidateNested,
   IsDate,
+  IsBoolean,
+  isEnum,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -19,7 +21,7 @@ import {
   trimTransformer,
   toLowerCaseTransformer,
 } from '@app/common/src/helpers/local-class-validator';
-import { EventCategoryEnum, GuestPartyEnum } from '@app/common/src/constants/enums';
+import { EventCategoryEnum, FollowupConditionEnum, FollowupIntervalEnum, GuestPartyEnum } from '@app/common/src/constants/enums';
 
 export class CreateEventDTO {
   @ApiProperty({
@@ -117,4 +119,104 @@ export class AddEventGuestsDTO {
   @ValidateNested()
   @Type(() => NewGuestDto)
   guests: NewGuestDto[];
+}
+
+export class AddMessageTemplateDTO {
+  @ApiProperty({
+    example: 'John Doe',
+    description: 'Message template name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    enum: EventCategoryEnum,
+    description: 'Event Type.',
+    example: EventCategoryEnum.ALL,
+  })
+  @IsEnum(EventCategoryEnum)
+  @IsNotEmpty()
+  eventType: EventCategoryEnum;
+
+  @ApiProperty({
+    description: 'Message template.',
+    example: 'Hello {{name}}, you are invited to {{eventType}}',
+  })
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+
+  @ApiProperty({
+    example: false,
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  sendFollowup: boolean;
+
+  @ApiProperty({
+    enum: FollowupConditionEnum,
+    example: FollowupConditionEnum.NO_RSVP,
+  })
+  @IsEnum(FollowupConditionEnum)
+  @IsOptional()
+  followupCondition?: FollowupConditionEnum;
+
+  @ApiProperty({
+    enum: FollowupIntervalEnum,
+    example: FollowupIntervalEnum.FIVE_DAYS,
+  })
+  @IsEnum(FollowupIntervalEnum)
+  @IsOptional()
+  followupInterval?: FollowupIntervalEnum;
+}
+
+export class UpdateMessageTemplateDTO {
+    @ApiProperty({
+    example: 'John Doe',
+    description: 'Message template name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    enum: EventCategoryEnum,
+    description: 'Event Type.',
+    example: EventCategoryEnum.ALL,
+  })
+  @IsEnum(EventCategoryEnum)
+  @IsNotEmpty()
+  eventType: EventCategoryEnum;
+
+  @ApiProperty({
+    description: 'Message template.',
+    example: 'Hello {{name}}, you are invited to {{eventType}}',
+  })
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+
+  @ApiProperty({
+    example: false,
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  sendFollowup: boolean;
+
+  @ApiProperty({
+    enum: FollowupConditionEnum,
+    example: FollowupConditionEnum.NO_RSVP,
+  })
+  @IsEnum(FollowupConditionEnum)
+  @IsOptional()
+  followupCondition?: FollowupConditionEnum;
+
+  @ApiProperty({
+    enum: FollowupIntervalEnum,
+    example: FollowupIntervalEnum.FIVE_DAYS,
+  })
+  @IsEnum(FollowupIntervalEnum)
+  @IsOptional()
+  followupInterval?: FollowupIntervalEnum;
 }

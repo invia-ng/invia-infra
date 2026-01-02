@@ -24,10 +24,32 @@ export enum NotificationType {
 }
 
 export enum EventCategoryEnum {
+  ALL = 'ALL',
   WEDDING = 'WEDDING',
   PARTY = 'PARTY',
   CORPORATE = 'CORPORATE',
   OTHERS = 'OTHERS',
+}
+
+export enum MessageTemplateEnum {
+  GUEST_NAME = 'guest_name',
+  EVENT_NAME = 'event_name',
+  EVENT_DATE = 'event_date',
+  EVENT_TIME = 'event_time',
+  EVENT_LOCATION = 'event_location',
+  GUEST_PARTY = 'guest_party',
+}
+
+export enum FollowupConditionEnum {
+  NO_RSVP = 'NO_RSVP',
+}
+
+export enum FollowupIntervalEnum {
+  TWO_DAYS = '2_DAYS',
+  THREE_DAYS = '3_DAYS',
+  FOUR_DAYS = '4_DAYS',
+  FIVE_DAYS = '5_DAYS',
+  ONE_WEEK = '1_WEEK',
 }
 
 export enum GuestPartyEnum {

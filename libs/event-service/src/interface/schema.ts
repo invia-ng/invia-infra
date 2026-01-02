@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { EventCategoryEnum, GuestPartyEnum } from '@app/common/src/constants/enums';
+import { EventCategoryEnum, FollowupConditionEnum, FollowupIntervalEnum, GuestPartyEnum, MessageTemplateEnum } from '@app/common/src/constants/enums';
 
 export class EventCategoryInfo {
 	@ApiProperty({
@@ -25,6 +25,45 @@ export class GuestPartyInfo {
     example: GuestPartyEnum.GROOM,
   })
   value: GuestPartyEnum;
+}
+
+export class MessageTemplateEnumInfo {
+	@ApiProperty({
+		example: 'Guest Name',
+	})
+	title: string;
+
+  @ApiProperty({
+    enum: MessageTemplateEnum,
+    example: MessageTemplateEnum.GUEST_NAME,
+  })
+  value: MessageTemplateEnum;
+}
+
+export class MessageTemplateFollowupConditionInfo {
+	@ApiProperty({
+		example: 'If no RSVP',
+	})
+	title: string;
+
+  @ApiProperty({
+    enum: FollowupConditionEnum,
+    example: FollowupConditionEnum.NO_RSVP,
+  })
+  value: FollowupConditionEnum;
+}
+
+export class MessageTemplateFollowupIntervalInfo {
+	@ApiProperty({
+		example: 'If no RSVP',
+	})
+	title: string;
+
+  @ApiProperty({
+    enum: FollowupIntervalEnum,
+    example: FollowupIntervalEnum.FIVE_DAYS,
+  })
+  value: FollowupIntervalEnum;
 }
 
 export class DeleteDataInstanceInfo {

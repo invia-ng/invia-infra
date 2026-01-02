@@ -3,16 +3,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { DeleteEventGuestCommand } from '../impl';
+import { RemoveEventGuestCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Guest } from '@app/common/src/models/guest.model';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteDataInstanceInfo } from '../../interface/schema';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 
-@CommandHandler(DeleteEventGuestCommand)
-export class DeleteEventGuestHandler
-  implements ICommandHandler<DeleteEventGuestCommand, DeleteDataInstanceInfo>
+@CommandHandler(RemoveEventGuestCommand)
+export class RemoveEventGuestHandler
+  implements ICommandHandler<RemoveEventGuestCommand, DeleteDataInstanceInfo>
 {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
@@ -20,9 +20,9 @@ export class DeleteEventGuestHandler
     private readonly guestRepository: Repository<Guest>,
   ) {}
 
-  async execute(command: DeleteEventGuestCommand) {
+  async execute(command: RemoveEventGuestCommand) {
     try {
-      this.logger.log(`[CREATE-EVENT-HANDLER-PROCESSING]`);
+      this.logger.log(`[REMOVE-EVENT-GUEST-HANDLER-PROCESSING]`);
 
       const { guestId, eventId, secureUser } = command;
 
@@ -41,14 +41,14 @@ export class DeleteEventGuestHandler
 
       await this.guestRepository.remove(guest);
 
-      this.logger.log(`[CREATE-EVENT-HANDLER-SUCCESS]`);
+      this.logger.log(`[REMOVE-EVENT-GUEST-HANDLER-SUCCESS]`);
 
       return {
         status: true,
         message: 'Guest removed from event successfully.',
       };
     } catch (error) {
-      this.logger.log(`[CREATE-EVENT-HANDLER-ERROR] :: ${error}`);
+      this.logger.log(`[REMOVE-EVENT-GUEST-HANDLER-ERROR] :: ${error}`);
 
       throw error;
     }

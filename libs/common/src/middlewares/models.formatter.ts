@@ -2,9 +2,10 @@ import { Event, EventInfo } from "../models/event.model";
 import {Account, AccountInfo} from "../models/account.model";
 import { Business, BusinessInfo } from "../models/business.model";
 import { Notification, NotificationInfo } from "../models/notification.model";
-import { EventCategoryEnum, GuestPartyEnum } from "../constants/enums";
-import { EventCategoryInfo, GuestPartyInfo } from "@app/event-service/src/interface/schema";
+import { EventCategoryEnum, FollowupConditionEnum, FollowupIntervalEnum, GuestPartyEnum, MessageTemplateEnum } from "../constants/enums";
+import { EventCategoryInfo, GuestPartyInfo, MessageTemplateFollowupConditionInfo, MessageTemplateFollowupIntervalInfo, MessageTemplateEnumInfo } from "@app/event-service/src/interface/schema";
 import { Guest, GuestInfo } from "../models/guest.model";
+import { MessageTemplate, MessageTemplateInfo } from "../models/message.template.model";
 
 
 export function FormatNotification(
@@ -116,6 +117,122 @@ export function FormatGuestPartyInfo(
     }) as unknown as GuestPartyInfo[];
 }
 
+export function FormatMessageTemplateEnumInfo(
+    guestParty: MessageTemplateEnum[],
+): MessageTemplateEnumInfo[] {
+    return guestParty.map((category) => {
+      switch(category){
+        case MessageTemplateEnum.GUEST_NAME:
+          return {
+            title: 'Guest Name',
+            value: `{${category}}`,
+          } 
+        case MessageTemplateEnum.EVENT_NAME:
+          return {
+            title: 'Event Name',
+            value: `{${category}}`,
+          } 
+        case MessageTemplateEnum.EVENT_DATE:
+          return {
+            title: 'Event Date',
+            value: `{${category}}`,
+          } 
+        case MessageTemplateEnum.EVENT_TIME:
+          return {
+            title: 'Event Time',
+            value: `{${category}}`,
+          } 
+        case MessageTemplateEnum.EVENT_LOCATION:
+          return {
+            title: 'Event Location',
+            value: `{${category}}`,
+          } 
+        case MessageTemplateEnum.GUEST_PARTY:
+          return {
+            title: 'Guest Party',
+            value: `{${category}}`,
+          } 
+        default:
+          return {
+            title: category,
+            value: `{${category}}`,
+          } 
+      }
+    }) as unknown as MessageTemplateEnumInfo[];
+}
+
+export function FormatMessageFollowupConditionInfo(
+    guestParty: FollowupConditionEnum[],
+): MessageTemplateFollowupConditionInfo[] {
+    return guestParty.map((category) => {
+      switch(category){
+        case FollowupConditionEnum.NO_RSVP:
+          return {
+            title: 'If no RSVP',
+            value: category,
+          } 
+        default:
+          return {
+            title: category,
+            value: category,
+          } 
+      }
+    }) as unknown as MessageTemplateFollowupConditionInfo[];
+}
+
+export function FormatMessageFollowupIntervalInfo(
+    guestParty: FollowupIntervalEnum[],
+): MessageTemplateFollowupIntervalInfo[] {
+    return guestParty.map((category) => {
+      switch(category){
+        case FollowupIntervalEnum.TWO_DAYS:
+          return {
+            title: '2 days',
+            value: category,
+          } 
+        case FollowupIntervalEnum.THREE_DAYS:
+          return {
+            title: '3 days',
+            value: category,
+          } 
+        case FollowupIntervalEnum.FOUR_DAYS:
+          return {
+            title: '4 days',
+            value: category,
+          } 
+        case FollowupIntervalEnum.FIVE_DAYS:
+          return {
+            title: '5 days',
+            value: category,
+          } 
+        case FollowupIntervalEnum.ONE_WEEK:
+          return {
+            title: '1 week',
+            value: category,
+          } 
+        default:
+          return {
+            title: category,
+            value: category,
+          } 
+      }
+    }) as unknown as MessageTemplateFollowupIntervalInfo[];
+}
+
+export function FormatMessageTemplateInfo(
+  template: MessageTemplate,
+): MessageTemplateInfo {
+  return {
+    id: template.id.toString(),
+    name: template.name,
+    eventType: template.eventType,
+    message: template.message,
+    sendFollowup: template.sendFollowup,
+    followupCondition: template.followupCondition,
+    followupInterval: template.followupInterval,
+  } as unknown as MessageTemplateInfo;
+}
+
 export function FormatEventCategoryInfo(
     eventCategory: EventCategoryEnum[],
 ): EventCategoryInfo[] {
@@ -158,4 +275,8 @@ export default {
   FormatBusinessInfo,
   FormatGuestPartyInfo,
   FormatEventCategoryInfo,
+  FormatMessageTemplateInfo,
+  FormatMessageTemplateEnumInfo,
+  FormatMessageFollowupIntervalInfo,
+  FormatMessageFollowupConditionInfo,
 };

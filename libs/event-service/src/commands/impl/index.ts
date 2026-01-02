@@ -1,5 +1,5 @@
 import { SecureUserPayload } from '@app/common/src/interface';
-import { AddEventGuestsDTO, CreateEventDTO } from '../../interface';
+import { AddEventGuestsDTO, AddMessageTemplateDTO, CreateEventDTO, UpdateMessageTemplateDTO } from '../../interface';
 
 export class CreateEventCommand {
     constructor(
@@ -16,10 +16,40 @@ export class AddEventGuestsCommand {
     ){}
 }
 
-export class DeleteEventGuestCommand {
+export class RemoveEventGuestCommand {
     constructor(
         public readonly eventId: number,
         public readonly guestId: number,
+        public readonly secureUser: SecureUserPayload,
+    ){}
+}
+
+export class RemoveMultipleEventGuestsCommand {
+    constructor(
+        public readonly eventId: number,
+        public readonly guestIds: number[],
+        public readonly secureUser: SecureUserPayload,
+    ){}
+}
+
+export class CreateMessageTemplateCommand {
+    constructor(
+        public readonly secureUser: SecureUserPayload,
+        public readonly payload: AddMessageTemplateDTO,
+    ){}
+}
+
+export class UpdateMessageTemplateCommand {
+    constructor(
+        public readonly secureUser: SecureUserPayload,
+        public readonly messageId: number,
+        public readonly payload: UpdateMessageTemplateDTO,
+    ){}
+}
+
+export class DeleteMessageTemplateCommand {
+    constructor(
+        public readonly messageId: number,
         public readonly secureUser: SecureUserPayload,
     ){}
 }

@@ -19,6 +19,8 @@ import { AppLogger } from '../../common/src/logger/logger.service';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
 import { EventHelperController } from './controllers/event.helper.controller';
+import { EventMessageController } from './controllers/event.message.controller';
+import { MessageTemplate } from '@app/common/src/models/message.template.model';
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
 import { EmailSenderService } from '@app/helper-service/src/services/email-sender.service';
 
@@ -35,10 +37,12 @@ import { EmailSenderService } from '@app/helper-service/src/services/email-sende
       Setting,
       Business,
       Notification,
+      MessageTemplate,
     ]),
   ],
   controllers: [
     EventController,
+    EventMessageController,
     EventHelperController,
   ],
   providers: [
