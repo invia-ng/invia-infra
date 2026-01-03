@@ -24,10 +24,7 @@ export function MessageTemplateParser(template: string, event: Event, guest: Gue
         message = message.replace(new RegExp(`{${variable}}`, 'g'), event.location);
         break;
       case MessageTemplateEnum.GUEST_PARTY:
-        const partyInfo = modelsFormatter.FormatGuestPartyInfo([guest.party]);
-        if (partyInfo && partyInfo.length > 0) {
-           message = message.replace(new RegExp(`{${variable}}`, 'g'), partyInfo[0].title);
-        }
+        message = message.replace(new RegExp(`{${variable}}`, 'g'), guest.party);
         break;
     }
   });

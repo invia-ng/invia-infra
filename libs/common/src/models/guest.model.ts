@@ -22,15 +22,13 @@ export class Guest {
 
   @Column({
     nullable: true,
-    type: 'enum',
-    enum: GuestPartyEnum,
-    default: GuestPartyEnum.GROOM,
+    default: '',
   })
   @ApiPropertyOptional({
     description: 'Guest party',
-    example: GuestPartyEnum.GROOM,
+    example: 'Groom',
   })
-  party: GuestPartyEnum;
+  party: string;
 
   @Column({
     nullable: true,
@@ -114,10 +112,9 @@ export class GuestInfo {
   name: string;
 
   @ApiProperty({ 
-    enum: GuestPartyEnum,
-    example: GuestPartyEnum.GROOM,
+    example: 'Groom',
   })
-  party: GuestPartyEnum;
+  party: string;
 
   @ApiProperty({ example: 'tunde@gmail.com' })
   email: string;
@@ -144,20 +141,10 @@ export class GuestsResponse {
 
   @ApiProperty({
     isArray: true,
-    type: GuestPartyInfo,
+    type: String,
     description: 'Guest parties',
-    example: [
-      {
-        title:'Groom', 
-        value:GuestPartyEnum.GROOM
-      },
-      {
-        title:'Bride', 
-        value:GuestPartyEnum.BRIDE
-      },
-    ],
   })
-  guestParties: GuestPartyInfo[];
+  guestParties: string[];
 
   @ApiProperty({
     example: 1,

@@ -64,6 +64,8 @@ export class AddEventGuestsHandler
 
           const _guest = this.guestRepository.create({
             name: guest.name,
+            email: guest.email,
+            party: guest.party,
             phone: guest.phone,
             event: eventInstance,
           })

@@ -46,8 +46,8 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
         hasNext,
         totalPages,
         totalInvites: totalCount,
+        guestParties: guests.map((guest) => guest.party),
 				guests: guests.map((guest) => modelsFormatter.FormatGuestInfo(guest)),
-        guestParties: modelsFormatter.FormatGuestPartyInfo(guests.map((guest) => guest.party)),
 			} as unknown as GuestsResponse;
     }catch(error){
 			this.logger.error('[FETCH-EVENT-GUESTS-QUERY-ERROR]', error);

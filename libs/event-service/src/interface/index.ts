@@ -79,9 +79,9 @@ export class NewGuestDto {
     example: 'John Doe',
     description: 'Guest name.',
   })
-  @IsEnum(GuestPartyEnum)
+  @IsString()
   @IsNotEmpty()
-  party: GuestPartyEnum;
+  party: string;
 
   @ApiProperty({
     example: '+251911223344',
@@ -107,9 +107,9 @@ export class AddEventGuestsDTO {
     description: 'Array of product guests',
     example: [
       {
+        party: 'Groom',
         name: 'John Doe',
         phone: '+251911223344',
-        party: GuestPartyEnum.GROOM,
         email: 'john.doe@gmail.com',
       },
     ],

@@ -175,8 +175,8 @@ export class EventController {
   ): Promise<DeleteDataInstanceInfo> {
     return await this.command.execute(
       new RemoveEventGuestCommand(
-        guestId,
         eventId,
+        guestId,
         secureUser,
       ),
     );
