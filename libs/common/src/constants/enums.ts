@@ -41,15 +41,21 @@ export enum MessageTemplateEnum {
 }
 
 export enum FollowupConditionEnum {
+  RSVP = 'RSVP',
   NO_RSVP = 'NO_RSVP',
 }
 
 export enum FollowupIntervalEnum {
+  ONE_DAY = '1_DAY',
   TWO_DAYS = '2_DAYS',
   THREE_DAYS = '3_DAYS',
   FOUR_DAYS = '4_DAYS',
   FIVE_DAYS = '5_DAYS',
-  ONE_WEEK = '1_WEEK',
+  SIX_DAYS = '6_DAYS',
+  SEVEN_DAYS = '7_DAYS',
+  EIGHT_DAYS = '8_DAYS',
+  NINE_DAYS = '9_DAYS',
+  TEN_DAYS = '10_DAYS',
 }
 
 export enum GuestPartyEnum {

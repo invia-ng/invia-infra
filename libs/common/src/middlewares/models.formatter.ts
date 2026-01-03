@@ -166,6 +166,11 @@ export function FormatMessageFollowupConditionInfo(
 ): MessageTemplateFollowupConditionInfo[] {
     return guestParty.map((category) => {
       switch(category){
+        case FollowupConditionEnum.RSVP:
+          return {
+            title: 'If RSVP',
+            value: category,
+          } 
         case FollowupConditionEnum.NO_RSVP:
           return {
             title: 'If no RSVP',
@@ -185,6 +190,11 @@ export function FormatMessageFollowupIntervalInfo(
 ): MessageTemplateFollowupIntervalInfo[] {
     return guestParty.map((category) => {
       switch(category){
+        case FollowupIntervalEnum.ONE_DAY:
+          return {
+            title: '1 day',
+            value: category,
+          } 
         case FollowupIntervalEnum.TWO_DAYS:
           return {
             title: '2 days',
@@ -205,9 +215,29 @@ export function FormatMessageFollowupIntervalInfo(
             title: '5 days',
             value: category,
           } 
-        case FollowupIntervalEnum.ONE_WEEK:
+        case FollowupIntervalEnum.SIX_DAYS:
           return {
-            title: '1 week',
+            title: '6 days',
+            value: category,
+          } 
+        case FollowupIntervalEnum.SEVEN_DAYS:
+          return {
+            title: '7 days',
+            value: category,
+          } 
+        case FollowupIntervalEnum.EIGHT_DAYS:
+          return {
+            title: '8 days',
+            value: category,
+          } 
+        case FollowupIntervalEnum.NINE_DAYS:
+          return {
+            title: '9 days',
+            value: category,
+          } 
+        case FollowupIntervalEnum.TEN_DAYS:
+          return {
+            title: '10 days',
             value: category,
           } 
         default:
