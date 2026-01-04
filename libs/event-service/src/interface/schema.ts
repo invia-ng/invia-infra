@@ -78,3 +78,22 @@ export class DeleteDataInstanceInfo {
   message: string;
 
 }
+
+export class GenerateShareFormPasscodeInfo {
+  @ApiProperty({
+    example: '123456',
+  })
+  passcode: string;
+
+  @ApiProperty({
+    example: '1 hour',
+  })
+  passcodeExpires: string;
+}
+
+export class AuthenticateShareFormInfo {
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+  })
+  accessToken: string;
+}

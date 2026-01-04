@@ -18,11 +18,13 @@ import { EventServiceCommandHandlers } from './commands/handlers';
 import { AppLogger } from '../../common/src/logger/logger.service';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
+import { EventAdminController } from './controllers/event.admin.controller';
 import { EventHelperController } from './controllers/event.helper.controller';
 import { EventMessageController } from './controllers/event.message.controller';
 import { MessageTemplate } from '@app/common/src/models/message.template.model';
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
 import { EmailSenderService } from '@app/helper-service/src/services/email-sender.service';
+import { EventAuthorController } from './controllers/event.author.controller';
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { EmailSenderService } from '@app/helper-service/src/services/email-sende
   ],
   controllers: [
     EventController,
+    EventAdminController,
+    EventAuthorController,
     EventMessageController,
     EventHelperController,
   ],

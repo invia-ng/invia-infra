@@ -1,18 +1,20 @@
 import {
   Inject,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RemoveMultipleEventGuestsCommand } from '../impl';
 import { Guest } from '@app/common/src/models/guest.model';
+import authUtils from '@app/common/src/security/auth.utils';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DeleteDataInstanceInfo } from '../../interface/schema';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
+import { DeleteDataInstanceInfo } from '../../../interface/schema';
+import { RemoveMultipleEventAuthorGuestsCommand } from '../../impl';
 
-@CommandHandler(RemoveMultipleEventGuestsCommand)
-export class RemoveMultipleEventGuestsHandler
-  implements ICommandHandler<RemoveMultipleEventGuestsCommand, DeleteDataInstanceInfo>
+@CommandHandler(RemoveMultipleEventAuthorGuestsCommand)
+export class RemoveMultipleEventAuthorGuestsHandler
+  implements ICommandHandler<RemoveMultipleEventAuthorGuestsCommand, DeleteDataInstanceInfo>
 {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
@@ -20,11 +22,23 @@ export class RemoveMultipleEventGuestsHandler
     private readonly guestRepository: Repository<Guest>,
   ) {}
 
-  async execute(command: RemoveMultipleEventGuestsCommand) {
+  async execute(command: RemoveMultipleEventAuthorGuestsCommand) {
     try {
       this.logger.log(`[REMOVE-MULTIPLE-EVENT-GUESTS-HANDLER-PROCESSING]`);
 
-      const { guestIds, eventId, secureUser } = command;
+      const { guestIds, accessToken } = command;
+
+      const isTokenExpired = authUtils.isAccessTokenExpired(accessToken);
+                  
+      // console.log('[TOKEN] :: ', accessToken, isTokenExpired)
+
+      if(isTokenExpired){
+        this.logger.log('[FETCH-EVENT-GUESTS-QUERY-ERROR]');
+
+        throw new UnauthorizedException('Invalid access token');
+      }
+
+      const decodedToken = authUtils.decodeAccessToken(accessToken);
 
       let ids = Array.isArray(guestIds) ? guestIds : [guestIds];
       ids = ids.map((id) => Number(id));
@@ -33,7 +47,7 @@ export class RemoveMultipleEventGuestsHandler
         where: {
           id: In(ids),
           event: {
-            id: eventId,
+            id: decodedToken.eventId,
           },
         },
       });

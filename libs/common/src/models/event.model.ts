@@ -79,6 +79,26 @@ export class Event {
     description: 'Event hash',
   })
   hash: string;
+  
+  @Column({
+    nullable: true,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    example: '1234',
+    description: 'Event passcode',
+  })
+  passcode: string;
+
+  @Column({
+    default: null,
+    nullable: true,
+    type: 'timestamp',
+  })
+  @ApiPropertyOptional({
+    description: 'Passcode expires by e.g 2024-11-10_T_11:29:22',
+  })
+  passcodeExpires: Date;
 
   @OneToOne(() => Business, {
     onDelete: 'CASCADE',

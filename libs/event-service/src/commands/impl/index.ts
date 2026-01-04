@@ -53,3 +53,38 @@ export class DeleteMessageTemplateCommand {
         public readonly secureUser: SecureUserPayload,
     ){}
 }
+
+export class GenerateShareFormPasscodeCommand {
+    constructor(
+        public readonly eventId: number,
+        public readonly secureUser: SecureUserPayload,
+    ){}
+}
+
+export class AuthenticateShareFormPasscodeCommand {
+    constructor(
+        public readonly eventHash: string,
+        public readonly passcode: string,
+    ){}
+}
+
+export class AddEventAuthorGuestsCommand {
+    constructor(
+        public readonly payload: AddEventGuestsDTO,
+        public readonly accessToken: string,
+    ){}
+}
+
+export class RemoveEventAuthorGuestCommand {
+    constructor(
+        public readonly guestId: number,
+        public readonly accessToken: string,
+    ){}
+}
+
+export class RemoveMultipleEventAuthorGuestsCommand {
+    constructor(
+        public readonly guestIds: number[],
+        public readonly accessToken: string,
+    ){}
+}

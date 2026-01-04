@@ -44,3 +44,11 @@ export class FetchMessageTemplateFollowupConditionsQuery {
 export class FetchMessageTemplateFollowupIntervalsQuery {
 	constructor(){}
 }
+
+export class FetchEventAuthorGuestsQuery {
+	constructor(
+		public readonly page: number,
+		public readonly pageSize: number,
+		public readonly accessToken: string,
+	){}
+}

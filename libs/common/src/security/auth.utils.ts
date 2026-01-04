@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcrypt';
+import { AccessTokenPayload } from '../interface';
 
 const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, parseInt(process.env.AUTH_SALT_ROUNDS));
@@ -51,11 +52,33 @@ function generateFutureDate(
   return futureDate;
 }
 
+
+function generateAccessToken(payload: AccessTokenPayload): string {
+  return Buffer.from(JSON.stringify(payload)).toString('base64');
+}
+
+function decodeAccessToken(code: string): AccessTokenPayload {
+  const { jti, iat, ...payload } = JSON.parse(
+    Buffer.from(code, 'base64').toString('utf8'),
+  );
+  return payload;
+}
+
+function isAccessTokenExpired(code: string): boolean {
+  const { expiresAt } = JSON.parse(
+    Buffer.from(code, 'base64').toString('utf8'),
+  );
+  return new Date() > new Date(expiresAt);
+}
+
 export default {
-  comparePassword,
   hashPassword,
+  comparePassword,
   getOriginHeader,
+  decodeAccessToken,
   generateRandomPin,
+  generateAccessToken,
   generateFutureDate,
+  isAccessTokenExpired,
   isDatePastThreeMonths,
 };
