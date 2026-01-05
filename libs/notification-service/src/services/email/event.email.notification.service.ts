@@ -41,9 +41,11 @@ onModuleInit() {
       this.logger.log(`[INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-PROCESSING]`);
 
       const htmlContent = await invite_event_guest_email_html_content({
-        event: invitation.event.name,
         message: invitation.message,
+        event: invitation.event.name,
         hasCoverImage: invitation.image.length > 0,
+        businessName: invitation.event.business.name,
+        webappUrl: this.configService.get<string>('WEB_APP_URL'),
         acceptLink: this.configService.get<string>('WEB_APP_URL').concat(`/invitations?invitationHash=${invitation.hash}&acceptInvite=true`),
         rejectLink: this.configService.get<string>('WEB_APP_URL').concat(`/invitations?invitationHash=${invitation.hash}&acceptInvite=false`),
         image: invitation.image.length > 0 ? invitation.image : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
@@ -53,13 +55,13 @@ onModuleInit() {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
           to: invitation.guest.email,
-          subject: 'You Are Invited!',
+          subject: `Event Invitation: ${invitation.event.name}`,
           from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
         }); 
       } else {
         this.emailSenderService.sendEmail({
           html: htmlContent,
-          sub: 'You Are Invited!',
+          sub: `Event Invitation: ${invitation.event.name}`,
           to_email: invitation.guest.email,
         });
       }
@@ -82,6 +84,8 @@ onModuleInit() {
         hasCoverImage: followupInvitation.invitation.image.length > 0,
         message: followupInvitation.message,
         event: followupInvitation.invitation.event.name,
+        webappUrl: this.configService.get<string>('WEB_APP_URL'),
+        businessName: followupInvitation.invitation.event.business.name,
         acceptLink: this.configService.get<string>('WEB_APP_URL').concat(`/invitations?invitationHash=${followupInvitation.invitation.hash}&acceptInvite=true`),
         rejectLink: this.configService.get<string>('WEB_APP_URL').concat(`/invitations?invitationHash=${followupInvitation.invitation.hash}&acceptInvite=false`),
         image: followupInvitation.invitation.image.length > 0 ? followupInvitation.invitation.image : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
@@ -90,14 +94,14 @@ onModuleInit() {
       if(this.adminSettings.isSMTPEnabled === true) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
+          subject: `Event Invitation: ${followupInvitation.invitation.event.name}`,
           to: followupInvitation.invitation.guest.email,
-          subject: 'You Are Invited!',
           from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
-        }); 
+        });
       } else {
         this.emailSenderService.sendEmail({
           html: htmlContent,
-          sub: 'You Are Invited!',
+          sub: `Event Invitation: ${followupInvitation.invitation.event.name}`,
           to_email: followupInvitation.invitation.guest.email,
         });
       }

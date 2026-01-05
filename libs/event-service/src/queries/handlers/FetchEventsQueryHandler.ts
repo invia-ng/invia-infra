@@ -6,6 +6,7 @@ import { Guest } from '@app/common/src/models/guest.model';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
+import { Invitation } from '@app/common/src/models/invitation.model';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Event, EventInfo, EventsResponse } from '@app/common/src/models/event.model';
 
@@ -22,6 +23,8 @@ export class FetchEventsQueryHandler implements IQueryHandler<
     private readonly guestRepository: Repository<Guest>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
+    @InjectRepository(Invitation)
+    private readonly invitationRepository: Repository<Invitation>,
   ) {}
 
   async execute(query: FetchEventsQuery) {
@@ -71,7 +74,7 @@ export class FetchEventsQueryHandler implements IQueryHandler<
         try {
           this.logger.log('[PROCESS-EVENT-INFO-PROCESSING]');
           
-          const guests = await this.guestRepository.find({
+          const guests = await this.guestRepository.count({
             where: {
               event: {
                 id: item.id,
@@ -79,15 +82,24 @@ export class FetchEventsQueryHandler implements IQueryHandler<
             },
           });
           
-          const totalInvites = guests.length;
-          const sentInvites = guests.filter((guest) => guest.isInviteSent).length;
-          const acceptedInvites = guests.filter((guest) => guest.isInviteRSVP).length;
-          const pendingInvites = guests.filter((guest) => !guest.isInviteRSVP === false).length;
-          const failedInvites = guests.filter((guest) => guest.isInviteDelivered === false).length;
+          const invitations = await this.invitationRepository.find({
+            where: {
+              event: {
+                id: item.id,
+              },
+            },
+          });
+
+          const totalInvites = invitations.length;
+          const sentInvites = invitations.filter((invite) => invite.isSent).length;
+          const acceptedInvites = invitations.filter((invite) => invite.isRSVP === true).length;
+          const pendingInvites = invitations.filter((invite) => invite.isSent === false).length;
+          const failedInvites = invitations.filter((invite) => invite.isDelivered === false).length;
 
           events.push(
             modelsFormatter.FormatEventInfo(
               item,
+              guests,
               totalInvites,
               sentInvites,
               acceptedInvites,

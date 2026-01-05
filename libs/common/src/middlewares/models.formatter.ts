@@ -56,25 +56,27 @@ export function FormatBusinessInfo(
 
 export function FormatEventInfo(
     event: Event,
-    totalInvites: number,
+    totalGuests: number,
     sentInvites: number,
+    totalInvites: number,
     acceptedInvites: number,
     pendingInvites: number,
     failedInvites: number,
 ): EventInfo {
   return {
-    id: event.id.toString(),
+    totalGuests,
+    sentInvites,
+    totalInvites,
+    failedInvites,
+    pendingInvites,
+    acceptedInvites,
     name: event.name,
     hash: event.hash,
     date: event.date,
     time: event.time,
+    id: event.id.toString(),
     category: event.category,
     location: event.location,
-    totalInvites,
-    sentInvites,
-    acceptedInvites,
-    pendingInvites,
-    failedInvites,
   } as unknown as EventInfo;
 }
 

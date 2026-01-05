@@ -142,6 +142,11 @@ export class EventInfo {
   @ApiProperty({
     example: 1,
   })
+  totalGuests: number;
+
+  @ApiProperty({
+    example: 1,
+  })
   totalInvites: number;
 
   @ApiProperty({

@@ -68,7 +68,7 @@ export class CreateEventHandler
 
       this.logger.log(`[CREATE-EVENT-HANDLER-SUCCESS]`);
 
-      return modelsFormatter.FormatEventInfo(event, 0, 0, 0, 0, 0);
+      return modelsFormatter.FormatEventInfo(event, 0, 0, 0, 0, 0, 0);
     } catch (error) {
       this.logger.log(`[CREATE-EVENT-HANDLER-ERROR] :: ${error}`);
 

@@ -4,7 +4,9 @@ export const invite_event_guest_email_html_content = (payload: {
 	message: string,
 	acceptLink: string,
 	rejectLink: string,
-    hasCoverImage: boolean,
+	webappUrl: string,
+	businessName: string,
+	hasCoverImage: boolean,
 }) => {
   return `
 <!DOCTYPE html>
@@ -65,8 +67,8 @@ export const invite_event_guest_email_html_content = (payload: {
 
         .title {
             font-size: 18px;
-            font-weight: bold;
             margin: 10px 0 0 0;
+            font-weight: 500;
         }
 
         .message {
@@ -82,8 +84,8 @@ export const invite_event_guest_email_html_content = (payload: {
         }
         
         #attend-btn {
-          width: 100%;
-          box-sizing: border-box;
+          width: 40%;
+          /* box-sizing: border-box; */
           padding: 12px 30px;
           color: #fff;
           text-align: center;
@@ -94,8 +96,8 @@ export const invite_event_guest_email_html_content = (payload: {
         }
         
         #reject-btn {
-          width: 100%;
-          box-sizing: border-box;
+          width: 40%;
+          /* box-sizing: border-box; */
           padding: 12px 30px;
           text-align: center;
           color: #575554;
@@ -105,6 +107,12 @@ export const invite_event_guest_email_html_content = (payload: {
           background-color: #fff;
           font-weight: bold;
         }
+
+				.footer {
+					margin-top: 30px;
+					text-align: center;
+					border-top: 1px solid #E5E5E5;
+				}
 
         /* Mobile responsiveness */
         @media only screen and (max-width: 600px) {
@@ -130,7 +138,7 @@ export const invite_event_guest_email_html_content = (payload: {
                     <img src="https://res.cloudinary.com/dt0epuz7w/image/upload/v1766492310/versions/4df5bffe-0122-4dfa-a631-eef51574f623_invialogo.jpg"  
                          alt="Logo" 
                          class="logo"/>
-                    <h1 class="title">You Are Invited!</h1>
+                    <h1 class="title">Event Invitation</h1>
                     ${payload.hasCoverImage ? `<img src="${payload.image}"  
                          alt="Event-Image" 
                          class="cover-image"/>` : `<img src="https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png"  
@@ -146,6 +154,11 @@ export const invite_event_guest_email_html_content = (payload: {
 								<div class="buttons">
 									<a href="${payload.acceptLink}" target="_blank" id="attend-btn">Accept Invitation</a>
 									<a href="${payload.rejectLink}" target="_blank" id="reject-btn">Can't Attend</a>
+								</div>
+
+								<div class="footer">
+									<p style="font-weight: bold;text-decoration: italic;">${payload.businessName}</p>
+									<a href="${payload.webappUrl}" target="_blank" style="font-size: 14px;">${payload.webappUrl.split("https://")[1]}</a>
 								</div>
             </div>
         </div>
