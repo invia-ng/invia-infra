@@ -19,13 +19,13 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EventService } from '../services/event.service';
 import { DeleteDataInstanceInfo } from '../interface/schema';
 import { SecureUserPayload } from '@app/common/src/interface';
-import { AddEventGuestsDTO, CreateEventDTO } from '../interface';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
 import { FetchEventGuestsQuery, FetchEventsQuery } from '../queries/impl';
 import { EventInfo, EventsResponse } from '@app/common/src/models/event.model';
 import { GuestInfo, GuestsResponse } from '@app/common/src/models/guest.model';
-import { AddEventGuestsCommand, CreateEventCommand, RemoveEventGuestCommand, RemoveMultipleEventGuestsCommand } from '../commands/impl';
+import { AddEventGuestsDTO, CreateEventDTO, InviteEventGuestsDTO } from '../interface';
+import { AddEventGuestsCommand, CreateEventCommand, InviteEventGuestsCommand, RemoveEventGuestCommand, RemoveMultipleEventGuestsCommand } from '../commands/impl';
 
 @ApiTags('event')
 @Controller({ path: '' })
@@ -144,6 +144,30 @@ export class EventController {
   ): Promise<GuestInfo[]> {
     return await this.command.execute(
       new AddEventGuestsCommand(
+        eventId,
+        body,
+        secureUser,
+      ),
+    );
+  }
+
+  @Post('guests/invite')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiOkResponse()
+  @ApiInternalServerErrorResponse()
+  async inviteEventGuests(
+    @Body() body: InviteEventGuestsDTO,
+    @Query('eventId') eventId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<void> {
+    return await this.command.execute(
+      new InviteEventGuestsCommand(
         eventId,
         body,
         secureUser,

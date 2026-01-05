@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { AccessTokenPayload } from '../interface';
+import { AccessTokenPayload, EventInvitationHashPayload } from '../interface';
 
 const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, parseInt(process.env.AUTH_SALT_ROUNDS));
@@ -52,6 +52,16 @@ function generateFutureDate(
   return futureDate;
 }
 
+function generateEventInvitationHash(payload: EventInvitationHashPayload): string {
+  return Buffer.from(JSON.stringify(payload)).toString('base64');
+}
+
+function decodeEventInvitationHash(code: string): EventInvitationHashPayload {
+  const { jti, iat, ...payload } = JSON.parse(
+    Buffer.from(code, 'base64').toString('utf8'),
+  );
+  return payload;
+}
 
 function generateAccessToken(payload: AccessTokenPayload): string {
   return Buffer.from(JSON.stringify(payload)).toString('base64');
@@ -81,4 +91,6 @@ export default {
   generateFutureDate,
   isAccessTokenExpired,
   isDatePastThreeMonths,
+  decodeEventInvitationHash,
+  generateEventInvitationHash,
 };

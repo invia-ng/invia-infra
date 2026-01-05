@@ -150,7 +150,7 @@ export const forgot_password_html_content = (passwordResetCode: string) => {
                   <table cellpadding="0" cellspacing="0" border="0">
                       <tr>
                           <td align="center">
-                              <img src="https://i.ibb.co/TDqM25qn/invia.jpg"  
+                              <img src="https://res.cloudinary.com/dt0epuz7w/image/upload/v1766492310/versions/4df5bffe-0122-4dfa-a631-eef51574f623_invialogo.jpg"  
                                   alt="Logo" 
                                   class="logo">
                           </td>

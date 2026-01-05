@@ -17,6 +17,7 @@ import { AccountNotificationController } from './controllers/account.notificatio
 import { AuthEmailNotificationService } from './services/email/auth.email.notification.service';
 import { AdminAlertEmailNotificationService } from './services/email/admin.alert.email.notification.service';
 import { SubscriptionsEmailNotificationService } from './services/email/subscriptions.email.notification.service';
+import { EventEmailNotificationService } from './services/email/event.email.notification.service';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { SubscriptionsEmailNotificationService } from './services/email/subscrip
     EmailSenderService,
     AccountNotificationService,
     AuthEmailNotificationService,
+    EventEmailNotificationService,
     AdminAlertEmailNotificationService,
     SubscriptionsEmailNotificationService,
   ],

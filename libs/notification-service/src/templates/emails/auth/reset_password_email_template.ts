@@ -135,7 +135,7 @@ export const reset_password_html_content = () => {
   <div class="main-content">
     <div class="email-container">
       <div class="logo-container">
-        <img src="https://i.ibb.co/TDqM25qn/invia.jpg"  
+        <img src="https://res.cloudinary.com/dt0epuz7w/image/upload/v1766492310/versions/4df5bffe-0122-4dfa-a631-eef51574f623_invialogo.jpg"  
           alt="Logo" 
           class="logo"
           style="margin: 0 auto;"

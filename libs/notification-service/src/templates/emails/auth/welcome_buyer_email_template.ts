@@ -144,7 +144,7 @@ export const welcome_customer_email_html_content = (name: string) => {
   <div class="wrapper">
     <div class="content">
       <div class="header">
-        <img src="https://i.ibb.co/TDqM25qn/invia.jpg" alt="Logo" class="logo">
+        <img src="https://res.cloudinary.com/dt0epuz7w/image/upload/v1766492310/versions/4df5bffe-0122-4dfa-a631-eef51574f623_invialogo.jpg" alt="Logo" class="logo">
         <h1 class="welcome-title">Welcome</h1>
       </div>
       

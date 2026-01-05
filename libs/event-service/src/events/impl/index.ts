@@ -1,2 +1,8 @@
-import { SecureUserPayload } from '@app/common/src/interface';
+import { Invitation } from '@app/common/src/models/invitation.model';
 
+export class InviteEventGuestsEvent {
+  constructor(
+    public readonly invitations: Invitation[],
+  ) {}
+}
+  

@@ -1,7 +1,11 @@
-export const update_account_email_html_content = (
-  name: string,
-  activationCode: string,
-) => {
+export const invite_event_guest_email_html_content = (payload: {
+	image: string,
+	event: string,
+	message: string,
+	acceptLink: string,
+	rejectLink: string,
+    hasCoverImage: boolean,
+}) => {
   return `
 <!DOCTYPE html>
 <html dir="ltr" lang="en">
@@ -50,47 +54,52 @@ export const update_account_email_html_content = (
             width: 35px;
             height: 35px;
         }
+        
+        .default-cover-image {
+					width: 200px;
+        }
 
         .title {
-            font-size: 16px;
-            color: #1C3B4E;
+            font-size: 18px;
             font-weight: bold;
-            margin: 10px 0;
+            margin: 10px 0 0 0;
         }
 
         .message {
-            font-size: 14px;
-            line-height: 27px;
-            color: #1C3B4E;
-            margin: 15px 0;
-        }
-
-        .verification-code {
-             background-color: #f8f9fa;
-            padding: 10px;
-            display: flex;
-            width: fit-content;
-            justify-content: center;
-            margin: 15px auto;
-        }
-
-        .footer {
-            padding: 20px;
             text-align: center;
+            margin: 0 0 10px 0;
         }
 
-        .social-links {
-            margin: 20px 0;
+        .buttons {
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: center !important;
+          gap: 15px !important;
         }
-
-        .social-links a {
-            margin: 0 10px;
-            text-decoration: none;
+        
+        #attend-btn {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 12px 30px;
+          color: #fff;
+          text-align: center;
+          border-radius: 10px;
+          text-decoration: none;
+          background-color: #479FFD;
+          font-weight: bold;
         }
-
-        .social-links img {
-            width: 24px;
-            height: 24px;
+        
+        #reject-btn {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 12px 30px;
+          text-align: center;
+          color: #575554;
+          border-radius: 10px;
+          text-decoration: none;
+          border: 1px solid #E5E5E5;
+          background-color: #fff;
+          font-weight: bold;
         }
 
         /* Mobile responsiveness */
@@ -116,22 +125,24 @@ export const update_account_email_html_content = (
                 <div class="header">
                     <img src="https://res.cloudinary.com/dt0epuz7w/image/upload/v1766492310/versions/4df5bffe-0122-4dfa-a631-eef51574f623_invialogo.jpg"  
                          alt="Logo" 
-                         class="logo">
-                    <h1 class="title">Verify New Account Email</h1>
+                         class="logo"/>
+                    <h1 class="title">You Are Invited!</h1>
+                    ${payload.hasCoverImage ? `<img src="${payload.image}"  
+                         alt="Event-Image" 
+                         class="cover-image"/>` : `<img src="https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png"  
+                         alt="Event-Image" 
+                         class="default-cover-image"/>`}
                 </div>
                 
                 <div class="message">
-                    Hello ${name},<br><br>
-                    We received a request to update the email for your Invia account. To proceed, verify your new email address with this activation code:
-                </div>
-                
-                <div class="verification-code">
-                    ${activationCode}
-                </div>
-                
-                <div class="message">
-                    This code is valid for the next 1 hour. Please enter it on the password verification page to authorize your request.
-                </div>
+                    <h1 class="title">${payload.event}</h1>
+                    <p>${payload.message}</p>
+								</div>
+								
+								<div class="buttons">
+									<a href="${payload.acceptLink}" target="_blank" id="attend-btn">Accept Invitation</a>
+									<a href="${payload.rejectLink}" target="_blank" id="reject-btn">Can't Attend</a>
+								</div>
             </div>
         </div>
     </div>

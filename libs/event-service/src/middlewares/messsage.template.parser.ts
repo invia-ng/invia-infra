@@ -1,12 +1,11 @@
 import { Event } from "@app/common/src/models/event.model";
 import { Guest } from "@app/common/src/models/guest.model";
 import { MessageTemplateEnum } from "@app/common/src/constants/enums";
-import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 
-export function MessageTemplateParser(template: string, event: Event, guest: Guest, enums: string[]): string {
+export function MessageTemplateParser(template: string, event: Event, guest: Guest): string {
   let message = template;
 
-  enums.forEach(variable => {
+  Object.values(MessageTemplateEnum).forEach(variable => {
     switch (variable) {
       case MessageTemplateEnum.GUEST_NAME:
         message = message.replace(new RegExp(`{${variable}}`, 'g'), guest.name);

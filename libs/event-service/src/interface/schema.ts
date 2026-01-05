@@ -97,3 +97,10 @@ export class AuthenticateShareFormInfo {
   })
   accessToken: string;
 }
+
+export class AcceptRejectEventInvitationInfo {
+  @ApiProperty({
+    example: true,
+  })
+  inviteStatus: boolean;
+}

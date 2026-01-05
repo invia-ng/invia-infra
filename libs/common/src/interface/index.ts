@@ -4,6 +4,12 @@ export interface AccessTokenPayload {
   expiresAt: Date;
 }
 
+export interface EventInvitationHashPayload {
+  eventHash: string;
+  eventId: number;
+  guestId: number;
+}
+
 export interface SecureUserPayload {
   id: number;
   email: string;
