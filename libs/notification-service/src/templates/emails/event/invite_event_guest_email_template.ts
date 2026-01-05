@@ -55,6 +55,10 @@ export const invite_event_guest_email_html_content = (payload: {
             height: 35px;
         }
         
+				.cover-image {
+					width: 500px;
+        }
+
         .default-cover-image {
 					width: 200px;
         }

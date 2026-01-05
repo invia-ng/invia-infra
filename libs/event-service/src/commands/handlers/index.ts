@@ -12,6 +12,7 @@ import { GenerateShareFormPasscodeHandler } from "./admin/GenerateShareFormPassc
 import { AcceptRejectEventInvitationHandler } from "./guest/AcceptRejectEventInvitationHandler";
 import { AuthenticateShareFormPasscodeHandler } from "./author/AuthenticateShareFormPasscodeHandler";
 import { RemoveMultipleEventAuthorGuestsHandler } from "./author/RemoveMultipleEventAuthorGuestsHandler";
+import { EventAuthorInviteEventGuestsHandler } from "./author/EventAuthorInviteEventGuestsHandler";
 
 export const EventServiceCommandHandlers = [
     CreateEventHandler,
@@ -26,6 +27,7 @@ export const EventServiceCommandHandlers = [
     RemoveMultipleEventGuestsHandler,
     GenerateShareFormPasscodeHandler,
     AcceptRejectEventInvitationHandler,
+    EventAuthorInviteEventGuestsHandler,
     AuthenticateShareFormPasscodeHandler,
     RemoveMultipleEventAuthorGuestsHandler,
 ];

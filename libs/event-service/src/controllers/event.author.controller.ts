@@ -16,13 +16,13 @@ import {
   ApiBearerAuth,
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
-import { AddEventGuestsDTO } from '../interface';
+import { AddEventGuestsDTO, InviteEventGuestsDTO } from '../interface';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EventService } from '../services/event.service';
 import { FetchEventAuthorGuestsQuery,} from '../queries/impl';
 import { GuestInfo, GuestsResponse } from '@app/common/src/models/guest.model';
 import { AuthenticateShareFormInfo, DeleteDataInstanceInfo } from '../interface/schema';
-import { AddEventAuthorGuestsCommand, AuthenticateShareFormPasscodeCommand, RemoveEventAuthorGuestCommand, RemoveMultipleEventAuthorGuestsCommand } from '../commands/impl';
+import { AddEventAuthorGuestsCommand, AuthenticateShareFormPasscodeCommand, EventAuthorInviteEventGuestsCommand, RemoveEventAuthorGuestCommand, RemoveMultipleEventAuthorGuestsCommand } from '../commands/impl';
 
 @ApiTags('event-author')
 @Controller({ path: 'author' })
@@ -115,6 +115,27 @@ export class EventAuthorController {
   ): Promise<GuestInfo[]> {
     return await this.command.execute(
       new AddEventAuthorGuestsCommand(
+        body,
+        accessToken,
+      ),
+    );
+  }
+
+  @Post('guests/invite')
+  @ApiHeader({
+    required: true,
+    example: '<access_token>',
+    name: 'AccessToken',
+    description: 'Access Token',  
+  })
+  @ApiOkResponse()
+  @ApiInternalServerErrorResponse()
+  async inviteEventGuests(
+    @Body() body: InviteEventGuestsDTO,
+    @Headers('AccessToken') accessToken: string,
+  ): Promise<void> {
+    return await this.command.execute(
+      new EventAuthorInviteEventGuestsCommand(
         body,
         accessToken,
       ),

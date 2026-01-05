@@ -103,3 +103,10 @@ export class AcceptRejectEventInvitationCommand {
         public readonly acceptInvite: boolean,
     ){}
 }
+
+export class EventAuthorInviteEventGuestsCommand {
+    constructor(
+        public readonly payload: InviteEventGuestsDTO,
+        public readonly accessToken: string,
+    ){}
+}
