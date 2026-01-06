@@ -33,7 +33,6 @@ export class AccountController {
   @ApiOkResponse({ type: AccountInfo })
   @ApiInternalServerErrorResponse()
   async getDetailedAccountInfo(
-    @Req() req: Request,
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<AccountInfo> {
     return await this.queryBus.execute(

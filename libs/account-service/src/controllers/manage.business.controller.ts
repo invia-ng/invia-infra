@@ -48,12 +48,11 @@ export class ManageBusinessController {
 
 
   @Get('business-info')
-  @ApiOkResponse({ type: AccountInfo })
+  @ApiOkResponse({ type: BusinessInfo })
   @ApiInternalServerErrorResponse()
   async getBusinessInfo(
-    @Req() req: Request,
     @SecureUser() secureUser: SecureUserPayload,
-  ): Promise<AccountInfo> {
+  ): Promise<BusinessInfo> {
     return await this.queryBus.execute(
       new FetchBusinessInfoQuery(secureUser),
     );
