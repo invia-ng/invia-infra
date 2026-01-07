@@ -1,4 +1,4 @@
-import { Raw, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FetchMessageTemplatesQuery } from '../impl';
 import { Inject, NotFoundException } from '@nestjs/common';
@@ -6,7 +6,10 @@ import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
-import { MessageTemplate, MessageTemplatesResponse } from '@app/common/src/models/message.template.model';
+import {
+  MessageTemplate,
+  MessageTemplatesResponse,
+} from '@app/common/src/models/message.template.model';
 
 @QueryHandler(FetchMessageTemplatesQuery)
 export class FetchMessageTemplatesQueryHandler implements IQueryHandler<
@@ -22,17 +25,17 @@ export class FetchMessageTemplatesQueryHandler implements IQueryHandler<
   ) {}
 
   async execute(query: FetchMessageTemplatesQuery) {
-    try{
-			this.logger.log('[FETCH-MESSAGE-TEMPLATES-QUERY-PROCESSING]');
+    try {
+      this.logger.log('[FETCH-MESSAGE-TEMPLATES-QUERY-PROCESSING]');
 
       const { page, pageSize, secureUser } = query;
 
       const business = await this.businessRepository.findOne({
         where: [
           {
-            members: Raw((alias) => `${alias} ~ :regex`, {
-              regex: `(?:^|\\D)${secureUser.id}(?:\\D|$)`,
-            }),
+            members: {
+              id: secureUser.id,
+            },
           },
           {
             account: {
@@ -46,33 +49,36 @@ export class FetchMessageTemplatesQueryHandler implements IQueryHandler<
         throw new NotFoundException(`Business record not found for user`);
       }
 
-      const [messages, totalCount] = await this.messageTemplateRepository.findAndCount({
-        where: {
-          business: {
-            id: business.id,
+      const [messages, totalCount] =
+        await this.messageTemplateRepository.findAndCount({
+          where: {
+            business: {
+              id: business.id,
+            },
           },
-        },
-        order: {
-          createdAt: 'DESC',
-        },
-        take: pageSize,
-        skip: (page - 1) * pageSize,
-      });
+          order: {
+            createdAt: 'DESC',
+          },
+          take: pageSize,
+          skip: (page - 1) * pageSize,
+        });
 
       const totalPages = Math.ceil(totalCount / pageSize);
       const hasNext = page < totalPages;
 
-			this.logger.log('[FETCH-MESSAGE-TEMPLATES-QUERY-SUCCESS]');
+      this.logger.log('[FETCH-MESSAGE-TEMPLATES-QUERY-SUCCESS]');
 
-			return {
+      return {
         hasNext,
         totalPages,
-				messages: messages.map((message) => modelsFormatter.FormatMessageTemplateInfo(message)),
+        messages: messages.map((message) =>
+          modelsFormatter.FormatMessageTemplateInfo(message),
+        ),
       } as unknown as MessageTemplatesResponse;
-    }catch(error){
-			this.logger.error('[FETCH-MESSAGE-TEMPLATES-QUERY-ERROR]', error);
+    } catch (error) {
+      this.logger.error('[FETCH-MESSAGE-TEMPLATES-QUERY-ERROR]', error);
 
-			throw error;
+      throw error;
     }
   }
 }

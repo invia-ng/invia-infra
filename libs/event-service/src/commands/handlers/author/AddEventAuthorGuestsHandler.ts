@@ -16,9 +16,10 @@ import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
 import authUtils from '@app/common/src/security/auth.utils';
 
 @CommandHandler(AddEventAuthorGuestsCommand)
-export class AddEventAuthorGuestsHandler
-  implements ICommandHandler<AddEventAuthorGuestsCommand, GuestInfo[]>
-{
+export class AddEventAuthorGuestsHandler implements ICommandHandler<
+  AddEventAuthorGuestsCommand,
+  GuestInfo[]
+> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Event)
@@ -32,16 +33,16 @@ export class AddEventAuthorGuestsHandler
   async execute(command: AddEventAuthorGuestsCommand) {
     try {
       this.logger.log(`[ADD-EVENT-GUESTS-HANDLER-PROCESSING]`);
-      
+
       const { payload, accessToken } = command;
 
       const guests: GuestInfo[] = [];
 
       const isTokenExpired = authUtils.isAccessTokenExpired(accessToken);
-      
+
       // console.log('[TOKEN] :: ', accessToken, isTokenExpired)
 
-      if(isTokenExpired){
+      if (isTokenExpired) {
         this.logger.log('[FETCH-EVENT-GUESTS-QUERY-ERROR]');
 
         throw new UnauthorizedException('Invalid access token');
@@ -51,11 +52,11 @@ export class AddEventAuthorGuestsHandler
 
       const event = await this.eventRepository.findOne({
         where: {
-          hash: decodedToken.eventHash
-        }
+          hash: decodedToken.eventHash,
+        },
       });
 
-      if(!event){
+      if (!event) {
         this.logger.log('[FETCH-EVENT-GUESTS-QUERY-ERROR]');
 
         throw new UnauthorizedException('Invalid access token');
@@ -66,36 +67,40 @@ export class AddEventAuthorGuestsHandler
           event: {
             id: decodedToken.eventId,
           },
-          phone: In(payload.guests.map(guest => guest.phone)),
+          phone: In(payload.guests.map((guest) => guest.phone)),
         },
       });
 
       if (exists) {
-        throw new BadRequestException(`Your new guest ${exists.name} with phone number ${exists.phone} already exists.`);
+        throw new BadRequestException(
+          `Your new guest ${exists.name} with phone number ${exists.phone} already exists.`,
+        );
       }
 
-      await Promise.all(payload.guests.map(async(guest) => {
-        try {
-          this.logger.log('[ADD-EVENT-GUEST-HANDLER-PROCESSING]');
+      await Promise.all(
+        payload.guests.map(async (guest) => {
+          try {
+            this.logger.log('[ADD-EVENT-GUEST-HANDLER-PROCESSING]');
 
-          const _guest = this.guestRepository.create({
-            event,
-            name: guest.name,
-            email: guest.email,
-            party: guest.party,
-            phone: guest.phone,
-          })
+            const _guest = this.guestRepository.create({
+              event,
+              name: guest.name,
+              email: guest.email,
+              party: guest.party,
+              phone: guest.phone,
+            });
 
-          const instance = await this.guestRepository.save(_guest);
+            const instance = await this.guestRepository.save(_guest);
 
-          guests.push(modelsFormatter.FormatGuestInfo(instance));
+            guests.push(modelsFormatter.FormatGuestInfo(instance));
 
-          this.logger.log('[ADD-EVENT-GUEST-HANDLER-SUCCESS]');
-        } catch (error) {
-          this.logger.error(`[ADD-EVENT-GUEST-HANDLER-ERROR] :: ${error}`);
-        }
-      }));
-			
+            this.logger.log('[ADD-EVENT-GUEST-HANDLER-SUCCESS]');
+          } catch (error) {
+            this.logger.error(`[ADD-EVENT-GUEST-HANDLER-ERROR] :: ${error}`);
+          }
+        }),
+      );
+
       this.logger.log(`[ADD-EVENT-GUESTS-HANDLER-SUCCESS]`);
 
       return guests;

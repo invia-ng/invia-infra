@@ -5,7 +5,7 @@ import { InitializeNewAccountCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignupResponsePayload } from '../../interface';
 import { AuthService } from '../../services/auth.service';
-import { UserRole } from '@app/common/src/constants/enums';
+import { AccountRole } from '@app/common/src/constants/enums';
 import authUtils from 'libs/common/src/security/auth.utils';
 import { InitializeNewAccountEvent } from '../../events/impl';
 import { Account } from 'libs/common/src/models/account.model';
@@ -16,9 +16,10 @@ import { EmailAlreadyUsedException } from 'libs/common/src/constants/exceptions'
 import { AuthEmailNotificationService } from 'libs/notification-service/src/services/email/auth.email.notification.service';
 
 @CommandHandler(InitializeNewAccountCommand)
-export class InitializeNewAccountHandler
-  implements ICommandHandler<InitializeNewAccountCommand, SignupResponsePayload>
-{
+export class InitializeNewAccountHandler implements ICommandHandler<
+  InitializeNewAccountCommand,
+  SignupResponsePayload
+> {
   constructor(
     private readonly eventBus: EventBus,
     private readonly authService: AuthService,
@@ -35,12 +36,7 @@ export class InitializeNewAccountHandler
       const { payload, origin } = command;
 
       const hashPayload = Object.fromEntries(
-        Object.entries(payload).filter(
-          ([key]) =>
-            ![
-              'name'
-            ].includes(key),
-        ),
+        Object.entries(payload).filter(([key]) => !['name'].includes(key)),
       );
 
       const hash = createHash('sha256')
@@ -51,7 +47,7 @@ export class InitializeNewAccountHandler
       const activationCodeExpiration = authUtils.generateFutureDate(1, 'hours');
 
       const existingUser = await this.userRepository.findOne({
-        where:  {
+        where: {
           email: payload.email,
         },
       });

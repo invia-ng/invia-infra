@@ -16,7 +16,7 @@ import {
   toLowerCaseTransformer,
   capitalizeWordsTransformer,
 } from '../../../common/src/helpers/local-class-validator';
-import { UserRole } from 'libs/common/src/constants/enums';
+import { AccountRole } from 'libs/common/src/constants/enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AccountInfo } from '@app/common/src/models/account.model';
 
@@ -35,7 +35,6 @@ export class InitializeNewAccountDTO {
     description: 'Personal name of the user.',
   })
   @IsString()
-  @MaxLength(16)
   @IsNotEmpty()
   name: string;
 }
@@ -63,7 +62,6 @@ export class CreateAccountDTO {
     description: 'First name of the user.',
   })
   @IsString()
-  @MaxLength(16)
   @IsNotEmpty()
   firstName: string;
 
@@ -74,7 +72,6 @@ export class CreateAccountDTO {
   })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(16)
   lastName: string;
 
   @Transform(({ value }) => trimTransformer(value))
@@ -93,7 +90,6 @@ export class CreateAccountDTO {
   })
   @IsOptional()
   @IsString()
-  // @MaxLength(10)
   referralCode: string;
 
   @Transform(({ value }) => trimTransformer(value))
@@ -107,12 +103,12 @@ export class CreateAccountDTO {
 
   @ApiProperty({
     example: 'ADMIN',
-    default: UserRole.CUSTOMER,
+    default: AccountRole.ADMIN,
     description: 'Role of the user.',
   })
-  @IsEnum(UserRole)
+  @IsEnum(AccountRole)
   @IsOptional()
-  role: UserRole;
+  role: AccountRole;
 
   @ApiPropertyOptional({
     example: 'Lagos',

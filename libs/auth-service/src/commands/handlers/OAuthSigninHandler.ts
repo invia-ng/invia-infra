@@ -7,13 +7,14 @@ import { Inject, UnauthorizedException } from '@nestjs/common';
 import { AppLogger } from '@app/common/src/logger/logger.service';
 import { SigninResponsePayload } from 'libs/auth-service/src/interface';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { AccountStatus, UserRole } from 'libs/common/src/constants/enums';
+import { AccountStatus, AccountRole } from 'libs/common/src/constants/enums';
 import { UserNotFoundException } from 'libs/common/src/constants/exceptions';
 
 @CommandHandler(OAuthSignInCommand)
-export class OAuthSignInHandler
-  implements ICommandHandler<OAuthSignInCommand, SigninResponsePayload>
-{
+export class OAuthSignInHandler implements ICommandHandler<
+  OAuthSignInCommand,
+  SigninResponsePayload
+> {
   constructor(
     private readonly eventBus: EventBus,
     private readonly authService: AuthService,
@@ -36,7 +37,7 @@ export class OAuthSignInHandler
         throw UserNotFoundException();
       }
 
-      if (account.role === UserRole.ADMIN) {
+      if (account.role === AccountRole.ADMIN) {
         throw new UnauthorizedException(
           'Account is not an individual account.',
         );

@@ -3,7 +3,7 @@ import {
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Raw, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateEventCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
@@ -14,9 +14,10 @@ import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
 import { createHash } from 'crypto';
 
 @CommandHandler(CreateEventCommand)
-export class CreateEventHandler
-  implements ICommandHandler<CreateEventCommand, EventInfo>
-{
+export class CreateEventHandler implements ICommandHandler<
+  CreateEventCommand,
+  EventInfo
+> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Event)
@@ -31,38 +32,38 @@ export class CreateEventHandler
 
       const { payload, secureUser } = command;
 
-			const business = await this.businessRepository.findOne({
-				where: [
-					{
-						members: Raw((alias) => `${alias} ~ :regex`, {
-							regex: `(?:^|\\D)${secureUser.id}(?:\\D|$)`,
-						}),
-					},
-					{
-						account: {
-							id: secureUser.id,
-						},
-					},
-				],
-			});
+      const business = await this.businessRepository.findOne({
+        where: [
+          {
+            members: {
+              id: secureUser.id,
+            },
+          },
+          {
+            account: {
+              id: secureUser.id,
+            },
+          },
+        ],
+      });
 
       if (!business) {
         throw new UnauthorizedException('Business not found.');
       }
 
-			const hash = createHash('sha256')
-				.update(JSON.stringify(new Date()))
-				.digest('hex');
+      const hash = createHash('sha256')
+        .update(JSON.stringify(new Date()))
+        .digest('hex');
 
-			const instance = this.eventRepository.create({
-				hash,
-				business,
-				name: payload.name,
-				date: payload.date,
-				time: payload.time,
-				location: payload.location,
-				category: payload.category,
-			})
+      const instance = this.eventRepository.create({
+        hash,
+        business,
+        name: payload.name,
+        date: payload.date,
+        time: payload.time,
+        location: payload.location,
+        category: payload.category,
+      });
 
       const event = await this.eventRepository.save(instance);
 

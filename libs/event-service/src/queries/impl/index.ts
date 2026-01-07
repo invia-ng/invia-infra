@@ -16,6 +16,13 @@ export class FetchEventsQuery {
 	){}
 }
 
+export class FetchEventInfoQuery {
+	constructor(
+		public readonly eventId: number,
+		public readonly secureUser: SecureUserPayload,
+	){}
+}
+
 export class FetchEventGuestsQuery {
 	constructor(
 		public readonly eventId: number,

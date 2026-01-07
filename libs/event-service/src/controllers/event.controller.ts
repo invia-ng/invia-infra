@@ -21,11 +21,25 @@ import { DeleteDataInstanceInfo } from '../interface/schema';
 import { SecureUserPayload } from '@app/common/src/interface';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
-import { FetchEventGuestsQuery, FetchEventsQuery } from '../queries/impl';
+import {
+  FetchEventGuestsQuery,
+  FetchEventInfoQuery,
+  FetchEventsQuery,
+} from '../queries/impl';
 import { EventInfo, EventsResponse } from '@app/common/src/models/event.model';
 import { GuestInfo, GuestsResponse } from '@app/common/src/models/guest.model';
-import { AddEventGuestsDTO, CreateEventDTO, InviteEventGuestsDTO } from '../interface';
-import { AddEventGuestsCommand, CreateEventCommand, InviteEventGuestsCommand, RemoveEventGuestCommand, RemoveMultipleEventGuestsCommand } from '../commands/impl';
+import {
+  AddEventGuestsDTO,
+  CreateEventDTO,
+  InviteEventGuestsDTO,
+} from '../interface';
+import {
+  AddEventGuestsCommand,
+  CreateEventCommand,
+  InviteEventGuestsCommand,
+  RemoveEventGuestCommand,
+  RemoveMultipleEventGuestsCommand,
+} from '../commands/impl';
 
 @ApiTags('event')
 @Controller({ path: '' })
@@ -37,7 +51,7 @@ export class EventController {
     public command: CommandBus,
     public readonly eventService: EventService,
   ) {}
-  
+
   @Get('fetch')
   @ApiQuery({
     type: Number,
@@ -53,7 +67,7 @@ export class EventController {
     name: 'pageSize',
     description: 'Page Size',
   })
-  @ApiOkResponse({ type:  EventsResponse })
+  @ApiOkResponse({ type: EventsResponse })
   @ApiInternalServerErrorResponse()
   async fetchEvents(
     @Req() req: Request,
@@ -62,28 +76,38 @@ export class EventController {
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<EventsResponse> {
     return await this.queryBus.execute(
-      new FetchEventsQuery(
-        page,
-        pageSize,
-        secureUser,
-      ),
+      new FetchEventsQuery(page, pageSize, secureUser),
+    );
+  }
+
+  @Get('info')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiOkResponse({ type: EventsResponse })
+  @ApiInternalServerErrorResponse()
+  async fetchEventInfo(
+    @Query('eventId') eventId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<EventsResponse> {
+    return await this.queryBus.execute(
+      new FetchEventInfoQuery(eventId, secureUser),
     );
   }
 
   @Post('create')
-  @ApiOkResponse({ type:  EventInfo })
+  @ApiOkResponse({ type: EventInfo })
   @ApiInternalServerErrorResponse()
   async createEvent(
     @Req() req: Request,
     @Body() body: CreateEventDTO,
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<EventInfo> {
-    return await this.command.execute(
-      new CreateEventCommand(
-        secureUser,
-        body,
-      ),
-    );
+    return await this.command.execute(new CreateEventCommand(secureUser, body));
   }
 
   @Get('guests/fetch')
@@ -108,7 +132,7 @@ export class EventController {
     name: 'pageSize',
     description: 'Page Size',
   })
-  @ApiOkResponse({ type:  GuestsResponse })
+  @ApiOkResponse({ type: GuestsResponse })
   @ApiInternalServerErrorResponse()
   async fetchEventGuests(
     @Req() req: Request,
@@ -118,12 +142,7 @@ export class EventController {
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<GuestsResponse> {
     return await this.queryBus.execute(
-      new FetchEventGuestsQuery(
-        eventId,
-        page,
-        pageSize,
-        secureUser,
-      ),
+      new FetchEventGuestsQuery(eventId, page, pageSize, secureUser),
     );
   }
 
@@ -135,7 +154,7 @@ export class EventController {
     name: 'eventId',
     description: 'Event Primary ID',
   })
-  @ApiOkResponse({ type:  GuestInfo, isArray: true })
+  @ApiOkResponse({ type: GuestInfo, isArray: true })
   @ApiInternalServerErrorResponse()
   async addEventGuests(
     @Body() body: AddEventGuestsDTO,
@@ -143,11 +162,7 @@ export class EventController {
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<GuestInfo[]> {
     return await this.command.execute(
-      new AddEventGuestsCommand(
-        eventId,
-        body,
-        secureUser,
-      ),
+      new AddEventGuestsCommand(eventId, body, secureUser),
     );
   }
 
@@ -167,11 +182,7 @@ export class EventController {
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<void> {
     return await this.command.execute(
-      new InviteEventGuestsCommand(
-        eventId,
-        body,
-        secureUser,
-      ),
+      new InviteEventGuestsCommand(eventId, body, secureUser),
     );
   }
 
@@ -190,7 +201,7 @@ export class EventController {
     name: 'guestId',
     description: 'Guest Primary ID',
   })
-  @ApiOkResponse({ type:  DeleteDataInstanceInfo, })
+  @ApiOkResponse({ type: DeleteDataInstanceInfo })
   @ApiInternalServerErrorResponse()
   async deleteEventGuest(
     @Query('guestId') guestId: number,
@@ -198,11 +209,7 @@ export class EventController {
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<DeleteDataInstanceInfo> {
     return await this.command.execute(
-      new RemoveEventGuestCommand(
-        eventId,
-        guestId,
-        secureUser,
-      ),
+      new RemoveEventGuestCommand(eventId, guestId, secureUser),
     );
   }
 
@@ -222,7 +229,7 @@ export class EventController {
     name: 'guestIds',
     description: 'Guest Primary IDs',
   })
-  @ApiOkResponse({ type:  DeleteDataInstanceInfo, })
+  @ApiOkResponse({ type: DeleteDataInstanceInfo })
   @ApiInternalServerErrorResponse()
   async deleteMultipleEventGuests(
     @Query('guestIds') guestIds: number[],
@@ -230,11 +237,7 @@ export class EventController {
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<DeleteDataInstanceInfo> {
     return await this.command.execute(
-      new RemoveMultipleEventGuestsCommand(
-        eventId,
-        guestIds,
-        secureUser,
-      ),
+      new RemoveMultipleEventGuestsCommand(eventId, guestIds, secureUser),
     );
   }
 }

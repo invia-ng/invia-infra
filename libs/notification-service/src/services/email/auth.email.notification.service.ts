@@ -7,19 +7,20 @@ import { Setting } from '@app/common/src/models/setting.model';
 import { Account } from 'libs/common/src/models/account.model';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { AppLogger } from '../../../../common/src/logger/logger.service';
-import { AccountStatus, UserRole } from 'libs/common/src/constants/enums';
+import { AccountStatus, AccountRole } from 'libs/common/src/constants/enums';
 import { EmailSenderService } from 'libs/helper-service/src/services/email-sender.service';
 import { reset_password_html_content } from '../../templates/emails/auth/reset_password_email_template';
 import { forgot_password_html_content } from '../../templates/emails/auth/forgot_password_email_template';
 import { update_account_email_html_content } from '../../templates/emails/auth/update_account_email_template';
 import { welcome_customer_email_html_content } from '../../templates/emails/auth/welcome_buyer_email_template';
 import { email_verification_html_content } from '../../templates/emails/auth/email_verification_email_template';
+import { invite_business_member_email_html_content } from '../../templates/emails/auth/invite_business_member_email_template';
 
 @Injectable()
-export class AuthEmailNotificationService implements OnModuleInit  {
+export class AuthEmailNotificationService implements OnModuleInit {
   private adminSettings: Setting;
 
-onModuleInit() {
+  onModuleInit() {
     this.initializeAdminSettings();
   }
 
@@ -41,19 +42,43 @@ onModuleInit() {
     });
   }
 
+  async inviteBusinessMemberEmailNotification(account: Account) {
+    const htmlContent = await invite_business_member_email_html_content({
+      businessName: account.business.name,
+      activationLink: this.configService
+        .get<string>('WEB_APP_URL')
+        .concat(`/invitations?invitationHash=${account.invitationHash}`),
+    });
+
+    if (this.adminSettings.isSMTPEnabled === true) {
+      return await this.gmailMailerService.sendMail({
+        html: htmlContent,
+        to: account.email,
+        subject: `Invitation To Join ${account.business.name}`,
+        from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+      });
+    } else {
+      return this.emailSenderService.sendEmail({
+        html: htmlContent,
+        to_email: account.email,
+        sub: `Invitation To Join ${account.business.name}`,
+      });
+    }
+  }
+
   async verifyNewAccountEmailNotification(account: Account) {
     const htmlContent = await update_account_email_html_content(
       account.firstName,
       account.activationCode,
     );
 
-    if(this.adminSettings.isSMTPEnabled === true) {
+    if (this.adminSettings.isSMTPEnabled === true) {
       return await this.gmailMailerService.sendMail({
         html: htmlContent,
         to: account.email,
         subject: 'Verify New Account Email',
         from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
-      }); 
+      });
     } else {
       return this.emailSenderService.sendEmail({
         html: htmlContent,
@@ -66,7 +91,7 @@ onModuleInit() {
   async resetPasswordNotification(account: Account) {
     const htmlContent = await reset_password_html_content();
 
-    if(this.adminSettings.isSMTPEnabled === true) {
+    if (this.adminSettings.isSMTPEnabled === true) {
       return await this.gmailMailerService.sendMail({
         html: htmlContent,
         to: account.email,
@@ -87,7 +112,7 @@ onModuleInit() {
       account.passwordResetCode,
     );
 
-    if(this.adminSettings.isSMTPEnabled === true) {
+    if (this.adminSettings.isSMTPEnabled === true) {
       return await this.gmailMailerService.sendMail({
         html: htmlContent,
         to: account.email,
@@ -105,13 +130,13 @@ onModuleInit() {
 
   async newAccountNotifications(account: Account) {
     switch (account.role) {
-      case UserRole.CUSTOMER:
+      case AccountRole.ADMIN:
         if (account.status === AccountStatus.ACTIVE) {
           const htmlContent = await welcome_customer_email_html_content(
             account.name,
           );
 
-          if(this.adminSettings.isSMTPEnabled === true) {
+          if (this.adminSettings.isSMTPEnabled === true) {
             return await this.gmailMailerService.sendMail({
               html: htmlContent,
               to: account.email,
@@ -131,7 +156,7 @@ onModuleInit() {
             account.activationCode,
           );
 
-          if(this.adminSettings.isSMTPEnabled === true) {
+          if (this.adminSettings.isSMTPEnabled === true) {
             return await this.gmailMailerService.sendMail({
               html: htmlContent,
               to: account.email,

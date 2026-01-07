@@ -4,19 +4,23 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { In, Raw, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateMessageTemplateCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
-import { MessageTemplate, MessageTemplateInfo } from '@app/common/src/models/message.template.model';
+import {
+  MessageTemplate,
+  MessageTemplateInfo,
+} from '@app/common/src/models/message.template.model';
 
 @CommandHandler(CreateMessageTemplateCommand)
-export class CreateMessageTemplateHandler
-  implements ICommandHandler<CreateMessageTemplateCommand, MessageTemplateInfo>
-{
+export class CreateMessageTemplateHandler implements ICommandHandler<
+  CreateMessageTemplateCommand,
+  MessageTemplateInfo
+> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Business)
@@ -34,9 +38,9 @@ export class CreateMessageTemplateHandler
       const business = await this.businessRepository.findOne({
         where: [
           {
-            members: Raw((alias) => `${alias} ~ :regex`, {
-              regex: `(?:^|\\D)${secureUser.id}(?:\\D|$)`,
-            }),
+            members: {
+              id: secureUser.id,
+            },
           },
           {
             account: {
@@ -61,7 +65,7 @@ export class CreateMessageTemplateHandler
       });
 
       const template = await this.messageTemplateRepository.save(instance);
-			
+
       this.logger.log(`[ADD-EVENT-GUESTS-HANDLER-SUCCESS]`);
 
       return modelsFormatter.FormatMessageTemplateInfo(template);

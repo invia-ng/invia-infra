@@ -1,16 +1,11 @@
 import {
-  Get,
-  Req,
-  UseGuards,
-  Controller,
-} from '@nestjs/common';
-import {
   ApiTags,
   ApiOkResponse,
   ApiBearerAuth,
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Get, UseGuards, Controller } from '@nestjs/common';
 import { AccountService } from '../services/account.service';
 import { SecureUserPayload } from '@app/common/src/interface';
 import { FetchDetailedAccountInfoQuery } from '../queries/impl';

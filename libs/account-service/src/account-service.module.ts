@@ -17,6 +17,7 @@ import { AccountController } from './controllers/account.controller';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
 import { ManageAccountController } from './controllers/manage.account.controller';
+import { ManageBusinessController } from './controllers/manage.business.controller';
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
 import { SupportService } from '@app/notification-service/src/services/support.service';
 import { EmailSenderService } from '@app/helper-service/src/services/email-sender.service';
@@ -25,7 +26,7 @@ import { ImageUploadController } from '@app/helper-service/src/controllers/image
 import { AccountNotificationService } from '@app/notification-service/src/services/account.notification.service';
 import { AccountNotificationController } from '@app/notification-service/src/controllers/account.notification.controller';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
-import { ManageBusinessController } from './controllers/manage.business.controller';
+import { ManageMemberController } from './controllers/manage.member.controller';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ManageBusinessController } from './controllers/manage.business.controll
   controllers: [
     AccountController,
     ManageAccountController,
+    ManageMemberController,
     ManageBusinessController,
     // SupportController,
     ImageUploadController,

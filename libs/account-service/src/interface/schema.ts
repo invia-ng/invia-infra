@@ -13,3 +13,23 @@ export class PhoneContactInfo {
   })
   phoneNumber: string;
 }
+
+export class BusinessInvitationInfo {
+  @ApiProperty({
+    example: '',
+    description: 'Account email',
+  })
+  accountEmail: string;
+
+  @ApiProperty({
+    example: '',
+    description: 'Business name',
+  })
+  businessName: string;
+
+  @ApiProperty({
+    example: '',
+    description: 'Business avatar URL',
+  })
+  avatar: string;
+}

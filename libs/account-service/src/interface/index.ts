@@ -1,16 +1,12 @@
 import {
-  IsHash,
-  IsEnum,
   IsEmail,
   IsString,
-  MaxLength,
-  MinLength,
   IsNotEmpty,
-  IsOptional,
-  IsPhoneNumber,
-  IsNumberString,
   IsArray,
   ValidateNested,
+  IsNumber,
+  IsEnum,
+  MinLength,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -18,6 +14,7 @@ import {
   trimTransformer,
   toLowerCaseTransformer,
 } from '@app/common/src/helpers/local-class-validator';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 export class FollowCommunityUserContactsDTO {
   @IsNotEmpty()
@@ -203,4 +200,42 @@ export class UpdateAccountLocationDTO {
   @IsString()
   @IsNotEmpty()
   city: string;
+}
+
+export class InviteBusinessMemberDTO {
+  @ApiProperty({
+    example: 'kunle@gmail.com',
+    description: 'Account email.',
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  @Transform(({ value }) => trimTransformer(toLowerCaseTransformer(value)))
+  email: string;
+
+  @ApiProperty({
+    example: AccountRole.MEMBER,
+    description: 'User role.',
+  })
+  @IsEnum(AccountRole)
+  @IsNotEmpty()
+  role: AccountRole;
+}
+
+export class AcceptBusinessInvitationDTO {
+  @ApiProperty({
+    example: 'Kunle',
+    description: 'Account name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    example: 'Password123',
+    description: 'Account password.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  password: string;
 }

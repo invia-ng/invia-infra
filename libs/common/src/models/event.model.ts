@@ -10,7 +10,11 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { AccountStatus, EventCategoryEnum, UserRole } from '../constants/enums';
+import {
+  AccountStatus,
+  EventCategoryEnum,
+  AccountRole,
+} from '../constants/enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Business } from './business.model';
 
@@ -42,7 +46,7 @@ export class Event {
     description: 'Event name',
   })
   name: string;
-  
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @ApiPropertyOptional({
     example: '2025-12-30T21:55:28.000Z',
@@ -59,7 +63,7 @@ export class Event {
     description: 'Event time',
   })
   time: string;
-  
+
   @Column({
     nullable: true,
     default: '',
@@ -69,7 +73,7 @@ export class Event {
     description: 'Event location',
   })
   location: string;
-  
+
   @Column({
     nullable: true,
     default: '',
@@ -79,7 +83,7 @@ export class Event {
     description: 'Event hash',
   })
   hash: string;
-  
+
   @Column({
     nullable: true,
     default: '',
@@ -121,7 +125,7 @@ export class EventInfo {
   @ApiProperty({ example: 'Ibrahim' })
   name: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     enum: EventCategoryEnum,
     example: EventCategoryEnum.OTHERS,
   })
@@ -168,11 +172,10 @@ export class EventInfo {
     example: 1,
   })
   failedInvites: number;
-
 }
 
 export class EventsResponse {
-    @ApiProperty({
+  @ApiProperty({
     isArray: true,
     type: EventInfo,
   })

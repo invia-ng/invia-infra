@@ -1,16 +1,17 @@
 import { In, Repository } from 'typeorm';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { FetchBusinessInfoQuery } from '../impl';
+import { FetchBusinessMemberInfoQuery } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { BusinessInfo, Business } from '@app/common/src/models/business.model';
+import { AccountInfo } from '@app/common/src/models/account.model';
 
-@QueryHandler(FetchBusinessInfoQuery)
-export class FetchBusinessInfoQueryHandler implements IQueryHandler<
-  FetchBusinessInfoQuery,
-  BusinessInfo
+@QueryHandler(FetchBusinessMemberInfoQuery)
+export class FetchBusinessMembersQueryHandler implements IQueryHandler<
+  FetchBusinessMemberInfoQuery,
+  AccountInfo[]
 > {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
@@ -18,9 +19,9 @@ export class FetchBusinessInfoQueryHandler implements IQueryHandler<
     private readonly businessRepository: Repository<Business>,
   ) {}
 
-  async execute(query: FetchBusinessInfoQuery) {
+  async execute(query: FetchBusinessMemberInfoQuery) {
     try {
-      this.logger.log('[FETCH-BUSINESS-INFO-PROCESSING]');
+      this.logger.log('[FETCH-BUSINESS-MEMBERS-PROCESSING]');
 
       const { secureUser } = query;
 
@@ -37,17 +38,20 @@ export class FetchBusinessInfoQueryHandler implements IQueryHandler<
             },
           },
         ],
+        relations: ['members'],
       });
 
       if (!business) {
         throw new NotFoundException(`Business record not found for user`);
       }
 
-      this.logger.log('[FETCH-BUSINESS-INFO-SUCCESS]');
+      this.logger.log('[FETCH-BUSINESS-MEMBERS-SUCCESS]');
 
-      return modelsFormatter.FormatBusinessInfo(business);
+      return business.members.map((member) =>
+        modelsFormatter.FormatAccountInfo(member),
+      );
     } catch (error) {
-      this.logger.log(`[FETCH-BUSINESS-INFO-HANDLER]: ${error}`);
+      this.logger.log(`[FETCH-BUSINESS-MEMBERS-HANDLER]: ${error}`);
       throw error;
     }
   }

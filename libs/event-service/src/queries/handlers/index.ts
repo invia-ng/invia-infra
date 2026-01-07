@@ -1,4 +1,5 @@
 import { FetchEventsQueryHandler } from "./FetchEventsQueryHandler";
+import { FetchEventInfoQueryHandler } from "./FetchEventInfoQueryHandler";
 import { FetchEventGuestsQueryHandler } from "./FetchEventGuestsQueryHandler";
 import { FetchGuestPartiesQueryHandler } from "./FetchGuestPartiesQueryHandler";
 import { FetchEventCategoriesQueryHandler } from "./FetchEventCategoriesQueryHandler";
@@ -10,6 +11,7 @@ import { FetchMessageTemplateFollowupConditionsQueryHandler } from "./FetchMessa
 
 export const EventServiceQueryHandlers = [
     FetchEventsQueryHandler,
+    FetchEventInfoQueryHandler,
     FetchEventGuestsQueryHandler,
     FetchGuestPartiesQueryHandler,
     FetchEventCategoriesQueryHandler,

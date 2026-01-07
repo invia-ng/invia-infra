@@ -8,7 +8,8 @@ import {
   UpdateAccountEmailDTO,
   VerifyNewAccountEmailDTO,
   UpdateAccountPhoneDTO,
-  UpdateAccountLocationDTO,
+  InviteBusinessMemberDTO,
+  AcceptBusinessInvitationDTO,
 } from '../../interface';
 
 export class UpdateAccountFCMTokenCommand {
@@ -84,5 +85,26 @@ export class UpdateAccountPhoneCommand {
   constructor(
     public readonly secureUser: SecureUserPayload,
     public readonly payload: UpdateAccountPhoneDTO,
+  ) {}
+}
+
+export class InviteBusinessMemberCommand {
+  constructor(
+    public readonly payload: InviteBusinessMemberDTO,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
+export class RemoveBusinessMemberCommand {
+  constructor(
+    public readonly accountId: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
+export class AcceptBusinessInvitationCommand {
+  constructor(
+    public readonly invitationHash: string,
+    public readonly payload: AcceptBusinessInvitationDTO,
   ) {}
 }

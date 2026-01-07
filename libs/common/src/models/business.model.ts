@@ -40,15 +40,8 @@ export class Business {
   })
   avatar: string;
 
-  @Column({
-    default: '[]',
-    nullable: true,
-  })
-  @ApiPropertyOptional({
-    example: '[1, 2, 3, 4]',
-    description: 'Business members',
-  })
-  members: string;
+  @OneToMany(() => Account, (account) => account.business)
+  members: Account[];
 
   @OneToOne(() => Account, {
     onDelete: 'CASCADE',
@@ -70,17 +63,16 @@ export class BusinessInfo {
     description: 'Business ID',
   })
   id: string;
-  
+
   @ApiProperty({
     example: '',
     description: 'Business name',
   })
   name: string;
-  
+
   @ApiProperty({
     example: '',
     description: 'Business avatar URL',
-  })  
+  })
   avatar: string;
-  
 }

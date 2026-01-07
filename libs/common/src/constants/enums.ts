@@ -63,9 +63,10 @@ export enum GuestPartyEnum {
   BRIDE = 'BRIDE',
 }
 
-export enum UserRole {
-  CUSTOMER = 'CUSTOMER',
+export enum AccountRole {
   ADMIN = 'ADMIN',
+  MEMBER = 'MEMBER',
+  CUSTOMER = 'CUSTOMER',
 }
 
 export enum UserActivityEnum {

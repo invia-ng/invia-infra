@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAccountEvent } from '../../events/impl';
 import { SignupResponsePayload } from '../../interface';
 import { AuthService } from '../../services/auth.service';
-import { UserRole } from '@app/common/src/constants/enums';
+import { AccountRole } from '@app/common/src/constants/enums';
 import authUtils from 'libs/common/src/security/auth.utils';
 import { Account } from 'libs/common/src/models/account.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
@@ -16,9 +16,10 @@ import { EmailAlreadyUsedException } from 'libs/common/src/constants/exceptions'
 import { AuthEmailNotificationService } from 'libs/notification-service/src/services/email/auth.email.notification.service';
 
 @CommandHandler(CreateAccountCommand)
-export class CreateAccountHandler
-  implements ICommandHandler<CreateAccountCommand, SignupResponsePayload>
-{
+export class CreateAccountHandler implements ICommandHandler<
+  CreateAccountCommand,
+  SignupResponsePayload
+> {
   constructor(
     private readonly eventBus: EventBus,
     private readonly authService: AuthService,
@@ -63,7 +64,7 @@ export class CreateAccountHandler
       const activationCodeExpiration = authUtils.generateFutureDate(1, 'hours');
 
       const existingUser = await this.userRepository.findOne({
-        where:  {
+        where: {
           email: payload.email,
         },
       });

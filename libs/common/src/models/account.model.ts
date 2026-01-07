@@ -4,12 +4,14 @@ import {
   Entity,
   JoinTable,
   OneToMany,
+  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { AccountStatus, UserRole } from '../constants/enums';
+import { AccountStatus, AccountRole } from '../constants/enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Business } from './business.model';
 
 @Entity()
 @Index('IDX_USER_EMAIL', ['email'])
@@ -117,17 +119,17 @@ export class Account {
     description: 'Business avatar URL',
   })
   businessAvatar: string;
-  
+
   @Column({
     type: 'enum',
-    enum: UserRole,
-    default: UserRole.CUSTOMER,
+    enum: AccountRole,
+    default: AccountRole.ADMIN,
   })
   @ApiPropertyOptional({
-    example: UserRole.CUSTOMER,
+    example: AccountRole.ADMIN,
     description: 'User role',
   })
-  role: UserRole;
+  role: AccountRole;
 
   @Column({
     nullable: true,
@@ -144,6 +146,12 @@ export class Account {
     description: 'Signup verification hash',
   })
   signupVerificationHash: string;
+
+  @Column({ default: '', nullable: true })
+  @ApiPropertyOptional({
+    description: 'Business invitation hash',
+  })
+  invitationHash: string;
 
   @Column({
     nullable: true,
@@ -201,7 +209,7 @@ export class Account {
     description: 'Password reset code expires by e.g 2024-11-10_T_11:29:22',
   })
   passwordResetCodeExpires: Date;
-  
+
   @Column({
     nullable: true,
     default: false,
@@ -211,7 +219,7 @@ export class Account {
     description: 'Is password updated',
   })
   isPasswordUpdated: boolean;
-  
+
   @Column({
     nullable: true,
     default: false,
@@ -221,6 +229,9 @@ export class Account {
     description: 'Is business profile updated',
   })
   isBusinessProfileUpdated: boolean;
+
+  @ManyToOne('Business', 'members', { onDelete: 'CASCADE' })
+  business: Business;
 
   @CreateDateColumn({ nullable: true })
   createdAt: Date;
@@ -253,8 +264,8 @@ export class AccountInfo {
   })
   avatar: string;
 
-  @ApiProperty({ example: 'CUSTOMER', enum: UserRole })
-  role: UserRole;
+  @ApiProperty({ example: 'CUSTOMER', enum: AccountRole })
+  role: AccountRole;
 
   @ApiProperty({ example: 'active', enum: AccountStatus })
   status: AccountStatus;
