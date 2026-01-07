@@ -1,10 +1,18 @@
 import { SecureUserPayload } from '@app/common/src/interface';
-import { AddEventGuestsDTO, AddMessageTemplateDTO, CreateEventDTO, InviteEventGuestsDTO, InviteFollowupMessage, UpdateMessageTemplateDTO } from '../../interface';
+import { AddEventGuestsDTO, AddMessageTemplateDTO, UpdateEventDTO, InviteEventGuestsDTO, InviteFollowupMessage, UpdateMessageTemplateDTO, CreateEventDTO } from '../../interface';
 
 export class CreateEventCommand {
     constructor(
         public readonly secureUser: SecureUserPayload,
         public readonly payload: CreateEventDTO,
+    ){}
+}
+
+export class UpdateEventCommand {
+    constructor(
+        public readonly eventId: number,
+        public readonly payload: UpdateEventDTO,
+        public readonly secureUser: SecureUserPayload,
     ){}
 }
 

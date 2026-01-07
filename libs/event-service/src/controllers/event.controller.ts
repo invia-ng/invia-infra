@@ -7,6 +7,7 @@ import {
   Delete,
   UseGuards,
   Controller,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -32,6 +33,7 @@ import {
   AddEventGuestsDTO,
   CreateEventDTO,
   InviteEventGuestsDTO,
+  UpdateEventDTO,
 } from '../interface';
 import {
   AddEventGuestsCommand,
@@ -39,6 +41,7 @@ import {
   InviteEventGuestsCommand,
   RemoveEventGuestCommand,
   RemoveMultipleEventGuestsCommand,
+  UpdateEventCommand,
 } from '../commands/impl';
 
 @ApiTags('event')
@@ -108,6 +111,24 @@ export class EventController {
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<EventInfo> {
     return await this.command.execute(new CreateEventCommand(secureUser, body));
+  }
+
+  @Patch('update')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiOkResponse({ type: EventInfo })
+  @ApiInternalServerErrorResponse()
+  async updateEvent(
+    @Body() body: UpdateEventDTO,
+    @Query('eventId') eventId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<EventInfo> {
+    return await this.command.execute(new UpdateEventCommand(eventId, body, secureUser));
   }
 
   @Get('guests/fetch')

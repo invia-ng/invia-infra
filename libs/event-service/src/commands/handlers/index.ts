@@ -1,3 +1,4 @@
+import { UpdateEventHandler } from "./UpdateEventHandler";
 import { CreateEventHandler } from "./CreateEventHandler";
 import { AddEventGuestsHandler } from "./AddEventGuestsHandler";
 import { RemoveEventGuestHandler } from "./RemoveEventGuestHandler";
@@ -16,6 +17,7 @@ import { EventAuthorInviteEventGuestsHandler } from "./author/EventAuthorInviteE
 
 export const EventServiceCommandHandlers = [
     CreateEventHandler,
+    UpdateEventHandler,
     AddEventGuestsHandler,
     RemoveEventGuestHandler,
     InviteEventGuestsHandler,

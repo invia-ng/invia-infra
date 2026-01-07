@@ -54,7 +54,7 @@ export class CreateEventDTO {
     example: '14:00',
     description: 'Event time.',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   time: string;
 
@@ -62,10 +62,12 @@ export class CreateEventDTO {
     example: 'Zumji Event Center',
     description: 'Event location.',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   location: string;
 }
+
+export class UpdateEventDTO extends CreateEventDTO {}
 
 export class NewGuestDto {
   @ApiProperty({
