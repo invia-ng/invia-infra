@@ -12,6 +12,7 @@ import { BusinessInvitationInfo } from '../interface/schema';
 import { AcceptBusinessInvitationCommand } from '../commands/impl';
 import { FetchBusinessInvitationInfoQuery } from '../queries/impl';
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { SigninResponsePayload } from '@app/auth-service/src/interface';
 
 @ApiTags('member')
 @Controller({ path: 'member' })
@@ -49,12 +50,12 @@ export class ManageMemberController {
     name: 'invitationHash',
     description: 'Invitation Hash',
   })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: SigninResponsePayload })
   @ApiInternalServerErrorResponse()
   async acceptBusinessInvitation(
     @Query('invitationHash') invitationHash: string,
     @Body() payload: AcceptBusinessInvitationDTO,
-  ): Promise<void> {
+  ): Promise<SigninResponsePayload> {
     return await this.command.execute(
       new AcceptBusinessInvitationCommand(invitationHash, payload),
     );

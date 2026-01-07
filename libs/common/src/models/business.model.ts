@@ -36,7 +36,7 @@ export class Business {
   })
   @ApiPropertyOptional({
     description: 'Business avatar URL',
-    example: 'https://media.s3.amazonaws.com/avatars/avatar.png',
+    example: 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799379/event_ypdcrh.png',
   })
   avatar: string;
 

@@ -39,7 +39,7 @@ export class DeleteBusinessProfileImageHandler
       }
 
       Object.assign(business, {
-        avatar: 'https://via.placeholder.com/150',
+        avatar: 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799379/event_ypdcrh.png',
       });
 
       await this.businessRepository.save(business);

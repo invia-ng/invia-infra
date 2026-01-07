@@ -1,3 +1,4 @@
+import { AccountRole } from '@app/common/src/constants/enums';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PhoneContactInfo {
@@ -32,4 +33,24 @@ export class BusinessInvitationInfo {
     description: 'Business avatar URL',
   })
   avatar: string;
+}
+
+export class BusinessMemberRoleInfo {
+  @ApiProperty({
+    example: AccountRole.MEMBER,
+    description: 'Account role',
+  })
+  role: AccountRole;
+
+  @ApiProperty({
+    example: '',
+    description: 'Account role title',
+  })
+  title: string;
+
+  @ApiProperty({
+    example: '',
+    description: 'Account role description',
+  })
+  description: string;
 }

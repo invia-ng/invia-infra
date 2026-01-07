@@ -2,10 +2,11 @@ import { Event, EventInfo } from "../models/event.model";
 import {Account, AccountInfo} from "../models/account.model";
 import { Business, BusinessInfo } from "../models/business.model";
 import { Notification, NotificationInfo } from "../models/notification.model";
-import { EventCategoryEnum, FollowupConditionEnum, FollowupIntervalEnum, GuestPartyEnum, MessageTemplateEnum } from "../constants/enums";
+import { AccountRole, EventCategoryEnum, FollowupConditionEnum, FollowupIntervalEnum, GuestPartyEnum, MessageTemplateEnum } from "../constants/enums";
 import { EventCategoryInfo, GuestPartyInfo, MessageTemplateFollowupConditionInfo, MessageTemplateFollowupIntervalInfo, MessageTemplateEnumInfo } from "@app/event-service/src/interface/schema";
 import { Guest, GuestInfo } from "../models/guest.model";
 import { MessageTemplate, MessageTemplateInfo } from "../models/message.template.model";
+import { BusinessMemberRoleInfo } from "@app/account-service/src/interface/schema";
 
 
 export function FormatNotification(
@@ -299,6 +300,33 @@ export function FormatEventCategoryInfo(
     }) as unknown as EventCategoryInfo[];
 }
 
+export function FormatBusinessMemberRoleInfo(
+    roles: AccountRole[],
+): BusinessMemberRoleInfo[] {
+    return roles.map((role) => {
+      switch(role){
+        case AccountRole.MEMBER:
+          return {
+            value: role,
+            title: 'Member role',
+            description: 'Can manage events, guests, and messages with limited access.',
+          } 
+        case AccountRole.ADMIN:
+          return {
+            value: role,
+            title: 'Admin role',
+            description: 'Full access to manage events, guests, messages, members, and account settings.'
+          } 
+        default:
+          return {
+            title: role,
+            value: role,
+            description: role,
+          } 
+      }
+    }) as unknown as BusinessMemberRoleInfo[];
+}
+
 export default {
   FormatGuestInfo,
   FormatEventInfo,
@@ -308,6 +336,7 @@ export default {
   FormatGuestPartyInfo,
   FormatEventCategoryInfo,
   FormatMessageTemplateInfo,
+  FormatBusinessMemberRoleInfo,
   FormatMessageTemplateEnumInfo,
   FormatMessageFollowupIntervalInfo,
   FormatMessageFollowupConditionInfo,

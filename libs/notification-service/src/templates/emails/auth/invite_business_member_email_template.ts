@@ -112,7 +112,7 @@ export const invite_business_member_email_html_content = (payload:{
                 <div class="message">
                     Hello,<br><br>
                     You’ve been invited to manage a business(${payload.businessName}) on <strong>Invia</strong>.
-                    This invitation gives you access to manage business operations, listings, and related activities.
+                    This invitation gives you access to manage business operations like event creation, guest list management, invitations andd more.
                 </div>
 
                 <div style="text-align: center;">

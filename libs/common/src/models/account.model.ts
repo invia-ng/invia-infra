@@ -105,7 +105,7 @@ export class Account {
     default: 'https://livestocx-media.s3.amazonaws.com/avatars/avatar.png',
   })
   @ApiPropertyOptional({
-    example: 'https://media.s3.amazonaws.com/avatars/avatar.png',
+    example: 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799165/Screenshot_2026-01-07_at_16.19.18_nvaxru.png',
     description: 'Avatar URL',
   })
   avatar: string;
@@ -115,7 +115,7 @@ export class Account {
     default: '',
   })
   @ApiPropertyOptional({
-    example: 'https://media.s3.amazonaws.com/avatars/avatar.png',
+    example: 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799165/Screenshot_2026-01-07_at_16.19.18_nvaxru.png',
     description: 'Business avatar URL',
   })
   businessAvatar: string;

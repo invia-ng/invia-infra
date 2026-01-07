@@ -27,6 +27,7 @@ import { AccountNotificationService } from '@app/notification-service/src/servic
 import { AccountNotificationController } from '@app/notification-service/src/controllers/account.notification.controller';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
 import { ManageMemberController } from './controllers/manage.member.controller';
+import { AuthService } from '@app/auth-service/src/services/auth.service';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ManageMemberController } from './controllers/manage.member.controller';
     // AccountNotificationController,
   ],
   providers: [
+    AuthService,
     AccountService,
     {
       provide: 'Logger',

@@ -3,10 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { FetchBusinessInvitationInfoQuery } from '../impl';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { Account } from '@app/common/src/models/account.model';
 import { BusinessInvitationInfo } from '../../interface/schema';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
-import modelsFormatter from '@app/common/src/middlewares/models.formatter';
-import { Account, AccountInfo } from '@app/common/src/models/account.model';
 
 @QueryHandler(FetchBusinessInvitationInfoQuery)
 export class FetchBusinessInvitationInfoQueryHandler implements IQueryHandler<
@@ -29,6 +28,7 @@ export class FetchBusinessInvitationInfoQueryHandler implements IQueryHandler<
         where: {
           invitationHash,
         },
+        relations: ['business'],
       });
 
       if (!account) {

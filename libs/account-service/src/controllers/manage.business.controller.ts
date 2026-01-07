@@ -17,19 +17,17 @@ import {
 } from '@nestjs/common';
 import {
   ApiTags,
+  ApiQuery,
   ApiOkResponse,
   ApiBearerAuth,
   ApiInternalServerErrorResponse,
-  ApiQuery,
 } from '@nestjs/swagger';
 import {
-  DeleteBusinessProfileImageCommand,
+  UpdateBusinessNameCommand,
   InviteBusinessMemberCommand,
   RemoveBusinessMemberCommand,
-  UpdateAccountNameCommand,
-  UpdateBusinessNameCommand,
+  DeleteBusinessProfileImageCommand,
   UpdateBusinessProfileImageCommand,
-  UpdateProfileImageCommand,
 } from '../commands/impl';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -43,6 +41,7 @@ import { AccountInfo } from '@app/common/src/models/account.model';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { BusinessInfo } from '@app/common/src/models/business.model';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
+import { BusinessMemberRoleInfo } from '../interface/schema';
 
 @ApiTags('manage-business-info')
 @Controller({ path: 'manage-business' })
@@ -65,11 +64,11 @@ export class ManageBusinessController {
   }
 
   @Get('members/roles')
-  @ApiOkResponse({ type: AccountInfo })
+  @ApiOkResponse({ type: BusinessMemberRoleInfo, isArray: true })
   @ApiInternalServerErrorResponse()
   async getBusinessMembersRoles(
     @SecureUser() secureUser: SecureUserPayload,
-  ): Promise<AccountInfo[]> {
+  ): Promise<BusinessMemberRoleInfo[]> {
     return await this.queryBus.execute(
       new FetchBusinessMemberRolesQuery(secureUser),
     );
