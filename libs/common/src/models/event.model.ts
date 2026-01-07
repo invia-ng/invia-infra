@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import {
   AccountStatus,
@@ -104,7 +105,7 @@ export class Event {
   })
   passcodeExpires: Date;
 
-  @OneToOne(() => Business, {
+  @ManyToOne(() => Business, {
     onDelete: 'CASCADE',
     eager: true,
   })
