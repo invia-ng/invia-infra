@@ -9,6 +9,7 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
+import { AccountStatus } from '@app/common/src/constants/enums';
 
 @CommandHandler(CreateAccountPasswordCommand)
 export class CreateAccountPasswordHandler
@@ -45,6 +46,7 @@ export class CreateAccountPasswordHandler
       Object.assign(account, {
         isPasswordUpdated: true,
         password: hashedPassword,
+        status: AccountStatus.ACTIVE,
       });
 
       await this.userRepository.save(account);
