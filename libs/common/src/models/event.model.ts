@@ -119,6 +119,45 @@ export class Event {
   updatedAt: Date;
 }
 
+@Entity()
+export class EventParty {
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+  })
+  id: number;
+
+  @Column({
+    nullable: true,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    example: 'Bunke Dinner',
+    description: 'Event name',
+  })
+  name: string;
+
+  @ManyToOne(() => Event, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'event' })
+  event: Event;
+
+  @CreateDateColumn({ nullable: true })
+  createdAt: Date;
+
+  @UpdateDateColumn({ nullable: true })
+  updatedAt: Date;
+}
+
+export class EventPartyInfo {
+  @ApiProperty({ example: '75' })
+  id: string;
+
+  @ApiProperty({ example: "Bride's Family" })
+  name: string;
+}
+
 export class EventInfo {
   @ApiProperty({ example: '75' })
   id: string;

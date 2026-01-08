@@ -1,50 +1,41 @@
-import { CommandBus } from '@nestjs/cqrs';
 import {
   SigninDTO,
-  SigninResponsePayload,
-  SignupResponsePayload,
-  SignupVerificationResponsePayload,
-  ResetPasswordOTPVerificationResponsePayload,
-  InitializeNewAccountDTO,
-  CreateAccountPasswordDTO,
-  InitializeBusinessProfileDTO,
-} from '../interface';
-import { AuthService } from '../services/auth.service';
-import { Body, Controller, Post, Query, Req, UseGuards } from '@nestjs/common';
-import {
-  OAuthSigninDTO,
-  CreateAccountDTO,
+  NewAccountInfo,
   ResetPasswordDTO,
   ForgotPasswordDTO,
+  SigninResponsePayload,
+  SignupResponsePayload,
+  InitializeNewAccountDTO,
+  CreateAccountPasswordDTO,
   ResetPasswordVerificationDTO,
   CompleteSignupVerificationDTO,
+  InitializeBusinessProfileDTO,
+  ResetPasswordOTPVerificationResponsePayload,
 } from '../interface';
 import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiConflictResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiQuery,
   ApiTags,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiConflictResponse,
 } from '@nestjs/swagger';
 import {
   SignInCommand,
-  OAuthSignInCommand,
-  CreateAccountCommand,
   ResetPasswordCommand,
   ForgotPasswordCommand,
   InitializeNewAccountCommand,
-  CreateAccountVerificationCommand,
-  ResetPasswordOTpVerificationCommand,
   CreateAccountPasswordCommand,
   InitializeBusinessProfileCommand,
+  CreateAccountVerificationCommand,
+  ResetPasswordOTpVerificationCommand,
 } from '../commands/impl';
-import authUtils from 'libs/common/src/security/auth.utils';
-import { AccountInfo } from '@app/common/src/models/account.model';
-import { SecureUserPayload } from '@app/common/src/interface';
-import { SecureUser } from '@app/common/src/decorator/user.decorator';
+import { CommandBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '@app/common/src/auth';
+import { AuthService } from '../services/auth.service';
+import authUtils from 'libs/common/src/security/auth.utils';
+import { SecureUserPayload } from '@app/common/src/interface';
+import { AccountInfo } from '@app/common/src/models/account.model';
+import { SecureUser } from '@app/common/src/decorator/user.decorator';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 
 @ApiTags('auth')
 @Controller({ path: '' })
@@ -63,20 +54,17 @@ export class AuthController {
     @Req() req: Request,
   ): Promise<SignupResponsePayload> {
     return await this.command.execute(
-      new InitializeNewAccountCommand(
-        authUtils.getOriginHeader(req),
-        body,
-      ),
+      new InitializeNewAccountCommand(authUtils.getOriginHeader(req), body),
     );
   }
 
   @Post('signup-verification')
-  @ApiOkResponse({ type: SignupVerificationResponsePayload })
+  @ApiOkResponse({ type: NewAccountInfo })
   @ApiConflictResponse()
   async signupVerification(
     @Body() body: CompleteSignupVerificationDTO,
     @Req() req: Request,
-  ): Promise<SignupVerificationResponsePayload> {
+  ): Promise<NewAccountInfo> {
     return await this.command.execute(
       new CreateAccountVerificationCommand(
         authUtils.getOriginHeader(req),
@@ -95,13 +83,10 @@ export class AuthController {
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<AccountInfo> {
     return await this.command.execute(
-      new CreateAccountPasswordCommand(
-        secureUser,
-        body,
-      ),
+      new CreateAccountPasswordCommand(secureUser, body),
     );
   }
-  
+
   @Post('initialize-business-profile')
   @ApiOkResponse({ type: AccountInfo })
   @ApiConflictResponse()
@@ -112,10 +97,7 @@ export class AuthController {
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<AccountInfo> {
     return await this.command.execute(
-      new InitializeBusinessProfileCommand(
-        secureUser,
-        body,
-      ),
+      new InitializeBusinessProfileCommand(secureUser, body),
     );
   }
 

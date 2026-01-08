@@ -1,7 +1,10 @@
 import { UpdateEventHandler } from "./UpdateEventHandler";
 import { CreateEventHandler } from "./CreateEventHandler";
+import { DeleteEventHandler } from "./DeleteEventHandler";
 import { AddEventGuestsHandler } from "./AddEventGuestsHandler";
+import { CreateEventPartyHandler } from "./CreateEventPartyHandler";
 import { RemoveEventGuestHandler } from "./RemoveEventGuestHandler";
+import { DeleteEventPartyHandler } from "./DeleteEventPartyHandler";
 import { InviteEventGuestsHandler } from "./InviteEventGuestsHandler";
 import { CreateMessageTemplateHandler } from "./CreateMessageTemplateHandler";
 import { UpdateMessageTemplateHandler } from "./UpdateMessageTemplateHandler";
@@ -17,9 +20,12 @@ import { EventAuthorInviteEventGuestsHandler } from "./author/EventAuthorInviteE
 
 export const EventServiceCommandHandlers = [
     CreateEventHandler,
+    DeleteEventHandler,
     UpdateEventHandler,
     AddEventGuestsHandler,
+    DeleteEventPartyHandler,
     RemoveEventGuestHandler,
+    CreateEventPartyHandler,
     InviteEventGuestsHandler,
     AddEventAuthorGuestsHandler,
     DeleteMessageTemplateHandler,

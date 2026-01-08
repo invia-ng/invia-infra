@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Inject } from '@nestjs/common';
+import { BadRequestException, Inject } from '@nestjs/common';
 import { ForgotPasswordCommand } from '../impl';
 import { createHash, randomUUID } from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,11 +9,10 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UserNotFoundException } from 'libs/common/src/constants/exceptions';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
+import { AccountStatus } from '@app/common/src/constants/enums';
 
 @CommandHandler(ForgotPasswordCommand)
-export class ForgotPasswordHandler
-  implements ICommandHandler<ForgotPasswordCommand>
-{
+export class ForgotPasswordHandler implements ICommandHandler<ForgotPasswordCommand> {
   constructor(
     private readonly eventBus: EventBus,
     @Inject('Logger') private readonly logger: AppLogger,
@@ -43,6 +42,12 @@ export class ForgotPasswordHandler
 
       if (!account) {
         throw UserNotFoundException();
+      }
+
+      if (account.status === AccountStatus.PENDING) {
+        throw new BadRequestException(
+          'Account is not active, restart your registration process.',
+        );
       }
 
       Object.assign(account, {

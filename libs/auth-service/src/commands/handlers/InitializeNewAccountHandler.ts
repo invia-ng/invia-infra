@@ -5,7 +5,7 @@ import { InitializeNewAccountCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignupResponsePayload } from '../../interface';
 import { AuthService } from '../../services/auth.service';
-import { AccountRole } from '@app/common/src/constants/enums';
+import { AccountRole, AccountStatus } from '@app/common/src/constants/enums';
 import authUtils from 'libs/common/src/security/auth.utils';
 import { InitializeNewAccountEvent } from '../../events/impl';
 import { Account } from 'libs/common/src/models/account.model';
@@ -52,7 +52,11 @@ export class InitializeNewAccountHandler implements ICommandHandler<
         },
       });
 
-      if (existingUser && existingUser.signupVerificationHash === '') {
+      if (
+        existingUser &&
+        existingUser.signupVerificationHash === '' &&
+        existingUser.status === AccountStatus.ACTIVE
+      ) {
         throw EmailAlreadyUsedException();
       }
 

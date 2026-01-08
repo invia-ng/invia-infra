@@ -10,12 +10,12 @@ import { AccountStatus } from '@app/common/src/constants/enums';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UserNotFoundException } from 'libs/common/src/constants/exceptions';
-import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
 
 @CommandHandler(SignInCommand)
-export class SignInHandler
-  implements ICommandHandler<SignInCommand, SigninResponsePayload>
-{
+export class SignInHandler implements ICommandHandler<
+  SignInCommand,
+  SigninResponsePayload
+> {
   constructor(
     private readonly eventBus: EventBus,
     private readonly authService: AuthService,
@@ -38,7 +38,10 @@ export class SignInHandler
         throw UserNotFoundException();
       }
 
-      if (account.status === AccountStatus.PENDING) {
+      if (
+        account.status === AccountStatus.PENDING &&
+        account.signupVerificationHash.length !== 0
+      ) {
         throw new UnauthorizedException(
           'Account not activated. Please contact support to complete your verification.',
         );

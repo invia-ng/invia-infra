@@ -33,9 +33,10 @@ export class AuthService {
       const jwt = this.jwtService.sign(
         {
           id: user.id,
+          role: user.role,
+          name: user.name,
           email: user.email,
-          role: `${user.role}`,
-          isAccountDisabled: user.isAccountDisabled,
+          status: user.status,
         },
         {
           subject: `${user.id}`,

@@ -16,13 +16,23 @@ import {
   isEnum,
   IsNumber,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
 import {
-  trimTransformer,
-  toLowerCaseTransformer,
-} from '@app/common/src/helpers/local-class-validator';
-import { EventCategoryEnum, FollowupConditionEnum, FollowupIntervalEnum, GuestPartyEnum } from '@app/common/src/constants/enums';
+  EventCategoryEnum,
+  FollowupIntervalEnum,
+  FollowupConditionEnum,
+} from '@app/common/src/constants/enums';
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
+
+export class CreateEventPartyDTO {
+  @ApiProperty({
+    example: "Bride's Family",
+    description: 'Event party name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+}
 
 export class CreateEventDTO {
   @ApiProperty({
@@ -127,12 +137,13 @@ export class AddEventGuestsDTO {
 export class InviteFollowupMessage {
   @ApiProperty({
     description: 'Followup message.',
-    example: 'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+    example:
+      'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
   })
   @IsString()
   @IsNotEmpty()
   message: string;
-  
+
   @ApiProperty({
     description: 'Followup interval.',
     example: FollowupIntervalEnum.ONE_DAY,
@@ -203,7 +214,8 @@ export class InviteEventGuestsDTO {
       {
         interval: FollowupIntervalEnum.ONE_DAY,
         condition: FollowupConditionEnum.NO_RSVP,
-        message: 'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+        message:
+          'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
       },
     ],
   })
@@ -211,7 +223,7 @@ export class InviteEventGuestsDTO {
   @IsOptional()
   @ValidateNested()
   @Type(() => InviteFollowupMessage)
-  followupInvitations?: InviteFollowupMessage[];  
+  followupInvitations?: InviteFollowupMessage[];
 }
 
 export class AddMessageTemplateDTO {
@@ -265,7 +277,7 @@ export class AddMessageTemplateDTO {
 }
 
 export class UpdateMessageTemplateDTO {
-    @ApiProperty({
+  @ApiProperty({
     example: 'John Doe',
     description: 'Message template name.',
   })

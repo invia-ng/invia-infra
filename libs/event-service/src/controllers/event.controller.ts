@@ -1,4 +1,17 @@
 import {
+  UpdateEventDTO,
+  CreateEventDTO,
+  AddEventGuestsDTO,
+  InviteEventGuestsDTO,
+  CreateEventPartyDTO,
+} from '../interface';
+import {
+  FetchEventsQuery,
+  FetchEventInfoQuery,
+  FetchEventGuestsQuery,
+  FetchEventPartiesQuery,
+} from '../queries/impl';
+import {
   Get,
   Req,
   Post,
@@ -16,33 +29,29 @@ import {
   ApiBearerAuth,
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
+import {
+  CreateEventCommand,
+  DeleteEventCommand,
+  UpdateEventCommand,
+  AddEventGuestsCommand,
+  RemoveEventGuestCommand,
+  CreateEventPartyCommand,
+  DeleteEventPartyCommand,
+  InviteEventGuestsCommand,
+  RemoveMultipleEventGuestsCommand,
+} from '../commands/impl';
+import {
+  EventInfo,
+  EventPartyInfo,
+  EventsResponse,
+} from '@app/common/src/models/event.model';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EventService } from '../services/event.service';
 import { DeleteDataInstanceInfo } from '../interface/schema';
 import { SecureUserPayload } from '@app/common/src/interface';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
-import {
-  FetchEventGuestsQuery,
-  FetchEventInfoQuery,
-  FetchEventsQuery,
-} from '../queries/impl';
-import { EventInfo, EventsResponse } from '@app/common/src/models/event.model';
 import { GuestInfo, GuestsResponse } from '@app/common/src/models/guest.model';
-import {
-  AddEventGuestsDTO,
-  CreateEventDTO,
-  InviteEventGuestsDTO,
-  UpdateEventDTO,
-} from '../interface';
-import {
-  AddEventGuestsCommand,
-  CreateEventCommand,
-  InviteEventGuestsCommand,
-  RemoveEventGuestCommand,
-  RemoveMultipleEventGuestsCommand,
-  UpdateEventCommand,
-} from '../commands/impl';
 
 @ApiTags('event')
 @Controller({ path: '' })
@@ -54,6 +63,72 @@ export class EventController {
     public command: CommandBus,
     public readonly eventService: EventService,
   ) {}
+
+  @Get('parties')
+  @ApiQuery({
+    example: 1,
+    type: Number,
+    required: true,
+    name: 'eventId',
+    description: 'Event primary ID',
+  })
+  @ApiOkResponse({ type: EventPartyInfo, isArray: true })
+  @ApiInternalServerErrorResponse()
+  async fetchEventParties(
+    @Query('eventId') eventId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<EventPartyInfo> {
+    return await this.queryBus.execute(
+      new FetchEventPartiesQuery(eventId, secureUser),
+    );
+  }
+
+  @Post('parties/create')
+  @ApiQuery({
+    example: 1,
+    type: Number,
+    required: true,
+    name: 'eventId',
+    description: 'Event primary ID',
+  })
+  @ApiOkResponse({ type: EventPartyInfo })
+  @ApiInternalServerErrorResponse()
+  async createEventParty(
+    @Query('eventId') eventId: number,
+    @Body() payload: CreateEventPartyDTO,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<EventPartyInfo> {
+    return await this.command.execute(
+      new CreateEventPartyCommand(eventId, payload, secureUser),
+    );
+  }
+
+  @Delete('parties/delete')
+  @ApiQuery({
+    example: 1,
+    type: Number,
+    required: true,
+    name: 'eventId',
+    description: 'Event primary ID',
+  })
+  @ApiQuery({
+    example: 1,
+    type: Number,
+    required: true,
+    name: 'partyId',
+    description: 'Event party primary ID',
+  })
+  @ApiOkResponse({ type: DeleteDataInstanceInfo })
+  @ApiInternalServerErrorResponse()
+  async deleteEventParty(
+    @Query('eventId') eventId: number,
+    @Query('partyId') partyId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<DeleteDataInstanceInfo> {
+    return await this.command.execute(
+      new DeleteEventPartyCommand(eventId, partyId, secureUser),
+    );
+  }
 
   @Get('fetch')
   @ApiQuery({
@@ -128,7 +203,28 @@ export class EventController {
     @Query('eventId') eventId: number,
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<EventInfo> {
-    return await this.command.execute(new UpdateEventCommand(eventId, body, secureUser));
+    return await this.command.execute(
+      new UpdateEventCommand(eventId, body, secureUser),
+    );
+  }
+
+  @Delete('delete')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiOkResponse({ type: DeleteDataInstanceInfo })
+  @ApiInternalServerErrorResponse()
+  async deleteEvent(
+    @Query('eventId') eventId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<DeleteDataInstanceInfo> {
+    return await this.command.execute(
+      new DeleteEventCommand(eventId, secureUser),
+    );
   }
 
   @Get('guests/fetch')

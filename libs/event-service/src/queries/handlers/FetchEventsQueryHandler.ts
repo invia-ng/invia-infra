@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { FetchEventsQuery } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, NotFoundException } from '@nestjs/common';
@@ -63,6 +63,7 @@ export class FetchEventsQueryHandler implements IQueryHandler<
           business: {
             id: business.id,
           },
+          date: MoreThanOrEqual(new Date()),
         },
         order: {
           createdAt: 'DESC',

@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentBuilder } from '@nestjs/swagger';
 import { EventServiceCronHandlers } from './jobs';
 import { EventService } from './services/event.service';
-import { Event } from '@app/common/src/models/event.model';
 import { Guest } from '@app/common/src/models/guest.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Setting } from '@app/common/src/models/setting.model';
@@ -16,6 +15,7 @@ import { Business } from '@app/common/src/models/business.model';
 import { EventController } from './controllers/event.controller';
 import { EventServiceCommandHandlers } from './commands/handlers';
 import { AppLogger } from '../../common/src/logger/logger.service';
+import { Event, EventParty } from '@app/common/src/models/event.model';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
 import { EventAdminController } from './controllers/event.admin.controller';
@@ -41,6 +41,7 @@ import { EventEmailNotificationService } from '@app/notification-service/src/ser
       Account,
       Setting,
       Business,
+      EventParty,
       Invitation,
       Notification,
       MessageTemplate,

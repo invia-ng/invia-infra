@@ -1,3 +1,5 @@
+import { AccountRole, AccountStatus } from "../constants/enums";
+
 export interface AccessTokenPayload {
   eventHash: string;
   eventId: number;
@@ -12,8 +14,8 @@ export interface EventInvitationHashPayload {
 
 export interface SecureUserPayload {
   id: number;
+  name: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  status: string;
+  role: AccountRole;
+  status: AccountStatus;
 }

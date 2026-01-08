@@ -49,7 +49,6 @@ export class CreateAccountVerificationHandler
       Object.assign(account, {
         activationCode: '',
         signupVerificationHash: '',
-        status: AccountStatus.ACTIVE,
       });
 
       await this.userRepository.save(account);

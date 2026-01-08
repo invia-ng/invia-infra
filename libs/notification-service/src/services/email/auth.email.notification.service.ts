@@ -68,7 +68,7 @@ export class AuthEmailNotificationService implements OnModuleInit {
 
   async verifyNewAccountEmailNotification(account: Account) {
     const htmlContent = await update_account_email_html_content(
-      account.firstName,
+      account.name,
       account.activationCode,
     );
 

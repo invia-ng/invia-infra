@@ -151,12 +151,12 @@ export class CreateAccountDTO {
 
 export class CompleteSignupVerificationDTO {
   @ApiProperty()
-  @IsHash('sha256')
-  signupVerificationHash: string;
-
-  @ApiProperty()
   @IsString()
   otp: string;
+
+  @ApiProperty()
+  @IsHash('sha256')
+  signupVerificationHash: string;
 }
 
 export class CreateAccountPasswordDTO {

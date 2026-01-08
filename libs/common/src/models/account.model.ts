@@ -36,36 +36,6 @@ export class Account {
     default: '',
   })
   @ApiPropertyOptional({
-    example: 'Kunle',
-    description: 'First name',
-  })
-  firstName: string;
-
-  @Column({
-    nullable: true,
-    default: '',
-  })
-  @ApiPropertyOptional({
-    example: 'Adeboye',
-    description: 'Last name',
-  })
-  lastName: string;
-
-  @Column({
-    nullable: true,
-    default: '',
-  })
-  @ApiPropertyOptional({
-    example: 'Ade Events',
-    description: 'Business name',
-  })
-  businessName: string;
-
-  @Column({
-    nullable: true,
-    default: '',
-  })
-  @ApiPropertyOptional({
     example: '+2348054618649',
     description: 'Phone number',
   })
@@ -102,23 +72,15 @@ export class Account {
 
   @Column({
     nullable: true,
-    default: 'https://livestocx-media.s3.amazonaws.com/avatars/avatar.png',
+    default:
+      'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799165/Screenshot_2026-01-07_at_16.19.18_nvaxru.png',
   })
   @ApiPropertyOptional({
-    example: 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799165/Screenshot_2026-01-07_at_16.19.18_nvaxru.png',
+    example:
+      'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799165/Screenshot_2026-01-07_at_16.19.18_nvaxru.png',
     description: 'Avatar URL',
   })
   avatar: string;
-
-  @Column({
-    nullable: true,
-    default: '',
-  })
-  @ApiPropertyOptional({
-    example: 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799165/Screenshot_2026-01-07_at_16.19.18_nvaxru.png',
-    description: 'Business avatar URL',
-  })
-  businessAvatar: string;
 
   @Column({
     type: 'enum',
@@ -247,12 +209,6 @@ export class AccountInfo {
   @ApiProperty({ example: 'Ibrahim' })
   name: string;
 
-  @ApiProperty({ example: 'Ibrahim' })
-  firstName: string;
-
-  @ApiProperty({ example: 'Gyang' })
-  lastName: string;
-
   @ApiProperty({ example: '8054618649' })
   phoneNumber: string;
 
@@ -260,7 +216,8 @@ export class AccountInfo {
   email: string;
 
   @ApiProperty({
-    example: 'https://livestocx-media.s3.amazonaws.com/avatars/avatar.png',
+    example:
+      'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799165/Screenshot_2026-01-07_at_16.19.18_nvaxru.png',
   })
   avatar: string;
 
@@ -272,12 +229,6 @@ export class AccountInfo {
 
   @ApiProperty({ example: false })
   isAccountDisabled: boolean;
-
-  // @ApiProperty({ example: 'https://lit.jpg' })
-  // businessAvatar: string;
-
-  // @ApiProperty({ example: 'Ade Events' })
-  // businessName: string;
 
   @ApiProperty({ example: false })
   isPasswordUpdated: boolean;
