@@ -6,19 +6,15 @@ import { SeederService } from './services/seeder.service';
 import { S3UploadService } from './services/s3-upload.service';
 import { HelperServiceQueryHandlers } from './queries/handlers';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
-import { ImageUploadService } from './services/image-upload.service';
+import { FileUploadService } from './services/file-upload.service';
 import { EmailSenderService } from './services/email-sender.service';
 import { AddressHelperService } from './services/address.helper.service';
 
 @Module({
-  imports: [
-    CqrsModule,
-    ConfigModule,
-    TypeOrmModule.forFeature([]),
-  ],
+  imports: [CqrsModule, ConfigModule, TypeOrmModule.forFeature([])],
   exports: [
     AddressHelperService,
-    ImageUploadService,
+    FileUploadService,
     S3UploadService,
     EmailSenderService,
     SeederService,
@@ -29,7 +25,7 @@ import { AddressHelperService } from './services/address.helper.service';
       useClass: AppLogger,
     },
     AddressHelperService,
-    ImageUploadService,
+    FileUploadService,
     S3UploadService,
     EmailSenderService,
     SeederService,

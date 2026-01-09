@@ -16,7 +16,7 @@ import {
 import { FileUploadResult } from '../interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { OptimizedImageType } from 'libs/common/src/constants/enums';
-import { ImageUploadService } from '../services/image-upload.service';
+import { FileUploadService } from '../services/file-upload.service';
 
 /**
  * @Controller('upload')
@@ -24,8 +24,8 @@ import { ImageUploadService } from '../services/image-upload.service';
  */
 @ApiTags('upload')
 @Controller('upload')
-export class ImageUploadController {
-  constructor(private readonly imageUploadService: ImageUploadService) {}
+export class FileUploadController {
+  constructor(private readonly fileUploadService: FileUploadService) {}
 
   /**
    * Uploads an image to Cloudinary with optional transformations.
@@ -160,6 +160,6 @@ export class ImageUploadController {
     @UploadedFile() file: Express.Multer.File,
     @Query('fileName') fileName?: string,
   ) {
-    return await this.imageUploadService.uploadFileToCloudinary(file, fileName);
+    return await this.fileUploadService.uploadFileToCloudinary(file, fileName);
   }
 }

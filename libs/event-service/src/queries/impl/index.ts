@@ -1,68 +1,81 @@
 import { SecureUserPayload } from '@app/common/src/interface';
 
 export class FetchGuestPartyQuery {
-	constructor(){}
+  constructor() {}
 }
 
 export class FetchEventCategoriesQuery {
-	constructor(){}
+  constructor() {}
 }
 
 export class FetchEventsQuery {
-	constructor(
-		public readonly page: number,
-		public readonly pageSize: number,
-		public readonly secureUser: SecureUserPayload,
-	){}
+  constructor(
+    public readonly page: number,
+    public readonly pageSize: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
 }
 
 export class FetchEventPartiesQuery {
-	constructor(
-		public readonly eventId: number,
-		public readonly secureUser: SecureUserPayload,
-	){}
+  constructor(
+    public readonly eventId: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
 }
 
 export class FetchEventInfoQuery {
-	constructor(
-		public readonly eventId: number,
-		public readonly secureUser: SecureUserPayload,
-	){}
+  constructor(
+    public readonly eventId: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
 }
 
 export class FetchEventGuestsQuery {
-	constructor(
-		public readonly eventId: number,
-		public readonly page: number,
-		public readonly pageSize: number,
-		public readonly secureUser: SecureUserPayload,
-	){}
+  constructor(
+    public readonly eventId: number,
+    public readonly page: number,
+    public readonly pageSize: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
 }
 
 export class FetchMessageTemplateVariablesQuery {
-	constructor(){}
+  constructor() {}
 }
 
 export class FetchMessageTemplatesQuery {
-	constructor(
-		public readonly page: number,
-		public readonly pageSize: number,
-		public readonly secureUser: SecureUserPayload,
-	){}
+  constructor(
+    public readonly page: number,
+    public readonly pageSize: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
 }
 
 export class FetchMessageTemplateFollowupConditionsQuery {
-	constructor(){}
+  constructor() {}
 }
 
 export class FetchMessageTemplateFollowupIntervalsQuery {
-	constructor(){}
+  constructor() {}
 }
 
 export class FetchEventAuthorGuestsQuery {
-	constructor(
-		public readonly page: number,
-		public readonly pageSize: number,
-		public readonly accessToken: string,
-	){}
+  constructor(
+    public readonly page: number,
+    public readonly pageSize: number,
+    public readonly accessToken: string,
+  ) {}
 }
+
+export class SearchEventGuestsQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly searchQuery: string,
+    public readonly invited: boolean,
+    public readonly rsvpStatus: boolean,
+    public readonly page: number,
+    public readonly pageSize: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+

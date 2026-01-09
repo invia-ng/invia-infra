@@ -16,18 +16,18 @@ import { AccountServiceCommandHandlers } from './commands/handlers';
 import { AccountController } from './controllers/account.controller';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
+import { AuthService } from '@app/auth-service/src/services/auth.service';
+import { ManageMemberController } from './controllers/manage.member.controller';
 import { ManageAccountController } from './controllers/manage.account.controller';
 import { ManageBusinessController } from './controllers/manage.business.controller';
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
 import { SupportService } from '@app/notification-service/src/services/support.service';
 import { EmailSenderService } from '@app/helper-service/src/services/email-sender.service';
 import { SupportController } from '@app/notification-service/src/controllers/support.controller';
-import { ImageUploadController } from '@app/helper-service/src/controllers/image-upload.controller';
+import { FileUploadController } from '@app/helper-service/src/controllers/file-upload.controller';
 import { AccountNotificationService } from '@app/notification-service/src/services/account.notification.service';
 import { AccountNotificationController } from '@app/notification-service/src/controllers/account.notification.controller';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
-import { ManageMemberController } from './controllers/manage.member.controller';
-import { AuthService } from '@app/auth-service/src/services/auth.service';
 
 @Module({
   imports: [
@@ -35,12 +35,7 @@ import { AuthService } from '@app/auth-service/src/services/auth.service';
     ConfigModule,
     HelperServiceModule,
     GetSystemJWTModule(),
-    TypeOrmModule.forFeature([
-      Account,
-      Setting,
-      Business,
-      Notification,
-    ]),
+    TypeOrmModule.forFeature([Account, Setting, Business, Notification]),
   ],
   controllers: [
     AccountController,
@@ -48,7 +43,7 @@ import { AuthService } from '@app/auth-service/src/services/auth.service';
     ManageMemberController,
     ManageBusinessController,
     // SupportController,
-    ImageUploadController,
+    FileUploadController,
     // AccountNotificationController,
   ],
   providers: [

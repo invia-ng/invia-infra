@@ -11,15 +11,15 @@ import { AuthController } from './controllers/auth.controller';
 import { Account } from 'libs/common/src/models/account.model';
 import { Setting } from '@app/common/src/models/setting.model';
 import { setupSwaggerDocument } from '../../common/src/swagger';
+import { Business } from '@app/common/src/models/business.model';
 import { AuthServiceCommandHandlers } from './commands/handlers';
 import { AppLogger } from '../../common/src/logger/logger.service';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
 import { AuthHelperController } from './controllers/auth.helper.controller';
 import { HelperServiceModule } from 'libs/helper-service/src/helper-service.module';
+import { FileUploadController } from '@app/helper-service/src/controllers/file-upload.controller';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
-import { ImageUploadController } from '@app/helper-service/src/controllers/image-upload.controller';
-import { Business } from '@app/common/src/models/business.model';
 
 @Module({
   imports: [
@@ -27,12 +27,7 @@ import { Business } from '@app/common/src/models/business.model';
     ConfigModule,
     GetSystemJWTModule(),
     HelperServiceModule,
-    TypeOrmModule.forFeature([
-      Account,
-      Setting,
-      Business,
-      Notification,
-    ]),
+    TypeOrmModule.forFeature([Account, Setting, Business, Notification]),
   ],
   providers: [
     AuthService,
@@ -46,7 +41,7 @@ import { Business } from '@app/common/src/models/business.model';
     ...AuthServiceCommandHandlers,
   ],
   exports: [AuthService],
-  controllers: [AuthController, AuthHelperController, ImageUploadController],
+  controllers: [AuthController, AuthHelperController, FileUploadController],
 })
 export class AuthServiceModule {
   constructor(private configService: ConfigService) {

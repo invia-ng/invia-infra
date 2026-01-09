@@ -325,3 +325,96 @@ export class UpdateMessageTemplateDTO {
   @IsOptional()
   followupInterval?: FollowupIntervalEnum;
 }
+
+export class AcceptRejectEventInvitationDTO {
+  @ApiProperty({
+    description: 'Rejection note.',
+    example: 'I also have a NATO summit that day and time.',
+  })
+  @IsString()
+  @IsOptional()
+  rejectionNote?: string;
+}
+
+export class ExportGuestListDto {
+  @ApiProperty({
+    isArray: true,
+    type: Number,
+    required: true,
+    example: [1, 2, 3],
+    description: 'Guest Primary IDs',
+  })
+  @IsArray()
+  @IsNotEmpty()
+  @IsNumber({}, { each: true })
+  @Type(() => Number)
+  guestIds: number[];
+
+  @ApiProperty({
+    example: true,
+    description: 'Include RSVP status',
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  isRSVP: boolean;
+
+  @ApiProperty({
+    example: true,
+    description: 'Include Guest Name',
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  guestName: boolean;
+
+  @ApiProperty({
+    example: true,
+    description: 'Include Invite Status',
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  inviteStatus: boolean;
+
+  @ApiProperty({
+    example: true,
+    description: 'Include Phone Number',
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  phoneNumber: boolean;
+
+  @ApiProperty({
+    example: true,
+    description: 'Include Party',
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  party: boolean;
+
+  @ApiProperty({
+    example: true,
+    description: 'Include Email Address',
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  emailAddress: boolean;
+
+  @ApiProperty({
+    example: 'csv',
+    enum: ['csv', 'pdf'],
+    description: 'Export format',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @IsEnum(['csv', 'pdf'])
+  exportFormat: 'csv' | 'pdf';
+
+  @ApiProperty({
+    example: 'asc',
+    enum: ['asc', 'desc'],
+    description: 'Sort by',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @IsEnum(['asc', 'desc'])
+  sortBy: 'asc' | 'desc';
+}

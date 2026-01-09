@@ -6,6 +6,8 @@ import {
   InviteEventGuestsDTO,
   AddMessageTemplateDTO,
   UpdateMessageTemplateDTO,
+  AcceptRejectEventInvitationDTO,
+  ExportGuestListDto,
 } from '../../interface';
 import { SecureUserPayload } from '@app/common/src/interface';
 
@@ -140,6 +142,7 @@ export class AcceptRejectEventInvitationCommand {
   constructor(
     public readonly invitationHash: string,
     public readonly acceptInvite: boolean,
+    public readonly payload: AcceptRejectEventInvitationDTO,
   ) {}
 }
 
@@ -147,5 +150,13 @@ export class EventAuthorInviteEventGuestsCommand {
   constructor(
     public readonly payload: InviteEventGuestsDTO,
     public readonly accessToken: string,
+  ) {}
+}
+
+export class ExportGuestListCommand {
+  constructor(
+    public readonly eventId: number,
+    public readonly payload: ExportGuestListDto,
+    public readonly secureUser: SecureUserPayload,
   ) {}
 }

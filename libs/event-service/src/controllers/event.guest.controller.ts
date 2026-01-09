@@ -19,6 +19,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EventService } from '../services/event.service';
 import { AcceptRejectEventInvitationCommand } from '../commands/impl';
 import { AcceptRejectEventInvitationInfo } from '../interface/schema';
+import { AcceptRejectEventInvitationDTO } from '../interface';
 
 @ApiTags('event-guest')
 @Controller({ path: 'guest' })
@@ -48,13 +49,15 @@ export class EventGuestController {
   @ApiOkResponse({ type:  AcceptRejectEventInvitationInfo })
   @ApiInternalServerErrorResponse()
   async acceptRejectEventInvitation(
-    @Query('invitationHash') invitationHash: string,
+    @Body() payload: AcceptRejectEventInvitationDTO,
     @Query('acceptInvite') acceptInvite: boolean,
+    @Query('invitationHash') invitationHash: string,
   ): Promise<AcceptRejectEventInvitationInfo> {
     return await this.command.execute(
       new AcceptRejectEventInvitationCommand(
         invitationHash,
         acceptInvite,
+        payload
       ),
     );
   }

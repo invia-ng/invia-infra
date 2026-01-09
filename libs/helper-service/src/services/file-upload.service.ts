@@ -9,7 +9,7 @@ import { OptimizedImageType } from 'libs/common/src/constants/enums';
 import { sanitizeString } from '@app/common/src/utils/string.utils';
 
 @Injectable()
-export class ImageUploadService implements OnModuleInit {
+export class FileUploadService implements OnModuleInit {
   private cloudinaryConfig: ConfigOptions;
 
   constructor(
@@ -25,87 +25,6 @@ export class ImageUploadService implements OnModuleInit {
     };
 
     cloudinary.config(this.cloudinaryConfig);
-  }
-
-  async uploadImageToAws(
-    file: Express.Multer.File,
-    type: OptimizedImageType,
-    fileName?: string,
-  ): Promise<FileUploadResult> {
-    try {
-      const uuid = randomUUID().concat(
-        '_',
-        sanitizeString(fileName ?? file.originalname),
-      );
-
-      const sizeMap: Record<string, { width: number; height?: number }> = {
-        small: { width: 512 },
-      };
-
-      let uploadResult: FileUploadResult;
-
-      for (const [sizeKey, dimensions] of Object.entries(sizeMap)) {
-        const resizedBuffer = await sharp(file.buffer)
-          .resize(dimensions.width, dimensions.height, {
-            fit: 'contain',
-          })
-          .jpeg({ mozjpeg: true })
-          .toBuffer();
-
-        const versionKey = `versions/${sizeKey}/${uuid}.jpeg`;
-
-        const upload = await this.s3Service.uploadBufferToS3(
-          resizedBuffer,
-          versionKey,
-          file.mimetype,
-        );
-
-        uploadResult = {
-          url: `${this.configService.get<string>('AWS_CLOUDFRONT_API_ENDPOINT')}/${versionKey}`,
-          public_id: upload.Key,
-        };
-      }
-
-      return uploadResult;
-    } catch (error) {
-      console.log(`Error uploading image: ${error.message}`);
-
-      throw error;
-    }
-  }
-
-  async uploadFileToAws(
-    file: Express.Multer.File,
-    fileName?: string,
-  ): Promise<FileUploadResult> {
-    try {
-      const uuid = randomUUID().concat(
-        '_',
-        sanitizeString(fileName ?? file.originalname),
-      );
-
-      let uploadResult: FileUploadResult;
-
-      const versionKey = `versions/original/${uuid}.${file.mimetype.split('/')[1]}`;
-
-      const upload = await this.s3Service.uploadFileToS3(
-        file,
-        versionKey,
-        // file.mimetype,
-      );
-
-      uploadResult = {
-        url: `${this.configService.get<string>('AWS_CLOUDFRONT_API_ENDPOINT')}/${versionKey}`,
-        public_id: upload.Key,
-      };
-
-      return uploadResult;
-    } catch (error) {
-      console.log(`Error uploading image: ${error.message}`);
-
-      throw error;
-      // throw new BadGatewayException(`Error uploading image: ${error.message}`);
-    }
   }
 
   async uploadFileToCloudinary(
@@ -126,6 +45,17 @@ export class ImageUploadService implements OnModuleInit {
           extension = 'pdf';
         } else if (file.mimetype === 'text/plain') {
           extension = 'txt';
+        } else if (
+          file.mimetype === 'text/csv' ||
+          file.mimetype === 'application/csv' ||
+          file.mimetype === 'application/vnd.ms-excel'
+        ) {
+          extension = 'csv';
+        } else if (
+          file.mimetype ===
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ) {
+          extension = 'xlsx';
         } else if (file.mimetype.startsWith('image/')) {
           extension = file.mimetype.split('/')[1];
         } else {
@@ -142,7 +72,7 @@ export class ImageUploadService implements OnModuleInit {
         extension ? `.${extension}` : '',
       );
 
-       const sizeMap: Record<string, { width: number; height?: number }> = {
+      const sizeMap: Record<string, { width: number; height?: number }> = {
         small: { width: 512 },
       };
 
@@ -184,7 +114,8 @@ export class ImageUploadService implements OnModuleInit {
           url: upload.secure_url,
           public_id: upload.public_id,
         };
-      } return uploadResult;
+      }
+      return uploadResult;
     } catch (error) {
       console.log(`Error uploading image: ${error.message}`);
 
@@ -322,6 +253,39 @@ export class ImageUploadService implements OnModuleInit {
       throw new BadGatewayException(
         `Error generating and uploading file versions: ${error.message}`,
       );
+    }
+  }
+
+  async uploadGuestListExport(
+    buffer: Buffer,
+    filename: string,
+    mimetype: string,
+  ): Promise<FileUploadResult> {
+    try {
+      const uuid = randomUUID();
+      const parts = filename.split('.');
+      const extension = parts.length > 1 ? parts.pop() : '';
+      const nameWithoutExtension = parts.join('.');
+
+      const upload = await cloudinary.uploader.upload(
+        `data:${mimetype};base64,${buffer.toString('base64')}`,
+        {
+          folder: 'exports',
+          public_id: `${sanitizeString(nameWithoutExtension)}_${uuid}.${extension}`,
+          resource_type: 'raw',
+          access_mode: 'public',
+          use_filename: true,
+          unique_filename: false,
+        },
+      );
+
+      return {
+        url: upload.secure_url,
+        public_id: upload.public_id,
+      };
+    } catch (error) {
+      console.log(`Error uploading guest list: ${error.message}`);
+      throw error;
     }
   }
 }

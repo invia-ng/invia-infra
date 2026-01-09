@@ -16,9 +16,10 @@ import { AcceptRejectEventInvitationInfo } from '@app/event-service/src/interfac
 import { Invitation } from '@app/common/src/models/invitation.model';
 
 @CommandHandler(AcceptRejectEventInvitationCommand)
-export class AcceptRejectEventInvitationHandler
-  implements ICommandHandler<AcceptRejectEventInvitationCommand, AcceptRejectEventInvitationInfo>
-{
+export class AcceptRejectEventInvitationHandler implements ICommandHandler<
+  AcceptRejectEventInvitationCommand,
+  AcceptRejectEventInvitationInfo
+> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Event)
@@ -30,10 +31,11 @@ export class AcceptRejectEventInvitationHandler
   async execute(command: AcceptRejectEventInvitationCommand) {
     try {
       this.logger.log(`[ACCEPT-REJECT-EVENT-INVITATION-HANDLER-PROCESSING]`);
-      
-      const { invitationHash, acceptInvite } = command;
 
-      const decodedEventInvitationHash = authUtils.decodeEventInvitationHash(invitationHash);
+      const { invitationHash, acceptInvite, payload } = command;
+
+      const decodedEventInvitationHash =
+        authUtils.decodeEventInvitationHash(invitationHash);
 
       const event = await this.eventRepository.findOne({
         where: {
@@ -48,11 +50,11 @@ export class AcceptRejectEventInvitationHandler
       const invitation = await this.invitationRepository.findOne({
         where: {
           guest: {
-            id: decodedEventInvitationHash.guestId
+            id: decodedEventInvitationHash.guestId,
           },
           event: {
-            id: decodedEventInvitationHash.eventId
-          }
+            id: decodedEventInvitationHash.eventId,
+          },
         },
       });
 
@@ -62,6 +64,7 @@ export class AcceptRejectEventInvitationHandler
 
       Object.assign(invitation, {
         isRSVP: acceptInvite,
+        rejectionNote: acceptInvite ? '' : payload?.rejectionNote,
       });
 
       await this.invitationRepository.save(invitation);
@@ -72,7 +75,9 @@ export class AcceptRejectEventInvitationHandler
         inviteStatus: acceptInvite,
       };
     } catch (error) {
-      this.logger.log(`[ACCEPT-REJECT-EVENT-INVITATION-HANDLER-ERROR] :: ${error}`);
+      this.logger.log(
+        `[ACCEPT-REJECT-EVENT-INVITATION-HANDLER-ERROR] :: ${error}`,
+      );
 
       throw error;
     }

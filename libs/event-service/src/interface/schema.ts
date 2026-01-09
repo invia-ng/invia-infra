@@ -104,3 +104,10 @@ export class AcceptRejectEventInvitationInfo {
   })
   inviteStatus: boolean;
 }
+
+export class ExportGuestListInfo {
+  @ApiProperty({
+    example: 'https://example.com/guest-list.pdf',
+  })
+  fileUrl: string;
+}

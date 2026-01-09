@@ -10,6 +10,7 @@ import {
   FetchEventInfoQuery,
   FetchEventGuestsQuery,
   FetchEventPartiesQuery,
+  SearchEventGuestsQuery,
 } from '../queries/impl';
 import {
   Get,
@@ -260,6 +261,73 @@ export class EventController {
   ): Promise<GuestsResponse> {
     return await this.queryBus.execute(
       new FetchEventGuestsQuery(eventId, page, pageSize, secureUser),
+    );
+  }
+
+  @Get('guests/search')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'page',
+    description: 'Page',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 10,
+    name: 'pageSize',
+    description: 'Page Size',
+  })
+  @ApiQuery({
+    type: String,
+    required: true,
+    example: 'John Doe',
+    name: 'searchQuery',
+    description: 'Query',
+  })
+  @ApiQuery({
+    type: Boolean,
+    required: true,
+    example: true,
+    name: 'rsvpStatus',
+    description: 'RSVP Status',
+  })
+  @ApiQuery({
+    type: Boolean,
+    required: true,
+    example: true,
+    name: 'invited',
+    description: 'Invited',
+  })
+  @ApiOkResponse({ type: GuestsResponse })
+  @ApiInternalServerErrorResponse()
+  async searchEventGuests(
+    @Query('searchQuery') searchQuery: string,
+    @Query('eventId') eventId: number,
+    @Query('invited') invited: boolean,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+    @Query('rsvpStatus') rsvpStatus: boolean,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<GuestsResponse> {
+    return await this.queryBus.execute(
+      new SearchEventGuestsQuery(
+        eventId,
+        searchQuery,
+        invited,
+        rsvpStatus,
+        page,
+        pageSize,
+        secureUser,
+      ),
     );
   }
 

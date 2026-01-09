@@ -45,7 +45,6 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
 			return {
         hasNext,
         totalPages,
-        totalInvites: totalCount,
         guestParties: guests.map((guest) => guest.party),
 				guests: guests.map((guest) => modelsFormatter.FormatGuestInfo(guest)),
 			} as unknown as GuestsResponse;

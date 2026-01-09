@@ -10,8 +10,8 @@ export function sanitizeString(input: string): string {
 
   return (
     input
-      // Remove special characters, keeping only alphanumeric characters and spaces
-      .replace(/[^a-zA-Z0-9\s]/g, '')
+      // Remove special characters, keeping only alphanumeric characters, spaces, hyphens, and underscores
+      .replace(/[^a-zA-Z0-9\s\-_]/g, '')
       // Replace one or more consecutive spaces with a single underscore
       .replace(/\s+/g, '_')
       // Remove leading and trailing underscores
