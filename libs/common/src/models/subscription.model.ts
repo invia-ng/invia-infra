@@ -98,12 +98,23 @@ export class SubscriptionPlan {
 
   @Column({
     default: false,
+		nullable: true,
   })
   @ApiPropertyOptional({
     example: true,
     description: 'Is this the recommended plan?',
   })
   isRecommended: boolean;
+
+  @Column({
+    default: 0,
+		nullable: true,
+  })
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'Position of the plan',
+  })
+  position: number;
 
   @CreateDateColumn({ nullable: true })
   createdAt: Date;

@@ -22,8 +22,15 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
     try {
       this.logger.log('[SEARCH-EVENT-GUESTS-QUERY-PROCESSING]');
 
-      const { eventId, guestParty, invited, rsvpStatus, page, pageSize, searchQuery } =
-        query;
+      const {
+        eventId,
+        guestParty,
+        invited,
+        rsvpStatus,
+        page,
+        pageSize,
+        searchQuery,
+      } = query;
 
       const where: FindOptionsWhere<Guest> = {
         event: {

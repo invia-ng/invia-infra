@@ -26,6 +26,15 @@
         "tsConfigPath": "libs/auth-service/tsconfig.lib.json"
       }
     },
+    "event-service": {
+      "type": "library",
+      "root": "libs/event-service",
+      "entryFile": "index",
+      "sourceRoot": "libs/event-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/event-service/tsconfig.lib.json"
+      }
+    },
     "notification-service": {
       "type": "library",
       "root": "libs/notification-service",
@@ -35,13 +44,13 @@
         "tsConfigPath": "libs/notification-service/tsconfig.lib.json"
       }
     },
-    "event-service": {
+    "subscription-service": {
       "type": "library",
-      "root": "libs/event-service",
+      "root": "libs/subscription-service",
       "entryFile": "index",
-      "sourceRoot": "libs/event-service/src",
+      "sourceRoot": "libs/subscription-service/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/event-service/tsconfig.lib.json"
+        "tsConfigPath": "libs/subscription-service/tsconfig.lib.json"
       }
     }
   }

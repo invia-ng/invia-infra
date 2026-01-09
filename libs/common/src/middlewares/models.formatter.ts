@@ -28,6 +28,12 @@ import { Account, AccountInfo } from '../models/account.model';
 import { Business, BusinessInfo } from '../models/business.model';
 import { Notification, NotificationInfo } from '../models/notification.model';
 import { BusinessMemberRoleInfo } from '@app/account-service/src/interface/schema';
+import {
+  SubscriptionPlan,
+  SubscriptionPlanFeature,
+  SubscriptionPlanFeatureInfo,
+  SubscriptionPlanInfo,
+} from '../models/subscription.model';
 
 export function FormatNotification(
   notification: Notification,
@@ -348,6 +354,27 @@ export function FormatEventPartyInfo(category: EventParty): EventPartyInfo {
   } as unknown as EventPartyInfo;
 }
 
+export function FormatSubscriptionPlanInfo(
+  plan: SubscriptionPlan,
+  features: SubscriptionPlanFeature[],
+): SubscriptionPlanInfo {
+  return {
+    name: plan.name,
+    id: plan.id.toString(),
+    position: plan.position,
+    priceNGN: plan.priceNGN,
+    priceUSD: plan.priceUSD,
+    interval: plan.interval,
+    description: plan.description,
+    isRecommended: plan.isRecommended,
+    originalPriceNGN: plan.originalPriceNGN,
+    originalPriceUSD: plan.originalPriceUSD,
+    features: features.map(
+      (feature) => feature.title,
+    ) as unknown as SubscriptionPlanFeatureInfo[],
+  } as unknown as SubscriptionPlanInfo;
+}
+
 export default {
   FormatGuestInfo,
   FormatEventInfo,
@@ -358,6 +385,7 @@ export default {
   FormatGuestPartyInfo,
   FormatEventCategoryInfo,
   FormatMessageTemplateInfo,
+  FormatSubscriptionPlanInfo,
   FormatBusinessMemberRoleInfo,
   FormatMessageTemplateEnumInfo,
   FormatMessageFollowupIntervalInfo,

@@ -17,6 +17,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AccountServiceModule } from '@app/account-service/src';
 import { AppLogger } from '@app/common/src/logger/logger.service';
 import { DatabaseSource } from '@app/common/src/database/database-source';
+import { SubscriptionServiceModule } from '@app/subscription-service/src';
 import { DeviceInfoMiddleware } from '@app/common/src/middlewares/device.info.middleware';
 import { SuccessResponseMiddleware } from '@app/common/src/middlewares/success.middleware';
 import { NotificationServiceModule } from '@app/notification-service/src/notification-service.module';
@@ -28,6 +29,7 @@ import { NotificationServiceModule } from '@app/notification-service/src/notific
     AuthServiceModule,
     EventServiceModule,
     AccountServiceModule,
+    SubscriptionServiceModule,
     NotificationServiceModule,
     TypeOrmModule.forRoot(DatabaseSource),
     CacheModule.register({ isGlobal: true }),
@@ -72,6 +74,10 @@ import { NotificationServiceModule } from '@app/notification-service/src/notific
       {
         path: 'v1/event',
         module: EventServiceModule,
+      },
+      {
+        path: 'v1/subscription',
+        module: SubscriptionServiceModule,
       },
     ]),
   ],
