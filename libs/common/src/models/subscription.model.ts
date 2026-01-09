@@ -12,9 +12,10 @@ import {
 import {
   SubscriptionStatusEnum,
   SubscriptionIntervalEnum,
+  SubscriptionItemLimitEnum,
 } from '../constants/enums';
-import { Business } from './business.model';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Business } from '../models/business.model';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 @Entity()
 export class SubscriptionPlan {
@@ -184,11 +185,104 @@ export class Subscription {
   })
   guestLimit: number;
 
+  @Column({
+    nullable: true,
+    default: SubscriptionItemLimitEnum.LIMITED,
+  })
+  @ApiPropertyOptional({
+    description: 'Current Period End Date',
+    example: SubscriptionItemLimitEnum.LIMITED,
+  })
+  guestLimitStatus: SubscriptionItemLimitEnum;
+
+  @Column({
+    type: 'enum',
+    enum: SubscriptionItemLimitEnum,
+    default: SubscriptionItemLimitEnum.UNLIMITED,
+  })
+  @ApiPropertyOptional({
+    example: 'unlimited',
+    description: 'Event Limit',
+  })
+  eventLimit: SubscriptionItemLimitEnum;
+
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Reusable Message Templates',
+  })
+  reusableMessageTemplates: boolean;
+
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Invitation Cover Image',
+  })
+  invitationCoverImage: boolean;
+
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Guest Activity Timeline',
+  })
+  guestActivityTimeline: boolean;
+
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Advanced Guest Activity Timeline',
+  })
+  advancedGuestActivityTimeline: boolean;
+
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Followup Messages',
+  })
+  followupMessages: boolean;
+
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Manage Team Members',
+  })
+  manageTeamMembers: boolean;
+
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Secure Guest Data Access',
+  })
+  secureGuestDataAccess: boolean;
+
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Flexible Data Export',
+  })
+  flexibleDataExport: boolean;
+
   @ManyToOne(() => SubscriptionPlan, { eager: true })
   @JoinColumn({ name: 'planId' })
   plan: SubscriptionPlan;
 
-  @ManyToOne(() => Business, (business) => business.subscriptions)
+  @ManyToOne(() => Business, (business) => business)
   @JoinColumn({ name: 'business' })
   business: Business;
 
@@ -197,4 +291,164 @@ export class Subscription {
 
   @UpdateDateColumn({ nullable: true })
   updatedAt: Date;
+}
+
+export class SubscriptionPlanFeatureInfo {
+  @ApiProperty({
+    example: '1',
+    description: 'Feature ID',
+  })
+  id: string;
+
+  @ApiProperty({
+    example: 'Up to 300 guests per event',
+    description: 'Feature Title',
+  })
+  title: string;
+}
+
+export class SubscriptionPlanInfo {
+  @ApiProperty({
+    example: '1',
+    description: 'Plan ID',
+  })
+  id: string;
+
+  @ApiProperty({
+    example: 'Pro',
+    description: 'Plan Name',
+  })
+  name: string;
+
+  @ApiProperty({
+    example: 'Everything you need to create, manage, and track guest lists.',
+    description: 'Plan Description',
+  })
+  description: string;
+
+  @ApiProperty({
+    example: 38000,
+    description: 'Plan Price NGN',
+  })
+  priceNGN: number;
+
+  @ApiProperty({
+    example: 45000,
+    description: 'Original Price NGN(for strikethrough)',
+  })
+  originalPriceNGN: number;
+
+  @ApiProperty({
+    example: 38000,
+    description: 'Plan Price USD',
+  })
+  priceUSD: number;
+
+  @ApiProperty({
+    example: 45000,
+    description: 'Original Price USD(for strikethrough)',
+  })
+  originalPriceUSD: number;
+
+  @ApiProperty({
+    example: 'monthly',
+    description: 'Billing Interval',
+  })
+  interval: SubscriptionIntervalEnum;
+
+  @ApiProperty({
+    example: true,
+    description: 'Is this the recommended plan?',
+  })
+  isRecommended: boolean;
+
+  @ApiProperty({
+    isArray: true,
+    type: SubscriptionPlanFeatureInfo,
+  })
+  features: SubscriptionPlanFeatureInfo[];
+}
+
+export class SubscriptionInfo {
+  @ApiProperty({
+    example: '1',
+    description: 'Subscription ID',
+  })
+  id: string;
+
+  @ApiProperty({
+    example: 'active',
+    description: 'Subscription status',
+  })
+  status: string;
+
+  @ApiProperty({
+    example: '2025-12-30T21:55:28.000Z',
+    description: 'Subscription expiration date',
+  })
+  expirationDate: Date;
+
+  @ApiProperty({
+    example: '2025-12-30T21:55:28.000Z',
+    description: 'Subscription expiration date',
+  })
+  subscriptionDate: Date;
+
+  @ApiProperty({
+    example: 300,
+    description: 'Guest limit',
+  })
+  guestLimit: number;
+
+  @ApiProperty({
+    example: SubscriptionItemLimitEnum.UNLIMITED,
+    description: 'Guest limit status',
+  })
+  guestLimitStatus: SubscriptionItemLimitEnum;
+
+  @ApiProperty({
+    example: 'unlimited',
+    description: 'Event Limit',
+  })
+  eventLimit: SubscriptionItemLimitEnum;
+
+  @ApiProperty({
+    description: 'Reusable Message Templates',
+  })
+  reusableMessageTemplates: boolean;
+
+  @ApiProperty({
+    description: 'Invitation Cover Image',
+  })
+  invitationCoverImage: boolean;
+
+  @ApiProperty({
+    description: 'Guest Activity Timeline',
+  })
+  guestActivityTimeline: boolean;
+
+  @ApiProperty({
+    description: 'Advanced Guest Activity Timeline',
+  })
+  advancedGuestActivityTimeline: boolean;
+
+  @ApiProperty({
+    description: 'Followup Messages',
+  })
+  followupMessages: boolean;
+
+  @ApiProperty({
+    description: 'Manage Team Members',
+  })
+  manageTeamMembers: boolean;
+
+  @ApiProperty({
+    description: 'Secure Guest Data Access',
+  })
+  secureGuestDataAccess: boolean;
+
+  @ApiProperty({
+    description: 'Flexible Data Export',
+  })
+  flexibleDataExport: boolean;
 }

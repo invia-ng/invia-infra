@@ -58,6 +58,7 @@ export class FetchEventInfoQueryHandler implements IQueryHandler<
 
       const event = await this.eventRepository.findOne({
         where: {
+          id: eventId,
           business: {
             id: business.id,
           },

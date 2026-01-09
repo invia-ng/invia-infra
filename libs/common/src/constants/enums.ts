@@ -102,3 +102,8 @@ export enum SubscriptionStatusEnum {
   CANCELED = 'canceled',
   PAST_DUE = 'past_due',
 }
+
+export enum SubscriptionItemLimitEnum {
+  UNLIMITED = 'unlimited',
+  LIMITED = 'limited',
+}

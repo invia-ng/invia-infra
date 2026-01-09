@@ -11,7 +11,6 @@ import {
   OneToOne,
 } from 'typeorm';
 import { Account } from './account.model';
-import { Subscription } from './subscription.model';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 @Entity()
@@ -51,9 +50,6 @@ export class Business {
   })
   @JoinColumn({ name: 'account' })
   account: Account;
-
-  @OneToMany(() => Subscription, (subscription) => subscription.business)
-  subscriptions: Subscription[];
 
   @CreateDateColumn({ nullable: true })
   createdAt: Date;
