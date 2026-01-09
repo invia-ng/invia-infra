@@ -11,6 +11,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { Account } from './account.model';
+import { Subscription } from './subscription.model';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 @Entity()
@@ -36,7 +37,8 @@ export class Business {
   })
   @ApiPropertyOptional({
     description: 'Business avatar URL',
-    example: 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799379/event_ypdcrh.png',
+    example:
+      'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799379/event_ypdcrh.png',
   })
   avatar: string;
 
@@ -49,6 +51,9 @@ export class Business {
   })
   @JoinColumn({ name: 'account' })
   account: Account;
+
+  @OneToMany(() => Subscription, (subscription) => subscription.business)
+  subscriptions: Subscription[];
 
   @CreateDateColumn({ nullable: true })
   createdAt: Date;

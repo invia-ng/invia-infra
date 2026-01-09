@@ -89,3 +89,16 @@ export enum OptimizedImageType {
   medium = 'medium',
   large = 'large',
 }
+
+export enum SubscriptionIntervalEnum {
+  MONTHLY = 'monthly',
+  YEARLY = 'yearly',
+}
+
+export enum SubscriptionStatusEnum {
+  ACTIVE = 'active',
+  EXPIRED = 'expired',
+  INCOMPLETE = 'incomplete',
+  CANCELED = 'canceled',
+  PAST_DUE = 'past_due',
+}

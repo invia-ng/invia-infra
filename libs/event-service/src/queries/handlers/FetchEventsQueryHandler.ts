@@ -63,7 +63,7 @@ export class FetchEventsQueryHandler implements IQueryHandler<
           business: {
             id: business.id,
           },
-          date: MoreThanOrEqual(new Date()),
+          // date: MoreThanOrEqual(new Date()), //!ENABLE THIS WHEN READY
         },
         order: {
           createdAt: 'DESC',
