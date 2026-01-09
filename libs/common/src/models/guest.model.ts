@@ -9,9 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Event } from './event.model';
-import { GuestPartyEnum } from '../constants/enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { GuestPartyInfo } from '@app/event-service/src/interface/schema';
 
 @Entity()
 export class Guest {
@@ -39,7 +37,7 @@ export class Guest {
     description: 'Guest name',
   })
   name: string;
-  
+
   @Column({
     nullable: true,
     default: '',
@@ -49,7 +47,7 @@ export class Guest {
     description: 'Guest email',
   })
   email: string;
-  
+
   @Column({
     nullable: true,
     default: '',
@@ -59,7 +57,7 @@ export class Guest {
     description: 'Guest phone',
   })
   phone: string;
-  
+
   @Column({
     nullable: true,
     default: false,
@@ -69,7 +67,7 @@ export class Guest {
     description: 'Guest invite sent',
   })
   isInviteSent: boolean;
-  
+
   @Column({
     nullable: true,
     default: false,
@@ -79,7 +77,7 @@ export class Guest {
     description: 'Guest invite delivered',
   })
   isInviteDelivered: boolean;
-  
+
   @Column({
     nullable: true,
     default: false,
@@ -111,7 +109,7 @@ export class GuestInfo {
   @ApiProperty({ example: 'Ibrahim' })
   name: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'Groom',
   })
   party: string;

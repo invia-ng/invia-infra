@@ -294,6 +294,13 @@ export class EventController {
     description: 'Query',
   })
   @ApiQuery({
+    type: String,
+    required: true,
+    name: 'guestParty',
+    example: 'John Doe',
+    description: "Guest party e.g Groom's family",
+  })
+  @ApiQuery({
     type: Boolean,
     required: true,
     example: true,
@@ -310,17 +317,19 @@ export class EventController {
   @ApiOkResponse({ type: GuestsResponse })
   @ApiInternalServerErrorResponse()
   async searchEventGuests(
-    @Query('searchQuery') searchQuery: string,
-    @Query('eventId') eventId: number,
-    @Query('invited') invited: boolean,
     @Query('page') page: number,
     @Query('pageSize') pageSize: number,
+    @Query('eventId') eventId: number,
+    @Query('guestParty') guestParty: string,
+    @Query('invited') invited: boolean,
     @Query('rsvpStatus') rsvpStatus: boolean,
+    @Query('searchQuery') searchQuery: string,
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<GuestsResponse> {
     return await this.queryBus.execute(
       new SearchEventGuestsQuery(
         eventId,
+        guestParty,
         searchQuery,
         invited,
         rsvpStatus,

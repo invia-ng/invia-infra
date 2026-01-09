@@ -22,7 +22,7 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
     try {
       this.logger.log('[SEARCH-EVENT-GUESTS-QUERY-PROCESSING]');
 
-      const { eventId, invited, rsvpStatus, page, pageSize, searchQuery } =
+      const { eventId, guestParty, invited, rsvpStatus, page, pageSize, searchQuery } =
         query;
 
       const where: FindOptionsWhere<Guest> = {
@@ -30,6 +30,10 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
           id: eventId,
         },
       };
+
+      if (guestParty !== undefined && guestParty !== null) {
+        where.party = guestParty;
+      }
 
       if (invited !== undefined && invited !== null) {
         where.isInviteSent = invited;

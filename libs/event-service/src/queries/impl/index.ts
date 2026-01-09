@@ -70,6 +70,7 @@ export class FetchEventAuthorGuestsQuery {
 export class SearchEventGuestsQuery {
   constructor(
     public readonly eventId: number,
+    public readonly guestParty: string,
     public readonly searchQuery: string,
     public readonly invited: boolean,
     public readonly rsvpStatus: boolean,
