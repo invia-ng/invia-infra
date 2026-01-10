@@ -29,11 +29,14 @@ import { Business, BusinessInfo } from '../models/business.model';
 import { Notification, NotificationInfo } from '../models/notification.model';
 import { BusinessMemberRoleInfo } from '@app/account-service/src/interface/schema';
 import {
+  Subscription,
+  SubscriptionInfo,
   SubscriptionPlan,
   SubscriptionPlanFeature,
   SubscriptionPlanFeatureInfo,
   SubscriptionPlanInfo,
 } from '../models/subscription.model';
+import { ChargeResponse } from '@app/subscription-service/src/interface/schema';
 
 export function FormatNotification(
   notification: Notification,
@@ -375,6 +378,54 @@ export function FormatSubscriptionPlanInfo(
   } as unknown as SubscriptionPlanInfo;
 }
 
+export function FormatPaystackChargeResponse(
+  response: any,
+  amount: number,
+): ChargeResponse {
+  return {
+    status: response.status,
+    message: response.message,
+    data: {
+      reference: response.data.reference,
+      status: response.data.status,
+      amount: amount,
+      display_text: response.data.display_text,
+      account_name: response.data.account_name,
+      account_number: response.data.account_number,
+      bank: {
+        slug: response.data.bank.slug,
+        name: response.data.bank.name,
+        id: response.data.bank.id,
+      },
+      account_expires_at: response.data.account_expires_at,
+    },
+  } as ChargeResponse;
+}
+
+export function FormatSubscriptionInfo(
+  subscription: Subscription,
+): SubscriptionInfo {
+  return {
+    id: subscription.id.toString(),
+    status: subscription.status,
+    subscriptionDate: subscription.subscriptionDate,
+    expirationDate: subscription.expirationDate,
+    guestLimit: subscription.guestLimit,
+    guestLimitStatus: subscription.guestLimitStatus,
+    eventLimit: subscription.eventLimit,
+    eventLimitStatus: subscription.eventLimitStatus,
+    reusableMessageTemplates: subscription.reusableMessageTemplates,
+    invitationCoverImage: subscription.invitationCoverImage,
+    guestActivityTimeline: subscription.guestActivityTimeline,
+    advancedGuestActivityTimeline: subscription.advancedGuestActivityTimeline,
+    followupMessages: subscription.followupMessages,
+    manageTeamMembers: subscription.manageTeamMembers,
+    secureGuestDataAccess: subscription.secureGuestDataAccess,
+    flexibleDataExport: subscription.flexibleDataExport,
+    isExpired: subscription.isExpired,
+  } as unknown as SubscriptionInfo;
+}
+
 export default {
   FormatGuestInfo,
   FormatEventInfo,
@@ -383,9 +434,11 @@ export default {
   FormatBusinessInfo,
   FormatEventPartyInfo,
   FormatGuestPartyInfo,
+  FormatSubscriptionInfo,
   FormatEventCategoryInfo,
   FormatMessageTemplateInfo,
   FormatSubscriptionPlanInfo,
+  FormatPaystackChargeResponse,
   FormatBusinessMemberRoleInfo,
   FormatMessageTemplateEnumInfo,
   FormatMessageFollowupIntervalInfo,

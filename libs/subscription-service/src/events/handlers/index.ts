@@ -1,1 +1,5 @@
-export const SubscriptionServiceEventHandlers = [];
+import { ProcessPremiumSubscriptionEventHandler } from './ProcessPremiumSubscriptionEventHandler';
+
+export const SubscriptionServiceEventHandlers = [
+  ProcessPremiumSubscriptionEventHandler,
+];

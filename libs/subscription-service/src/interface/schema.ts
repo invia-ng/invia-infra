@@ -1,113 +1,108 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { EventCategoryEnum, FollowupConditionEnum, FollowupIntervalEnum, GuestPartyEnum, MessageTemplateEnum } from '@app/common/src/constants/enums';
 
-export class EventCategoryInfo {
-	@ApiProperty({
-		example: 'Others',
-	})
-	title: string;
-
+export class VerifyPaymentSessionResponse {
   @ApiProperty({
-    enum: EventCategoryEnum,
-    example: EventCategoryEnum.OTHERS,
-  })
-  value: EventCategoryEnum;
-}
-
-export class GuestPartyInfo {
-	@ApiProperty({
-		example: 'Groom',
-	})
-	title: string;
-
-  @ApiProperty({
-    enum: GuestPartyEnum,
-    example: GuestPartyEnum.GROOM,
-  })
-  value: GuestPartyEnum;
-}
-
-export class MessageTemplateEnumInfo {
-	@ApiProperty({
-		example: 'Guest Name',
-	})
-	title: string;
-
-  @ApiProperty({
-    enum: MessageTemplateEnum,
-    example: MessageTemplateEnum.GUEST_NAME,
-  })
-  value: MessageTemplateEnum;
-}
-
-export class MessageTemplateFollowupConditionInfo {
-	@ApiProperty({
-		example: 'If no RSVP',
-	})
-	title: string;
-
-  @ApiProperty({
-    enum: FollowupConditionEnum,
-    example: FollowupConditionEnum.NO_RSVP,
-  })
-  value: FollowupConditionEnum;
-}
-
-export class MessageTemplateFollowupIntervalInfo {
-	@ApiProperty({
-		example: 'If no RSVP',
-	})
-	title: string;
-
-  @ApiProperty({
-    enum: FollowupIntervalEnum,
-    example: FollowupIntervalEnum.FIVE_DAYS,
-  })
-  value: FollowupIntervalEnum;
-}
-
-export class DeleteDataInstanceInfo {
-  @ApiProperty({
-    example: true,
+    example: false,
   })
   status: boolean;
 
   @ApiProperty({
-    example: 'Instance deleted successfully.',
+    example: '2024-01-01T00:00:00.000Z',
+  })
+  paid_at: string;
+
+  @ApiProperty({
+    example: 'card',
+  })
+  channel: string;
+}
+
+export class Bank {
+  @ApiProperty({
+    example: 'test-bank',
+    description: 'Unique identifier slug for the bank',
+  })
+  slug: string;
+
+  @ApiProperty({
+    example: 'Test Bank',
+    description: 'Name of the bank',
+  })
+  name: string;
+
+  @ApiProperty({
+    example: 24,
+    description: 'Unique identifier for the bank',
+  })
+  id: number;
+}
+
+export class ChargeResponseData {
+  @ApiProperty({
+    example: 'pending_bank_transfer',
+    description: 'Current status of the charge attempt',
+  })
+  status: string;
+
+  @ApiProperty({
+    example: 'Please make a transfer to the account specified',
+    description: 'Human readable message about the charge',
+  })
+  display_text: string;
+
+  @ApiProperty({
+    example: '4tn28gwznc',
+    description: 'Unique reference for this transaction',
+  })
+  reference: string;
+
+  @ApiProperty({
+    example: 20000,
+    description: 'Amount to be charged in smallest currency unit',
+  })
+  amount: number;
+
+  @ApiProperty({
+    example: 'PAYSTACK CHECKOUT',
+    description: 'Name of the account to transfer to',
+  })
+  account_name: string;
+
+  @ApiProperty({
+    example: '1231084927',
+    description: 'Account number to transfer to',
+  })
+  account_number: string;
+
+  @ApiProperty({
+    type: Bank,
+    description: 'Bank details for the transfer',
+  })
+  bank: Bank;
+
+  @ApiProperty({
+    example: '2023-09-12T13:10:55.000Z',
+    description: 'ISO timestamp when the account details expire',
+  })
+  account_expires_at: string;
+}
+
+export class ChargeResponse {
+  @ApiProperty({
+    example: true,
+    description: 'Indicates if the request was successful',
+  })
+  status: boolean;
+
+  @ApiProperty({
+    example: 'Charge attempted',
+    description: 'Message describing the result of the operation',
   })
   message: string;
 
-}
-
-export class GenerateShareFormPasscodeInfo {
   @ApiProperty({
-    example: '123456',
+    type: ChargeResponseData,
+    description: 'The charge attempt details',
   })
-  passcode: string;
-
-  @ApiProperty({
-    example: '1 hour',
-  })
-  passcodeExpires: string;
-}
-
-export class AuthenticateShareFormInfo {
-  @ApiProperty({
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
-  })
-  accessToken: string;
-}
-
-export class AcceptRejectEventInvitationInfo {
-  @ApiProperty({
-    example: true,
-  })
-  inviteStatus: boolean;
-}
-
-export class ExportGuestListInfo {
-  @ApiProperty({
-    example: 'https://example.com/guest-list.pdf',
-  })
-  fileUrl: string;
+  data: ChargeResponseData;
 }

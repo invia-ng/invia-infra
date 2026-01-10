@@ -3,22 +3,30 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { InitializeBusinessProfileCommand } from '../impl';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { AccountStatus } from '@app/common/src/constants/enums';
+import {
+  AccountStatus,
+  SubscriptionItemLimitEnum,
+  SubscriptionStatusEnum,
+} from '@app/common/src/constants/enums';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
+import { Subscription } from '@app/common/src/models/subscription.model';
 
 @CommandHandler(InitializeBusinessProfileCommand)
-export class InitializeBusinessProfileHandler
-  implements ICommandHandler<InitializeBusinessProfileCommand, AccountInfo>
-{
+export class InitializeBusinessProfileHandler implements ICommandHandler<
+  InitializeBusinessProfileCommand,
+  AccountInfo
+> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
   ) {}
 
   async execute(command: InitializeBusinessProfileCommand) {
@@ -33,15 +41,15 @@ export class InitializeBusinessProfileHandler
         },
       });
 
-      if(!account){
+      if (!account) {
         throw new NotFoundException('Account not found');
       }
 
       const instance = await this.businessRepository.create({
         account,
         name: payload.businessName,
-        avatar: payload.businessAvatar
-      })
+        avatar: payload.businessAvatar,
+      });
 
       const business = await this.businessRepository.save(instance);
 
@@ -51,6 +59,28 @@ export class InitializeBusinessProfileHandler
       });
 
       await this.accountRepository.save(account);
+
+      const _instance = this.subscriptionRepository.create({
+        business,
+        status: SubscriptionStatusEnum.DEFAULT,
+        subscriptionDate: new Date(),
+        expirationDate: new Date(),
+        eventLimit: 3,
+        guestLimit: 300,
+        guestLimitStatus: SubscriptionItemLimitEnum.LIMITED,
+        eventLimitStatus: SubscriptionItemLimitEnum.LIMITED,
+        reusableMessageTemplates: false,
+        invitationCoverImage: false,
+        guestActivityTimeline: false,
+        advancedGuestActivityTimeline: false,
+        followupMessages: false,
+        manageTeamMembers: false,
+        secureGuestDataAccess: false,
+        flexibleDataExport: false,
+        isExpired: false,
+      });
+
+      await this.subscriptionRepository.save(_instance);
 
       this.logger.log(`[INITIALIZE-ACCOUNT-HANDLER-SUCCESS]`);
 

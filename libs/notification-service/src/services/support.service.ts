@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { EmailSenderService } from '../../../helper-service/src/services/email-sender.service';
 import { AppLogger } from '../../../common/src/logger/logger.service';
 import { ContactUsDTO } from '../interface';
-import { contactUsEmailTemplate } from '../templates/emails/support/contact_us_email_template';
+import { contactUsEmailTemplate } from '../templates/support/contact_us_email_template';
 
 @Injectable()
 export class SupportService {

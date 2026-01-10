@@ -96,6 +96,7 @@ export enum SubscriptionIntervalEnum {
 }
 
 export enum SubscriptionStatusEnum {
+  DEFAULT = 'default',
   ACTIVE = 'active',
   EXPIRED = 'expired',
   INCOMPLETE = 'incomplete',

@@ -98,7 +98,7 @@ export class SubscriptionPlan {
 
   @Column({
     default: false,
-		nullable: true,
+    nullable: true,
   })
   @ApiPropertyOptional({
     example: true,
@@ -108,7 +108,7 @@ export class SubscriptionPlan {
 
   @Column({
     default: 0,
-		nullable: true,
+    nullable: true,
   })
   @ApiPropertyOptional({
     example: 1,
@@ -207,6 +207,16 @@ export class Subscription {
   guestLimitStatus: SubscriptionItemLimitEnum;
 
   @Column({
+    default: 0,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'Event Limit',
+  })
+  eventLimit: number;
+
+  @Column({
     type: 'enum',
     enum: SubscriptionItemLimitEnum,
     default: SubscriptionItemLimitEnum.UNLIMITED,
@@ -215,7 +225,7 @@ export class Subscription {
     example: 'unlimited',
     description: 'Event Limit',
   })
-  eventLimit: SubscriptionItemLimitEnum;
+  eventLimitStatus: SubscriptionItemLimitEnum;
 
   @Column({
     default: false,
@@ -288,6 +298,15 @@ export class Subscription {
     description: 'Flexible Data Export',
   })
   flexibleDataExport: boolean;
+
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Subscription is expired',
+  })
+  isExpired: boolean;
 
   @ManyToOne(() => SubscriptionPlan, { eager: true })
   @JoinColumn({ name: 'planId' })
@@ -418,11 +437,17 @@ export class SubscriptionInfo {
   guestLimitStatus: SubscriptionItemLimitEnum;
 
   @ApiProperty({
-    example: 'unlimited',
+    example: 0,
     description: 'Event Limit',
   })
-  eventLimit: SubscriptionItemLimitEnum;
+  eventLimit: number;
 
+  @ApiProperty({
+    description: 'Event Limit',
+    example: SubscriptionItemLimitEnum.UNLIMITED,
+  })
+  eventLimitStatus: SubscriptionItemLimitEnum;
+  
   @ApiProperty({
     description: 'Reusable Message Templates',
   })
@@ -462,4 +487,9 @@ export class SubscriptionInfo {
     description: 'Flexible Data Export',
   })
   flexibleDataExport: boolean;
+
+  @ApiProperty({
+    description: 'Flexible Data Export',
+  })
+  isExpired: boolean;
 }

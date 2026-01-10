@@ -6,15 +6,18 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Setting } from '@app/common/src/models/setting.model';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { AppLogger } from '../../../../common/src/logger/logger.service';
-import { FollowupInvitation, Invitation } from '@app/common/src/models/invitation.model';
+import {
+  FollowupInvitation,
+  Invitation,
+} from '@app/common/src/models/invitation.model';
 import { EmailSenderService } from 'libs/helper-service/src/services/email-sender.service';
-import { invite_event_guest_email_html_content } from '../../templates/emails/event/invite_event_guest_email_template';
+import { invite_event_guest_email_html_content } from '../../templates/event/invite_event_guest_email_template';
 
 @Injectable()
-export class EventEmailNotificationService implements OnModuleInit  {
+export class EventEmailNotificationService implements OnModuleInit {
   private adminSettings: Setting;
 
-onModuleInit() {
+  onModuleInit() {
     this.initializeAdminSettings();
   }
 
@@ -36,7 +39,9 @@ onModuleInit() {
     });
   }
 
-  async inviteEventGuestEmailNotification(invitation: Invitation): Promise<boolean> {
+  async inviteEventGuestEmailNotification(
+    invitation: Invitation,
+  ): Promise<boolean> {
     try {
       this.logger.log(`[INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-PROCESSING]`);
 
@@ -46,18 +51,29 @@ onModuleInit() {
         hasCoverImage: invitation.image.length > 0,
         businessName: invitation.event.business.name,
         webappUrl: this.configService.get<string>('WEB_APP_URL'),
-        acceptLink: this.configService.get<string>('WEB_APP_URL').concat(`/invitations?invitationHash=${invitation.hash}&acceptInvite=true`),
-        rejectLink: this.configService.get<string>('WEB_APP_URL').concat(`/invitations?invitationHash=${invitation.hash}&acceptInvite=false`),
-        image: invitation.image.length > 0 ? invitation.image : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
+        acceptLink: this.configService
+          .get<string>('WEB_APP_URL')
+          .concat(
+            `/invitations?invitationHash=${invitation.hash}&acceptInvite=true`,
+          ),
+        rejectLink: this.configService
+          .get<string>('WEB_APP_URL')
+          .concat(
+            `/invitations?invitationHash=${invitation.hash}&acceptInvite=false`,
+          ),
+        image:
+          invitation.image.length > 0
+            ? invitation.image
+            : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
       });
 
-      if(this.adminSettings.isSMTPEnabled === true) {
+      if (this.adminSettings.isSMTPEnabled === true) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
           to: invitation.guest.email,
           subject: `Event Invitation: ${invitation.event.name}`,
           from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
-        }); 
+        });
       } else {
         this.emailSenderService.sendEmail({
           html: htmlContent,
@@ -67,18 +83,24 @@ onModuleInit() {
       }
 
       this.logger.log(`[INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-SUCCESS]`);
-      
+
       return true;
-    } catch(error) {
-      this.logger.log(`[INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-ERROR]: ${error}`);
+    } catch (error) {
+      this.logger.log(
+        `[INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-ERROR]: ${error}`,
+      );
 
       return false;
     }
   }
 
-  async inviteFollowupEventGuestEmailNotification(followupInvitation: FollowupInvitation): Promise<boolean> {
+  async inviteFollowupEventGuestEmailNotification(
+    followupInvitation: FollowupInvitation,
+  ): Promise<boolean> {
     try {
-      this.logger.log(`[FOLLOWUP-INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-PROCESSING]`);
+      this.logger.log(
+        `[FOLLOWUP-INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-PROCESSING]`,
+      );
 
       const htmlContent = await invite_event_guest_email_html_content({
         hasCoverImage: followupInvitation.invitation.image.length > 0,
@@ -86,12 +108,23 @@ onModuleInit() {
         event: followupInvitation.invitation.event.name,
         webappUrl: this.configService.get<string>('WEB_APP_URL'),
         businessName: followupInvitation.invitation.event.business.name,
-        acceptLink: this.configService.get<string>('WEB_APP_URL').concat(`/invitations?invitationHash=${followupInvitation.invitation.hash}&acceptInvite=true`),
-        rejectLink: this.configService.get<string>('WEB_APP_URL').concat(`/invitations?invitationHash=${followupInvitation.invitation.hash}&acceptInvite=false`),
-        image: followupInvitation.invitation.image.length > 0 ? followupInvitation.invitation.image : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
+        acceptLink: this.configService
+          .get<string>('WEB_APP_URL')
+          .concat(
+            `/invitations?invitationHash=${followupInvitation.invitation.hash}&acceptInvite=true`,
+          ),
+        rejectLink: this.configService
+          .get<string>('WEB_APP_URL')
+          .concat(
+            `/invitations?invitationHash=${followupInvitation.invitation.hash}&acceptInvite=false`,
+          ),
+        image:
+          followupInvitation.invitation.image.length > 0
+            ? followupInvitation.invitation.image
+            : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
       });
 
-      if(this.adminSettings.isSMTPEnabled === true) {
+      if (this.adminSettings.isSMTPEnabled === true) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
           subject: `Event Invitation: ${followupInvitation.invitation.event.name}`,
@@ -106,11 +139,15 @@ onModuleInit() {
         });
       }
 
-      this.logger.log(`[FOLLOWUP-INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-SUCCESS]`);
-      
+      this.logger.log(
+        `[FOLLOWUP-INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-SUCCESS]`,
+      );
+
       return true;
-    } catch(error) {
-      this.logger.log(`[FOLLOWUP-INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-ERROR]: ${error}`);
+    } catch (error) {
+      this.logger.log(
+        `[FOLLOWUP-INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-ERROR]: ${error}`,
+      );
 
       return false;
     }
