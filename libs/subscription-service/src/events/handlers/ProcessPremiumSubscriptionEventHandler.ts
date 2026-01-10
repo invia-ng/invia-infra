@@ -76,7 +76,6 @@ export class ProcessPremiumSubscriptionEventHandler implements IEventHandler<Pro
             id: business.id,
           },
         },
-        relations: ['user', 'plan'],
       });
 
       if (subscriptionExists) {

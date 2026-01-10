@@ -312,7 +312,7 @@ export class Subscription {
   @JoinColumn({ name: 'planId' })
   plan: SubscriptionPlan;
 
-  @ManyToOne(() => Business, (business) => business)
+  @ManyToOne(() => Business, (business) => business, { eager: true })
   @JoinColumn({ name: 'business' })
   business: Business;
 
@@ -447,7 +447,7 @@ export class SubscriptionInfo {
     example: SubscriptionItemLimitEnum.UNLIMITED,
   })
   eventLimitStatus: SubscriptionItemLimitEnum;
-  
+
   @ApiProperty({
     description: 'Reusable Message Templates',
   })
