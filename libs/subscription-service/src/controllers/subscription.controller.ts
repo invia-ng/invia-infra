@@ -41,17 +41,6 @@ export class SubscriptionController {
     public readonly subscriptionService: SubscriptionService,
   ) {}
 
-  @Get('plans/me')
-  @ApiOkResponse({ type: SubscriptionInfo })
-  @ApiInternalServerErrorResponse()
-  async fetchBusinessSubscriptionInfo(
-    @SecureUser() secureUser: SecureUserPayload,
-  ): Promise<SubscriptionInfo[]> {
-    return await this.queryBus.execute(
-      new FetchBusinessSubscriptionInfoQuery(secureUser),
-    );
-  }
-
   @Get('plans')
   @ApiOkResponse({ type: SubscriptionInfo, isArray: true })
   @ApiInternalServerErrorResponse()
@@ -60,6 +49,17 @@ export class SubscriptionController {
   ): Promise<SubscriptionPlanInfo[]> {
     return await this.queryBus.execute(
       new FetchSubscriptionPlansQuery(secureUser),
+    );
+  }
+
+  @Get('plans/me')
+  @ApiOkResponse({ type: SubscriptionInfo })
+  @ApiInternalServerErrorResponse()
+  async fetchBusinessSubscriptionInfo(
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<SubscriptionInfo[]> {
+    return await this.queryBus.execute(
+      new FetchBusinessSubscriptionInfoQuery(secureUser),
     );
   }
 }
