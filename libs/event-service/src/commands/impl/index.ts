@@ -8,6 +8,8 @@ import {
   UpdateMessageTemplateDTO,
   AcceptRejectEventInvitationDTO,
   ExportGuestListDto,
+  InviteEventGuestDTO,
+  UpdateEventGuestDTO,
 } from '../../interface';
 import { SecureUserPayload } from '@app/common/src/interface';
 
@@ -23,6 +25,7 @@ export class DeleteEventPartyCommand {
   constructor(
     public readonly eventId: number,
     public readonly partyId: number,
+    public readonly newPartyId: number,
     public readonly secureUser: SecureUserPayload,
   ) {}
 }
@@ -57,11 +60,55 @@ export class AddEventGuestsCommand {
   ) {}
 }
 
+export class UpdateEventGuestCommand {
+  constructor(
+    public readonly eventId: number,
+    public readonly guestId: number,
+    public readonly payload: UpdateEventGuestDTO,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
+export class EventAuthorUpdateEventGuestCommand {
+  constructor(
+    public readonly eventId: number,
+    public readonly guestId: number,
+    public readonly payload: UpdateEventGuestDTO,
+    public readonly accessToken: string,
+  ) {}
+}
+
+export class InviteEventGuestCommand {
+  constructor(
+    public readonly eventId: number,
+    public readonly guestId: number,
+    public readonly payload: InviteEventGuestDTO,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
+export class EventAuthorInviteEventGuestCommand {
+  constructor(
+    public readonly eventId: number,
+    public readonly guestId: number,
+    public readonly payload: InviteEventGuestDTO,
+    public readonly accessToken: string,
+  ) {}
+}
+
 export class InviteEventGuestsCommand {
   constructor(
     public readonly eventId: number,
     public readonly payload: InviteEventGuestsDTO,
     public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
+export class EventAuthorInviteEventGuestsCommand {
+  constructor(
+    public readonly eventId: number,
+    public readonly payload: InviteEventGuestsDTO,
+    public readonly accessToken: string,
   ) {}
 }
 
@@ -143,13 +190,6 @@ export class AcceptRejectEventInvitationCommand {
     public readonly invitationHash: string,
     public readonly acceptInvite: boolean,
     public readonly payload: AcceptRejectEventInvitationDTO,
-  ) {}
-}
-
-export class EventAuthorInviteEventGuestsCommand {
-  constructor(
-    public readonly payload: InviteEventGuestsDTO,
-    public readonly accessToken: string,
   ) {}
 }
 

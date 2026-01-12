@@ -1,19 +1,15 @@
-import {
-  Inject,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { In, Raw, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { Event } from '@app/common/src/models/event.model';
 import authUtils from '@app/common/src/security/auth.utils';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AcceptRejectEventInvitationCommand } from '../../impl';
-import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
-import { Guest, GuestInfo } from '@app/common/src/models/guest.model';
-import { AcceptRejectEventInvitationInfo } from '@app/event-service/src/interface/schema';
 import { Invitation } from '@app/common/src/models/invitation.model';
+import { AcceptRejectEventInvitationInfo } from '@app/event-service/src/interface/schema';
+import { GuestTimeline } from '@app/common/src/models/guest.model';
+import { GuestTimelineActionEnum } from '@app/common/src/constants/enums';
 
 @CommandHandler(AcceptRejectEventInvitationCommand)
 export class AcceptRejectEventInvitationHandler implements ICommandHandler<
@@ -26,6 +22,8 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Invitation)
     private readonly invitationRepository: Repository<Invitation>,
+    @InjectRepository(GuestTimeline)
+    private readonly guestTimelineRepository: Repository<GuestTimeline>,
   ) {}
 
   async execute(command: AcceptRejectEventInvitationCommand) {
@@ -68,6 +66,16 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
       });
 
       await this.invitationRepository.save(invitation);
+
+      await this.guestTimelineRepository.save({
+        guest: invitation.guest,
+        description: acceptInvite
+          ? 'Guest accepts the invitation.'
+          : 'Guest rejects the invitation.',
+        action: acceptInvite
+          ? GuestTimelineActionEnum.GUEST_ACCEPTED_INVITE
+          : GuestTimelineActionEnum.GUEST_REJECTED_INVITE,
+      });
 
       this.logger.log(`[ACCEPT-REJECT-EVENT-INVITATION-HANDLER-SUCCESS]`);
 

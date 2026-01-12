@@ -1,15 +1,16 @@
-import { Inject } from '@nestjs/common';
-import { SearchEventGuestsQuery } from '../impl';
+import { Inject, UnauthorizedException } from '@nestjs/common';
+import { EventAuthorSearchEventGuestsQuery } from '../../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Repository, ILike, FindOptionsWhere } from 'typeorm';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
+import authUtils from '@app/common/src/security/auth.utils';
 
-@QueryHandler(SearchEventGuestsQuery)
-export class SearchEventGuestsQueryHandler implements IQueryHandler<
-  SearchEventGuestsQuery,
+@QueryHandler(EventAuthorSearchEventGuestsQuery)
+export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
+  EventAuthorSearchEventGuestsQuery,
   GuestsResponse
 > {
   constructor(
@@ -18,7 +19,9 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
     private readonly guestRepository: Repository<Guest>,
   ) {}
 
-  async execute(query: SearchEventGuestsQuery): Promise<GuestsResponse> {
+  async execute(
+    query: EventAuthorSearchEventGuestsQuery,
+  ): Promise<GuestsResponse> {
     try {
       this.logger.log('[SEARCH-EVENT-GUESTS-QUERY-PROCESSING]');
 
@@ -30,7 +33,18 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
         page,
         pageSize,
         searchQuery,
+        accessToken,
       } = query;
+
+      const isTokenExpired = authUtils.isAccessTokenExpired(accessToken);
+
+      // console.log('[TOKEN] :: ', accessToken, isTokenExpired)
+
+      if (isTokenExpired) {
+        this.logger.log('[EVENT-AUTHOR-INVITE-EVENT-GUESTS-HANDLER-ERROR]');
+
+        throw new UnauthorizedException('Invalid access token');
+      }
 
       const where: FindOptionsWhere<Guest> = {};
 

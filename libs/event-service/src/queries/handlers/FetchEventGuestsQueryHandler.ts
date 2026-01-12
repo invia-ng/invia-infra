@@ -19,8 +19,8 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
   ) {}
 
   async execute(query: FetchEventGuestsQuery) {
-    try{
-			this.logger.log('[FETCH-EVENT-GUESTS-QUERY-PROCESSING]');
+    try {
+      this.logger.log('[FETCH-EVENT-GUESTS-QUERY-PROCESSING]');
 
       const { page, pageSize, eventId, secureUser } = query;
 
@@ -40,18 +40,18 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
       const totalPages = Math.ceil(totalCount / pageSize);
       const hasNext = page < totalPages;
 
-			this.logger.log('[FETCH-EVENT-GUESTS-QUERY-SUCCESS]');
+      this.logger.log('[FETCH-EVENT-GUESTS-QUERY-SUCCESS]');
 
-			return {
+      return {
         hasNext,
         totalPages,
-        guestParties: guests.map((guest) => guest.party),
-				guests: guests.map((guest) => modelsFormatter.FormatGuestInfo(guest)),
-			} as unknown as GuestsResponse;
-    }catch(error){
-			this.logger.error('[FETCH-EVENT-GUESTS-QUERY-ERROR]', error);
+        guestParties: [...new Set(guests.map((guest) => guest.party))],
+        guests: guests.map((guest) => modelsFormatter.FormatGuestInfo(guest)),
+      } as unknown as GuestsResponse;
+    } catch (error) {
+      this.logger.error('[FETCH-EVENT-GUESTS-QUERY-ERROR]', error);
 
-			throw error;
+      throw error;
     }
   }
 }

@@ -1,0 +1,91 @@
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EventAuthorInviteEventGuestEvent } from '../impl';
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+import authUtils from '@app/common/src/security/auth.utils';
+import { Inject, UnauthorizedException } from '@nestjs/common';
+import { Business } from '@app/common/src/models/business.model';
+import { AppLogger } from 'libs/common/src/logger/logger.service';
+import { GuestTimeline } from '@app/common/src/models/guest.model';
+import { Invitation } from '@app/common/src/models/invitation.model';
+import { GuestTimelineActionEnum } from '@app/common/src/constants/enums';
+import { EventEmailNotificationService } from '@app/notification-service/src/services/email/event.email.notification.service';
+
+@EventsHandler(EventAuthorInviteEventGuestEvent)
+export class EventAuthorInviteEventGuestEventHandler implements IEventHandler<EventAuthorInviteEventGuestEvent> {
+  constructor(
+    @Inject('Logger') private readonly logger: AppLogger,
+    @InjectRepository(Business)
+    private readonly businessRepository: Repository<Business>,
+    @InjectRepository(Invitation)
+    private readonly invitationRepository: Repository<Invitation>,
+    @InjectRepository(GuestTimeline)
+    private readonly guestTimelineRepository: Repository<GuestTimeline>,
+    private readonly eventEmailNotificationService: EventEmailNotificationService,
+  ) {}
+
+  async handle(event: EventAuthorInviteEventGuestEvent) {
+    try {
+      this.logger.log(
+        `[INVITE-EVENT-GUEST-EVENT-PROCESSING]: ${JSON.stringify(event)}`,
+      );
+
+      const { invitation, accessToken } = event;
+
+      const isTokenExpired = authUtils.isAccessTokenExpired(accessToken);
+
+      // console.log('[TOKEN] :: ', accessToken, isTokenExpired)
+
+      if (isTokenExpired) {
+        this.logger.log('[EVENT-AUTHOR-INVITE-EVENT-GUESTS-HANDLER-ERROR]');
+
+        throw new UnauthorizedException('Invalid access token');
+      }
+
+      if (invitation.sendEmailInvite) {
+        //! SEND EMAIL INVITATION
+        const emailResponse =
+          await this.eventEmailNotificationService.inviteEventGuestEmailNotification(
+            invitation,
+          );
+
+        await this.guestTimelineRepository.save({
+          guest: invitation.guest,
+          description: `Event author sent an invite message.`,
+          action: GuestTimelineActionEnum.SENT_INVITE_MESSAGE,
+        });
+
+        if (emailResponse) {
+          Object.assign(invitation, {
+            isSent: true,
+            isDelivered: true,
+          });
+
+          await this.invitationRepository.save(invitation);
+
+          await this.guestTimelineRepository.save({
+            guest: invitation.guest,
+            description: 'Email was delivered.',
+            action: GuestTimelineActionEnum.EMAIL_DELIVERED,
+          });
+        } else {
+          await this.guestTimelineRepository.save({
+            guest: invitation.guest,
+            description: 'Email failed to deliver.',
+            action: GuestTimelineActionEnum.EMAIL_DELIVERED,
+          });
+        }
+      }
+
+      if (invitation.sendWhatsAppInvite) {
+        //! SEND WHATSAPP INVITATION
+      }
+
+      this.logger.log(`[INVITE-EVENT-GUEST-EVENT-SUCCESS]`);
+    } catch (error) {
+      this.logger.log(`[INVITE-EVENT-GUEST-EVENT-ERROR]: ${error}`);
+
+      throw error;
+    }
+  }
+}

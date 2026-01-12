@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import {
+  Invitation,
+  FollowupInvitation,
+} from '@app/common/src/models/invitation.model';
 import { DocumentBuilder } from '@nestjs/swagger';
 import { EventServiceCronHandlers } from './jobs';
 import { EventService } from './services/event.service';
-import { Guest } from '@app/common/src/models/guest.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Setting } from '@app/common/src/models/setting.model';
 import { Account } from 'libs/common/src/models/account.model';
@@ -18,6 +21,7 @@ import { AppLogger } from '../../common/src/logger/logger.service';
 import { Event, EventParty } from '@app/common/src/models/event.model';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
+import { Guest, GuestTimeline } from '@app/common/src/models/guest.model';
 import { EventAdminController } from './controllers/event.admin.controller';
 import { EventGuestController } from './controllers/event.guest.controller';
 import { EventHelperController } from './controllers/event.helper.controller';
@@ -25,7 +29,6 @@ import { EventAuthorController } from './controllers/event.author.controller';
 import { EventMessageController } from './controllers/event.message.controller';
 import { MessageTemplate } from '@app/common/src/models/message.template.model';
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
-import { FollowupInvitation, Invitation } from '@app/common/src/models/invitation.model';
 import { EmailSenderService } from '@app/helper-service/src/services/email-sender.service';
 import { EventEmailNotificationService } from '@app/notification-service/src/services/email/event.email.notification.service';
 
@@ -44,6 +47,7 @@ import { EventEmailNotificationService } from '@app/notification-service/src/ser
       EventParty,
       Invitation,
       Notification,
+      GuestTimeline,
       MessageTemplate,
       FollowupInvitation,
     ]),

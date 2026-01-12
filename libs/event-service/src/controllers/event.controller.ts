@@ -4,6 +4,8 @@ import {
   AddEventGuestsDTO,
   InviteEventGuestsDTO,
   CreateEventPartyDTO,
+  InviteEventGuestDTO,
+  UpdateEventGuestDTO,
 } from '../interface';
 import {
   FetchEventsQuery,
@@ -11,6 +13,8 @@ import {
   FetchEventGuestsQuery,
   FetchEventPartiesQuery,
   SearchEventGuestsQuery,
+  FetchEventGuestInfoQuery,
+  FetchEventGuestIdsQuery,
 } from '../queries/impl';
 import {
   Get,
@@ -40,19 +44,25 @@ import {
   DeleteEventPartyCommand,
   InviteEventGuestsCommand,
   RemoveMultipleEventGuestsCommand,
+  InviteEventGuestCommand,
+  UpdateEventGuestCommand,
 } from '../commands/impl';
 import {
   EventInfo,
   EventPartyInfo,
   EventsResponse,
 } from '@app/common/src/models/event.model';
+import {
+  GuestInfo,
+  GuestsResponse,
+  GuestProfileInfo,
+} from '@app/common/src/models/guest.model';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EventService } from '../services/event.service';
-import { DeleteDataInstanceInfo } from '../interface/schema';
 import { SecureUserPayload } from '@app/common/src/interface';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
-import { GuestInfo, GuestsResponse } from '@app/common/src/models/guest.model';
+import { DeleteDataInstanceInfo, EventGuestIdInfo } from '../interface/schema';
 
 @ApiTags('event')
 @Controller({ path: '' })
@@ -119,15 +129,23 @@ export class EventController {
     name: 'partyId',
     description: 'Event party primary ID',
   })
+  @ApiQuery({
+    example: 1,
+    type: Number,
+    required: true,
+    name: 'newPartyId',
+    description: 'New event party for guests using deleted party',
+  })
   @ApiOkResponse({ type: DeleteDataInstanceInfo })
   @ApiInternalServerErrorResponse()
   async deleteEventParty(
     @Query('eventId') eventId: number,
     @Query('partyId') partyId: number,
+    @Query('newPartyId') newPartyId: number,
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<DeleteDataInstanceInfo> {
     return await this.command.execute(
-      new DeleteEventPartyCommand(eventId, partyId, secureUser),
+      new DeleteEventPartyCommand(eventId, partyId, newPartyId, secureUser),
     );
   }
 
@@ -156,6 +174,26 @@ export class EventController {
   ): Promise<EventsResponse> {
     return await this.queryBus.execute(
       new FetchEventsQuery(page, pageSize, secureUser),
+    );
+  }
+
+  @Get('guest-ids')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiOkResponse({ type: EventGuestIdInfo, isArray: true })
+  @ApiInternalServerErrorResponse()
+  async fetchEventGuestIds(
+    @Req() req: Request,
+    @Query('eventId') eventId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<EventGuestIdInfo[]> {
+    return await this.queryBus.execute(
+      new FetchEventGuestIdsQuery(eventId, secureUser),
     );
   }
 
@@ -274,42 +312,42 @@ export class EventController {
   })
   @ApiQuery({
     type: Number,
-    required: true,
+    required: false,
     example: 1,
     name: 'page',
     description: 'Page',
   })
   @ApiQuery({
     type: Number,
-    required: true,
+    required: false,
     example: 10,
     name: 'pageSize',
     description: 'Page Size',
   })
   @ApiQuery({
     type: String,
-    required: true,
+    required: false,
     example: 'John Doe',
     name: 'searchQuery',
     description: 'Query',
   })
   @ApiQuery({
     type: String,
-    required: true,
+    required: false,
     name: 'guestParty',
     example: 'John Doe',
     description: "Guest party e.g Groom's family",
   })
   @ApiQuery({
     type: Boolean,
-    required: true,
+    required: false,
     example: true,
     name: 'rsvpStatus',
     description: 'RSVP Status',
   })
   @ApiQuery({
     type: Boolean,
-    required: true,
+    required: false,
     example: true,
     name: 'invited',
     description: 'Invited',
@@ -317,26 +355,53 @@ export class EventController {
   @ApiOkResponse({ type: GuestsResponse })
   @ApiInternalServerErrorResponse()
   async searchEventGuests(
-    @Query('page') page: number,
-    @Query('pageSize') pageSize: number,
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 10,
     @Query('eventId') eventId: number,
-    @Query('guestParty') guestParty: string,
-    @Query('invited') invited: boolean,
-    @Query('rsvpStatus') rsvpStatus: boolean,
-    @Query('searchQuery') searchQuery: string,
-    @SecureUser() secureUser: SecureUserPayload,
+    @Query('guestParty') guestParty?: string,
+    @Query('invited') invited?: boolean,
+    @Query('rsvpStatus') rsvpStatus?: boolean,
+    @Query('searchQuery') searchQuery?: string,
+    @SecureUser() secureUser?: SecureUserPayload,
   ): Promise<GuestsResponse> {
     return await this.queryBus.execute(
       new SearchEventGuestsQuery(
         eventId,
-        guestParty,
-        searchQuery,
-        invited,
-        rsvpStatus,
+        guestParty ? guestParty : null,
+        searchQuery ? searchQuery : null,
+        invited ? invited : null,
+        rsvpStatus ? rsvpStatus : null,
         page,
         pageSize,
         secureUser,
       ),
+    );
+  }
+
+  @Get('guests/info')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'guestId',
+    description: 'Guest Primary ID',
+  })
+  @ApiOkResponse({ type: GuestProfileInfo })
+  @ApiInternalServerErrorResponse()
+  async fetchEventGuestInfo(
+    @Query('guestId') guestId: number,
+    @Query('eventId') eventId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<GuestProfileInfo> {
+    return await this.queryBus.execute(
+      new FetchEventGuestInfoQuery(eventId, guestId, secureUser),
     );
   }
 
@@ -360,7 +425,63 @@ export class EventController {
     );
   }
 
+  @Patch('guests/update')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'guestId',
+    description: 'Guest Primary ID',
+  })
+  @ApiOkResponse({ type: GuestInfo, isArray: true })
+  @ApiInternalServerErrorResponse()
+  async updateEventGuests(
+    @Body() body: UpdateEventGuestDTO,
+    @Query('eventId') eventId: number,
+    @Query('guestId') guestId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<GuestInfo[]> {
+    return await this.command.execute(
+      new UpdateEventGuestCommand(eventId, guestId, body, secureUser),
+    );
+  }
+
   @Post('guests/invite')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'guestId',
+    description: 'Guest Primary ID',
+  })
+  @ApiOkResponse()
+  @ApiInternalServerErrorResponse()
+  async inviteEventGuest(
+    @Body() body: InviteEventGuestDTO,
+    @Query('eventId') eventId: number,
+    @Query('guestId') guestId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<void> {
+    return await this.command.execute(
+      new InviteEventGuestCommand(eventId, guestId, body, secureUser),
+    );
+  }
+
+  @Post('guests/invite-multiple')
   @ApiQuery({
     type: Number,
     required: true,

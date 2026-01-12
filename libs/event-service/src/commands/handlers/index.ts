@@ -4,7 +4,9 @@ import { DeleteEventHandler } from "./DeleteEventHandler";
 import { AddEventGuestsHandler } from "./AddEventGuestsHandler";
 import { CreateEventPartyHandler } from "./CreateEventPartyHandler";
 import { RemoveEventGuestHandler } from "./RemoveEventGuestHandler";
+import { InviteEventGuestHandler } from "./InviteEventGuestHandler";
 import { DeleteEventPartyHandler } from "./DeleteEventPartyHandler";
+import { UpdateEventGuestHandler } from "./UpdateEventGuestHandler";
 import { InviteEventGuestsHandler } from "./InviteEventGuestsHandler";
 import { ExportGuestListHandler } from "./admin/ExportGuestListHandler";
 import { CreateMessageTemplateHandler } from "./CreateMessageTemplateHandler";
@@ -15,6 +17,8 @@ import { RemoveMultipleEventGuestsHandler } from "./RemoveMultipleEventGuestsHan
 import { RemoveEventAuthorGuestHandler } from "./author/RemoveEventAuthorGuestHandler";
 import { GenerateShareFormPasscodeHandler } from "./admin/GenerateShareFormPasscodeHandler";
 import { AcceptRejectEventInvitationHandler } from "./guest/AcceptRejectEventInvitationHandler";
+import { EventAuthorUpdateEventGuestHandler } from "./author/EventAuthorUpdateEventGuestHandler";
+import { EventAuthorInviteEventGuestHandler } from "./author/EventAuthorInviteEventGuestHandler";
 import { EventAuthorInviteEventGuestsHandler } from "./author/EventAuthorInviteEventGuestsHandler";
 import { AuthenticateShareFormPasscodeHandler } from "./author/AuthenticateShareFormPasscodeHandler";
 import { RemoveMultipleEventAuthorGuestsHandler } from "./author/RemoveMultipleEventAuthorGuestsHandler";
@@ -25,7 +29,9 @@ export const EventServiceCommandHandlers = [
     UpdateEventHandler,
     AddEventGuestsHandler,
     ExportGuestListHandler,
+    InviteEventGuestHandler,
     DeleteEventPartyHandler,
+    UpdateEventGuestHandler,
     RemoveEventGuestHandler,
     CreateEventPartyHandler,
     InviteEventGuestsHandler,
@@ -36,6 +42,8 @@ export const EventServiceCommandHandlers = [
     RemoveEventAuthorGuestHandler,
     RemoveMultipleEventGuestsHandler,
     GenerateShareFormPasscodeHandler,
+    EventAuthorUpdateEventGuestHandler,
+    EventAuthorInviteEventGuestHandler,
     AcceptRejectEventInvitationHandler,
     EventAuthorInviteEventGuestsHandler,
     AuthenticateShareFormPasscodeHandler,

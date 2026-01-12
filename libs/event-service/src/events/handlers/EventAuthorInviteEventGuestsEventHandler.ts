@@ -1,7 +1,11 @@
 import { Repository } from 'typeorm';
-import { InviteEventGuestsEvent } from '../impl';
+import { EventAuthorInviteEventGuestsEvent } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Inject, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
@@ -9,9 +13,10 @@ import { GuestTimeline } from '@app/common/src/models/guest.model';
 import { Invitation } from '@app/common/src/models/invitation.model';
 import { GuestTimelineActionEnum } from '@app/common/src/constants/enums';
 import { EventEmailNotificationService } from '@app/notification-service/src/services/email/event.email.notification.service';
+import authUtils from '@app/common/src/security/auth.utils';
 
-@EventsHandler(InviteEventGuestsEvent)
-export class InviteEventGuestsEventHandler implements IEventHandler<InviteEventGuestsEvent> {
+@EventsHandler(EventAuthorInviteEventGuestsEvent)
+export class EventAuthorInviteEventGuestsEventHandler implements IEventHandler<EventAuthorInviteEventGuestsEvent> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Business)
@@ -23,31 +28,22 @@ export class InviteEventGuestsEventHandler implements IEventHandler<InviteEventG
     private readonly eventEmailNotificationService: EventEmailNotificationService,
   ) {}
 
-  async handle(event: InviteEventGuestsEvent) {
+  async handle(event: EventAuthorInviteEventGuestsEvent) {
     try {
       this.logger.log(
         `[INVITE-EVENT-GUEST-EVENT-PROCESSING]: ${JSON.stringify(event)}`,
       );
 
-      const { invitations, secureUser } = event;
+      const { invitations, accessToken } = event;
 
-      const business = await this.businessRepository.findOne({
-        where: [
-          {
-            members: {
-              id: secureUser.id,
-            },
-          },
-          {
-            account: {
-              id: secureUser.id,
-            },
-          },
-        ],
-      });
+      const isTokenExpired = authUtils.isAccessTokenExpired(accessToken);
 
-      if (!business) {
-        throw new NotFoundException(`Business record not found for user`);
+      // console.log('[TOKEN] :: ', accessToken, isTokenExpired)
+
+      if (isTokenExpired) {
+        this.logger.log('[EVENT-AUTHOR-INVITE-EVENT-GUESTS-HANDLER-ERROR]');
+
+        throw new UnauthorizedException('Invalid access token');
       }
 
       await Promise.all(
@@ -64,10 +60,7 @@ export class InviteEventGuestsEventHandler implements IEventHandler<InviteEventG
 
               await this.guestTimelineRepository.save({
                 guest: invitation.guest,
-                description:
-                   secureUser.name === business.account.name
-                    ? `You sent an invite message.`
-                    : `${secureUser.name} sent an invite message.`,
+                description: `Event author sent an invite message.`,
                 action: GuestTimelineActionEnum.SENT_INVITE_MESSAGE,
               });
 

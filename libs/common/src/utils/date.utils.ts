@@ -21,3 +21,20 @@ export const getMonthName = (date: Date): string => {
 
   return monthName;
 };
+
+export const formatTo12HourTime = (date: Date): string => {
+  return date
+    .toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+    .toLowerCase();
+};
+
+export const formatToCustomDate = (date: Date): string => {
+  const month = date.toLocaleString('en-US', { month: 'short' });
+  const day = date.getDate();
+  const year = date.getFullYear();
+  return `${month}, ${day} ${year}`;
+};

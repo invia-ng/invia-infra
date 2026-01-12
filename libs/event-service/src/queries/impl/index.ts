@@ -16,6 +16,20 @@ export class FetchEventsQuery {
   ) {}
 }
 
+export class FetchEventGuestIdsQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
+export class EventAuthorFetchEventGuestIdsQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly accessToken: string,
+  ) {}
+}
+
 export class FetchEventPartiesQuery {
   constructor(
     public readonly eventId: number,
@@ -80,3 +94,30 @@ export class SearchEventGuestsQuery {
   ) {}
 }
 
+export class EventAuthorSearchEventGuestsQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly guestParty: string,
+    public readonly searchQuery: string,
+    public readonly invited: boolean,
+    public readonly rsvpStatus: boolean,
+    public readonly page: number,
+    public readonly pageSize: number,
+    public readonly accessToken: string,
+  ) {}
+}
+
+export class FetchEventGuestInfoQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly guestId: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+export class EventAuthorFetchEventGuestInfoQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly guestId: number,
+    public readonly accessToken: string,
+  ) {}
+}

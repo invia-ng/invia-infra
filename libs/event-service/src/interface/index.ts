@@ -134,6 +134,40 @@ export class AddEventGuestsDTO {
   guests: NewGuestDto[];
 }
 
+export class UpdateEventGuestDTO {
+  @ApiProperty({
+    example: 'John Doe',
+    description: 'Guest name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    example: 'John Doe',
+    description: 'Guest name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  party: string;
+
+  @ApiProperty({
+    example: '+251911223344',
+    description: 'Guest phone.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
+
+  @ApiProperty({
+    example: 'john.doe@gmail.com',
+    description: 'Guest email.',
+  })
+  @IsString()
+  @IsOptional()
+  email?: string;
+}
+
 export class InviteFollowupMessage {
   @ApiProperty({
     description: 'Followup message.',
@@ -159,6 +193,59 @@ export class InviteFollowupMessage {
   @IsEnum(FollowupConditionEnum)
   @IsNotEmpty()
   condition: FollowupConditionEnum;
+}
+
+export class InviteEventGuestDTO {
+  @ApiProperty({
+    example: false,
+    description: 'Send email invite.',
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  sendEmailInvite: boolean;
+
+  @ApiProperty({
+    example: false,
+    description: 'Send WhatsApp invite.',
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  sendWhatsAppInvite: boolean;
+
+  @ApiProperty({
+    description: 'Invitation cover image.',
+    example: 'https://media.s3.amazonaws.com/avatars/avatar.png',
+  })
+  @IsString()
+  @IsOptional()
+  image?: string;
+
+  @ApiProperty({
+    description: 'Invitation message.',
+    example: 'Hi {guest_name}, you are cordially invited to {event_name}.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+
+  @ApiProperty({
+    isArray: true,
+    type: InviteFollowupMessage,
+    description: 'Array of followup invitations',
+    example: [
+      {
+        interval: FollowupIntervalEnum.ONE_DAY,
+        condition: FollowupConditionEnum.NO_RSVP,
+        message:
+          'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+      },
+    ],
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => InviteFollowupMessage)
+  followupInvitations?: InviteFollowupMessage[];
 }
 
 export class InviteEventGuestsDTO {

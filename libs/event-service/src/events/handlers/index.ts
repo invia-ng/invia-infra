@@ -1,5 +1,11 @@
-import { InviteEventGuestsEventHandler } from "./InviteEventGuestsEventHandler";
+import { InviteEventGuestsEventHandler } from './InviteEventGuestsEventHandler';
+import { ReplaceEventGuestPartyEventHandler } from './ReplaceEventGuestPartyEventHandler';
+import { EventAuthorInviteEventGuestEventHandler } from './EventAuthorInviteEventGuestEventHandler';
+import { EventAuthorInviteEventGuestsEventHandler } from './EventAuthorInviteEventGuestsEventHandler';
 
 export const EventServiceEventHandlers = [
-    InviteEventGuestsEventHandler,
+  InviteEventGuestsEventHandler,
+  ReplaceEventGuestPartyEventHandler,
+  EventAuthorInviteEventGuestEventHandler,
+  EventAuthorInviteEventGuestsEventHandler,
 ];

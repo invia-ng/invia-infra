@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Inject,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InviteEventGuestsCommand } from '../impl';
@@ -14,12 +10,13 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { FollowupIntervalEnum } from '@app/common/src/constants/enums';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { MessageTemplateParser } from '../../middlewares/messsage.template.parser';
-import { FollowupInvitation, Invitation } from '@app/common/src/models/invitation.model';
+import {
+  FollowupInvitation,
+  Invitation,
+} from '@app/common/src/models/invitation.model';
 
 @CommandHandler(InviteEventGuestsCommand)
-export class InviteEventGuestsHandler
-  implements ICommandHandler<InviteEventGuestsCommand>
-{
+export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGuestsCommand> {
   constructor(
     private readonly eventBus: EventBus,
     @Inject('Logger') private readonly logger: AppLogger,
@@ -41,98 +38,117 @@ export class InviteEventGuestsHandler
 
       const invitations: Invitation[] = [];
 
-	    const event = await this.eventRepository.findOne({
-				where: {
-					id: eventId,
-				},
-    	});
+      const event = await this.eventRepository.findOne({
+        where: {
+          id: eventId,
+        },
+      });
 
       if (!event) {
         throw new NotFoundException('Event not found.');
       }
 
-      await Promise.all(payload.guestIds.map(async(guestId) => {
-        try {
-          this.logger.log('[INVITE-EVENT-GUEST-HANDLER-PROCESSING]');
+      await Promise.all(
+        payload.guestIds.map(async (guestId) => {
+          try {
+            this.logger.log('[INVITE-EVENT-GUEST-HANDLER-PROCESSING]');
 
-          const guest = await this.guestRepository.findOne({
-            where: {
-              id: guestId,
-            },
-          });
-
-          if (!guest) {
-            return;
-          }
-
-          const existingInvite = await this.invitationRepository.exists({
-            where: {
-              event: {
-                id: event.id,
+            const guest = await this.guestRepository.findOne({
+              where: {
+                id: guestId,
               },
-              guest: {
-                id: guest.id,
+            });
+
+            if (!guest) {
+              return;
+            }
+
+            const existingInvite = await this.invitationRepository.exists({
+              where: {
+                event: {
+                  id: event.id,
+                },
+                guest: {
+                  id: guest.id,
+                },
               },
-            },
-          });
+            });
 
-          if (existingInvite) {
-            throw new BadRequestException(`Your guest ${guest.name} has already been invited!`);
+            if (existingInvite) {
+              throw new BadRequestException(
+                `Your guest ${guest.name} has already been invited!`,
+              );
+            }
+
+            const hash = authUtils.generateEventInvitationHash({
+              eventId: event.id,
+              guestId: guest.id,
+              eventHash: event.hash,
+            });
+
+            const instance = this.invitationRepository.create({
+              event,
+              guest,
+              hash,
+              image: payload?.image,
+              sendEmailInvite: payload.sendEmailInvite,
+              sendWhatsAppInvite: payload.sendWhatsAppInvite,
+              message: MessageTemplateParser(payload.message, event, guest),
+            });
+
+            const invitation = await this.invitationRepository.save(instance);
+
+            await invitations.push(invitation);
+
+            if (
+              payload.followupInvitations &&
+              payload.followupInvitations.length > 0
+            ) {
+              await Promise.all(
+                payload.followupInvitations.map(async (followupInvitation) => {
+                  try {
+                    this.logger.log('[FOLLOWUP-INVITATION-HANDLER-PROCESSING]');
+
+                    const _instance = this.followupInvitationRepository.create({
+                      invitation,
+                      interval: followupInvitation.interval,
+                      condition: followupInvitation.condition,
+                      dateTime: this.calculateFollowupDate(
+                        followupInvitation.interval,
+                      ),
+                      message: MessageTemplateParser(
+                        followupInvitation.message,
+                        event,
+                        guest,
+                      ),
+                    });
+
+                    await this.followupInvitationRepository.save(_instance);
+
+                    this.logger.log('[FOLLOWUP-INVITATION-HANDLER-SUCCESS]');
+                  } catch (error) {
+                    this.logger.log(
+                      `[FOLLOWUP-INVITATION-HANDLER-ERROR] :: ${error}`,
+                    );
+                  }
+                }),
+              );
+            }
+
+            this.logger.log('[INVITE-EVENT-GUEST-HANDLER-SUCCESS]');
+          } catch (error) {
+            this.logger.log(`[INVITE-EVENT-GUEST-HANDLER-ERROR] :: ${error}`);
+
+            throw error;
           }
+        }),
+      );
 
-          const hash = authUtils.generateEventInvitationHash({
-            eventId: event.id, 
-            guestId: guest.id,
-            eventHash: event.hash, 
-          });
-
-          const instance = this.invitationRepository.create({
-            event,
-            guest,
-            hash,
-            image: payload?.image,
-            sendEmailInvite: payload.sendEmailInvite,
-            sendWhatsAppInvite: payload.sendWhatsAppInvite,
-            message: MessageTemplateParser(payload.message, event, guest),
-          });
-
-          const invitation = await this.invitationRepository.save(instance);
-
-          await invitations.push(invitation);
-
-          if (payload.followupInvitations && payload.followupInvitations.length > 0) {
-            await Promise.all(payload.followupInvitations.map(async(followupInvitation) => {
-              try {
-                this.logger.log('[FOLLOWUP-INVITATION-HANDLER-PROCESSING]');
-      
-                const _instance = this.followupInvitationRepository.create({
-                  invitation,
-                  interval: followupInvitation.interval,
-                  condition: followupInvitation.condition,
-                  dateTime: this.calculateFollowupDate(followupInvitation.interval),
-                  message: MessageTemplateParser(followupInvitation.message, event, guest),
-                });
-      
-                await this.followupInvitationRepository.save(_instance);
-                
-                this.logger.log('[FOLLOWUP-INVITATION-HANDLER-SUCCESS]');
-              } catch(error) {
-                this.logger.log(`[FOLLOWUP-INVITATION-HANDLER-ERROR] :: ${error}`);
-              }
-            }));
-          }
-          
-          this.logger.log('[INVITE-EVENT-GUEST-HANDLER-SUCCESS]');
-        } catch(error) {
-          this.logger.log(`[INVITE-EVENT-GUEST-HANDLER-ERROR] :: ${error}`);
-
-          throw error;
-        }
-      }));
-			
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-SUCCESS]`);
 
-      this.eventBus.publish(new InviteEventGuestsEvent(invitations));
+      this.eventBus.publish(
+        new InviteEventGuestsEvent(invitations, secureUser),
+      );
 
       return;
     } catch (error) {

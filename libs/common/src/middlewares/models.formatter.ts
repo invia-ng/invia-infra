@@ -22,8 +22,14 @@ import {
   MessageTemplateEnumInfo,
   MessageTemplateFollowupIntervalInfo,
   MessageTemplateFollowupConditionInfo,
+  EventGuestIdInfo,
 } from '@app/event-service/src/interface/schema';
-import { Guest, GuestInfo } from '../models/guest.model';
+import {
+  Guest,
+  GuestInfo,
+  GuestTimeline,
+  GuestTimelineInfo,
+} from '../models/guest.model';
 import { Account, AccountInfo } from '../models/account.model';
 import { Business, BusinessInfo } from '../models/business.model';
 import { Notification, NotificationInfo } from '../models/notification.model';
@@ -37,6 +43,7 @@ import {
   SubscriptionPlanInfo,
 } from '../models/subscription.model';
 import { ChargeResponse } from '@app/subscription-service/src/interface/schema';
+import { formatTo12HourTime, formatToCustomDate } from '../utils/date.utils';
 
 export function FormatNotification(
   notification: Notification,
@@ -426,6 +433,25 @@ export function FormatSubscriptionInfo(
   } as unknown as SubscriptionInfo;
 }
 
+export function FormatGuestTimelineInfo(
+  timeline: GuestTimeline,
+): GuestTimelineInfo {
+  return {
+    id: timeline.id.toString(),
+    action: timeline.action,
+    description: timeline.description,
+    time: formatTo12HourTime(timeline.createdAt),
+    date: formatToCustomDate(timeline.createdAt),
+  } as unknown as GuestTimelineInfo;
+}
+
+export function FormatEventGuestIdInfo(guest: Guest): EventGuestIdInfo {
+  return {
+    guestId: Number(guest.id.toString()),
+    party: guest.party,
+  } as unknown as EventGuestIdInfo;
+}
+
 export default {
   FormatGuestInfo,
   FormatEventInfo,
@@ -435,6 +461,8 @@ export default {
   FormatEventPartyInfo,
   FormatGuestPartyInfo,
   FormatSubscriptionInfo,
+  FormatEventGuestIdInfo,
+  FormatGuestTimelineInfo,
   FormatEventCategoryInfo,
   FormatMessageTemplateInfo,
   FormatSubscriptionPlanInfo,

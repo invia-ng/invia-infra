@@ -7,10 +7,11 @@ import { Repository } from 'typeorm';
 import { DeleteEventPartyCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AccountRole } from '@app/common/src/constants/enums';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteDataInstanceInfo } from '../../interface/schema';
-import { EventParty } from '@app/common/src/models/event.model';
+import { ReplaceEventGuestPartyEvent } from '../../events/impl';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
+import { Event, EventParty } from '@app/common/src/models/event.model';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 @CommandHandler(DeleteEventPartyCommand)
 export class DeleteEventPartyHandler implements ICommandHandler<
@@ -18,6 +19,7 @@ export class DeleteEventPartyHandler implements ICommandHandler<
   DeleteDataInstanceInfo
 > {
   constructor(
+    private readonly eventBus: EventBus,
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(EventParty)
     private readonly eventPartyRepository: Repository<EventParty>,
@@ -27,7 +29,7 @@ export class DeleteEventPartyHandler implements ICommandHandler<
     try {
       this.logger.log(`[DELETE-EVENT-PARTY-HANDLER-PROCESSING]`);
 
-      const { eventId, partyId, secureUser } = command;
+      const { eventId, partyId, newPartyId, secureUser } = command;
 
       if (secureUser.role !== AccountRole.ADMIN) {
         throw new UnauthorizedException(
@@ -49,6 +51,10 @@ export class DeleteEventPartyHandler implements ICommandHandler<
       }
 
       await this.eventPartyRepository.remove(eventParty);
+
+      this.eventBus.publish(
+        new ReplaceEventGuestPartyEvent(eventId, eventParty.name, newPartyId),
+      );
 
       this.logger.log(`[DELETE-EVENT-PARTY-HANDLER-SUCCESS]`);
 
