@@ -164,6 +164,12 @@ export class EventController {
     name: 'pageSize',
     description: 'Page Size',
   })
+  @ApiQuery({
+    type: Boolean,
+    required: false,
+    name: 'isActive',
+    description: 'Is event active?',
+  })
   @ApiOkResponse({ type: EventsResponse })
   @ApiInternalServerErrorResponse()
   async fetchEvents(
@@ -171,16 +177,17 @@ export class EventController {
     @Query('page') page: number,
     @Query('pageSize') pageSize: number,
     @SecureUser() secureUser: SecureUserPayload,
+    @Query('isActive') isActive?: boolean,
   ): Promise<EventsResponse> {
     return await this.queryBus.execute(
-      new FetchEventsQuery(page, pageSize, secureUser),
+      new FetchEventsQuery(page, pageSize, isActive, secureUser),
     );
   }
 
   @Get('guest-ids')
   @ApiQuery({
     type: Number,
-    required: true,
+    required: false,
     example: 1,
     name: 'eventId',
     description: 'Event Primary ID',

@@ -12,6 +12,7 @@ export class FetchEventsQuery {
   constructor(
     public readonly page: number,
     public readonly pageSize: number,
+    public readonly isActive: boolean,
     public readonly secureUser: SecureUserPayload,
   ) {}
 }

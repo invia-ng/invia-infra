@@ -1,4 +1,4 @@
-import { MoreThanOrEqual, Repository } from 'typeorm';
+import { In, LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { FetchEventsQuery } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, NotFoundException } from '@nestjs/common';
@@ -35,8 +35,10 @@ export class FetchEventsQueryHandler implements IQueryHandler<
     try {
       this.logger.log('[FETCH-EVENTS-QUERY-PROCESSING]');
 
-      const { page, pageSize, secureUser } = query;
+      const { isActive, page, pageSize, secureUser } = query;
 
+      let totalCount: number = 0;
+      let _events: Event[] = [];
       const events: EventInfo[] = [];
 
       const business = await this.businessRepository.findOne({
@@ -58,19 +60,37 @@ export class FetchEventsQueryHandler implements IQueryHandler<
         throw new NotFoundException(`Business record not found for user`);
       }
 
-      const [_events, totalCount] = await this.eventRepository.findAndCount({
-        where: {
-          business: {
-            id: business.id,
+      if (isActive === null || isActive === undefined) {
+        [_events, totalCount] = await this.eventRepository.findAndCount({
+          where: {
+            business: {
+              id: business.id,
+            },
           },
-          // date: MoreThanOrEqual(new Date()), //!ENABLE THIS WHEN READY
-        },
-        order: {
-          createdAt: 'DESC',
-        },
-        take: pageSize,
-        skip: (page - 1) * pageSize,
-      });
+          order: {
+            createdAt: 'DESC',
+          },
+          take: pageSize,
+          skip: (page - 1) * pageSize,
+        });
+      } else {
+        [_events, totalCount] = await this.eventRepository.findAndCount({
+          where: {
+            business: {
+              id: business.id,
+            },
+            date:
+              isActive === true
+                ? MoreThanOrEqual(new Date())
+                : LessThan(new Date()),
+          },
+          order: {
+            createdAt: 'DESC',
+          },
+          take: pageSize,
+          skip: (page - 1) * pageSize,
+        });
+      }
 
       const totalPages = Math.ceil(totalCount / pageSize);
       const hasNext = page < totalPages;
