@@ -20,7 +20,7 @@ export class ReplaceEventGuestPartyEventHandler implements IEventHandler<Replace
   async handle(event: ReplaceEventGuestPartyEvent) {
     try {
       this.logger.log(
-        `[INVITE-EVENT-GUEST-EVENT-PROCESSING]: ${JSON.stringify(event)}`,
+        `[REPLACE-EVENT-GUEST-PARTY-EVENT-PROCESSING]: ${JSON.stringify(event)}`,
       );
 
       const { eventId, partyName, newPartyId } = event;
@@ -67,9 +67,9 @@ export class ReplaceEventGuestPartyEventHandler implements IEventHandler<Replace
         }),
       );
 
-      this.logger.log(`[INVITE-EVENT-GUEST-EVENT-SUCCESS]`);
+      this.logger.log(`[REPLACE-EVENT-GUEST-PARTY-EVENT-SUCCESS]`);
     } catch (error) {
-      this.logger.log(`[INVITE-EVENT-GUEST-EVENT-ERROR]: ${error}`);
+      this.logger.log(`[REPLACE-EVENT-GUEST-PARTY-EVENT-ERROR]: ${error}`);
 
       throw error;
     }

@@ -44,15 +44,21 @@ export class SubscriptionsEmailNotificationService {
       },
     );
 
-    if (this.adminSettings.isSMTPEnabled === true) {
+    if (
+      this.adminSettings.isSMTPEnabled === true &&
+      this.adminSettings.isKibaMailEnabled === false
+    ) {
       return await this.gmailMailerService.sendMail({
         html: htmlContent,
         to: payload.recipientEmail,
         subject: 'Payment Receipt',
         from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
       });
-    } else {
-      return this.emailSenderService.sendEmail({
+    } else if (
+      this.adminSettings.isKibaMailEnabled === true &&
+      this.adminSettings.isSMTPEnabled === false
+    ) {
+      return this.emailSenderService.sendEmailViaKibaAdmin({
         html: htmlContent,
         sub: 'Payment Receipt',
         to_email: payload.recipientEmail,

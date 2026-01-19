@@ -1,5 +1,13 @@
+import { Event } from '@app/common/src/models/event.model';
 import { SecureUserPayload } from '@app/common/src/interface';
 import { Invitation } from '@app/common/src/models/invitation.model';
+
+export class CreateNewEventPartyEvent {
+  constructor(
+    public readonly instance: Event,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
 
 export class InviteEventGuestEvent {
   constructor(

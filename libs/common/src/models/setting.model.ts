@@ -18,6 +18,12 @@ export class Setting {
   isSMTPEnabled: boolean;
 
   @Column({
+    nullable: true,
+    default: false,
+  })
+  isKibaMailEnabled: boolean;
+
+  @Column({
     default: 0,
     nullable: true,
   })

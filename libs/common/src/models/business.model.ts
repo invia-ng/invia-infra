@@ -31,6 +31,16 @@ export class Business {
   name: string;
 
   @Column({
+    default: '',
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Business Email',
+    example: 'beduevents@tryinvia.com',
+  })
+  email: string;
+
+  @Column({
     nullable: true,
     default: '',
   })

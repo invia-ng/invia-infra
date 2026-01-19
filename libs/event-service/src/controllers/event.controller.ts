@@ -132,7 +132,7 @@ export class EventController {
   @ApiQuery({
     example: 1,
     type: Number,
-    required: true,
+    required: false,
     name: 'newPartyId',
     description: 'New event party for guests using deleted party',
   })
@@ -141,11 +141,11 @@ export class EventController {
   async deleteEventParty(
     @Query('eventId') eventId: number,
     @Query('partyId') partyId: number,
-    @Query('newPartyId') newPartyId: number,
     @SecureUser() secureUser: SecureUserPayload,
+    @Query('newPartyId') newPartyId?: number,
   ): Promise<DeleteDataInstanceInfo> {
     return await this.command.execute(
-      new DeleteEventPartyCommand(eventId, partyId, newPartyId, secureUser),
+      new DeleteEventPartyCommand(eventId, partyId, secureUser, newPartyId),
     );
   }
 

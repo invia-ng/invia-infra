@@ -92,9 +92,9 @@ export class NewGuestDto {
     example: 'John Doe',
     description: 'Guest name.',
   })
-  @IsString()
+  @IsOptional()
   @IsNotEmpty()
-  party: string;
+  party?: string;
 
   @ApiProperty({
     example: '+251911223344',

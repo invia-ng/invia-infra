@@ -1,29 +1,25 @@
+import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { CommandBus } from '@nestjs/cqrs';
-import {
-  VendorIdGenerator,
-  ReferralCodeGenerator,
-  VendorSlugGenerator,
-  VendorBusinessNameGenerator,
-} from '@app/common/src/utils/id.generator';
-import { Not, In, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { AvailabilityCheckInfo } from '../interface';
 import { Account } from 'libs/common/src/models/account.model';
+import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from '../../../common/src/logger/logger.service';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     public jwtService: JwtService,
     public commandBus: CommandBus,
     private configService: ConfigService,
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Account)
-    private readonly userRepository: Repository<Account>,
+    private readonly accountRepository: Repository<Account>,
+    @InjectRepository(Business)
+    private readonly businessRepository: Repository<Business>,
   ) {}
 
   generateUserJWT(user: Account) {
@@ -54,13 +50,31 @@ export class AuthService {
   }
 
   async isEmailAvailable(email: string): Promise<AvailabilityCheckInfo> {
-    const existingUser = await this.userRepository.findOne({
+    const existingUser = await this.accountRepository.findOne({
       where: {
         email: email,
       },
     });
 
     const isAvailable = !existingUser || !!existingUser.signupVerificationHash;
+
+    this.logger.log(`[IS-EMAIL-AVAILABLE] : ${isAvailable}`);
+
+    return {
+      isAvailable,
+    };
+  }
+
+  async isBusinessEmailAvailable(
+    email: string,
+  ): Promise<AvailabilityCheckInfo> {
+    const existingUser = await this.businessRepository.findOne({
+      where: {
+        email: email,
+      },
+    });
+
+    const isAvailable = !existingUser;
 
     this.logger.log(`[IS-EMAIL-AVAILABLE] : ${isAvailable}`);
 

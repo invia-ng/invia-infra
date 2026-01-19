@@ -25,8 +25,8 @@ export class DeleteEventPartyCommand {
   constructor(
     public readonly eventId: number,
     public readonly partyId: number,
-    public readonly newPartyId: number,
     public readonly secureUser: SecureUserPayload,
+    public readonly newPartyId?: number,
   ) {}
 }
 

@@ -185,6 +185,14 @@ export class InitializeBusinessProfileDTO {
   @IsString()
   @IsNotEmpty()
   businessName: string;
+
+  @ApiProperty({
+    example: 'beduevents@tryinvia.com',
+    description: 'Email of the business.',
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  businessEmail: string;
 }
 
 export class OAuthSigninDTO {

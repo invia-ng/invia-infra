@@ -52,9 +52,11 @@ export class DeleteEventPartyHandler implements ICommandHandler<
 
       await this.eventPartyRepository.remove(eventParty);
 
-      this.eventBus.publish(
-        new ReplaceEventGuestPartyEvent(eventId, eventParty.name, newPartyId),
-      );
+      if (newPartyId !== null) {
+        this.eventBus.publish(
+          new ReplaceEventGuestPartyEvent(eventId, eventParty.name, newPartyId),
+        );
+      }
 
       this.logger.log(`[DELETE-EVENT-PARTY-HANDLER-SUCCESS]`);
 

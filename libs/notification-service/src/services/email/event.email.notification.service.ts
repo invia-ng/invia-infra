@@ -67,18 +67,26 @@ export class EventEmailNotificationService implements OnModuleInit {
             : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
       });
 
-      if (this.adminSettings.isSMTPEnabled === true) {
+      if (
+        this.adminSettings.isSMTPEnabled === true &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
           to: invitation.guest.email,
           subject: `Event Invitation: ${invitation.event.name}`,
-          from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+          from: `"${invitation.event.business.name}" <${invitation.event.business.email}>`,
         });
-      } else {
-        this.emailSenderService.sendEmail({
+      } else if (
+        this.adminSettings.isKibaMailEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false
+      ) {
+        this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
           sub: `Event Invitation: ${invitation.event.name}`,
           to_email: invitation.guest.email,
+          from_email: invitation.event.business.email,
+          from_name: invitation.event.business.name,
         });
       }
 
@@ -124,18 +132,26 @@ export class EventEmailNotificationService implements OnModuleInit {
             : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
       });
 
-      if (this.adminSettings.isSMTPEnabled === true) {
+      if (
+        this.adminSettings.isSMTPEnabled === true &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
           subject: `Event Invitation: ${followupInvitation.invitation.event.name}`,
           to: followupInvitation.invitation.guest.email,
-          from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+          from: `"${followupInvitation.invitation.event.business.name}" <${followupInvitation.invitation.event.business.email}>`,
         });
-      } else {
-        this.emailSenderService.sendEmail({
+      } else if (
+        this.adminSettings.isKibaMailEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false
+      ) {
+        this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
           sub: `Event Invitation: ${followupInvitation.invitation.event.name}`,
           to_email: followupInvitation.invitation.guest.email,
+          from_email: followupInvitation.invitation.event.business.email,
+          from_name: followupInvitation.invitation.event.business.name,
         });
       }
 

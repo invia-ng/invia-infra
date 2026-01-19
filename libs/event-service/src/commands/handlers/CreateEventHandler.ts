@@ -3,15 +3,16 @@ import {
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { Repository } from 'typeorm';
 import { CreateEventCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CreateNewEventPartyEvent } from '../../events/impl';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Event, EventInfo } from '@app/common/src/models/event.model';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
-import { createHash } from 'crypto';
 
 @CommandHandler(CreateEventCommand)
 export class CreateEventHandler implements ICommandHandler<
@@ -19,6 +20,7 @@ export class CreateEventHandler implements ICommandHandler<
   EventInfo
 > {
   constructor(
+    private readonly eventBus: EventBus,
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
@@ -66,6 +68,8 @@ export class CreateEventHandler implements ICommandHandler<
       });
 
       const event = await this.eventRepository.save(instance);
+
+      this.eventBus.publish(new CreateNewEventPartyEvent(event, secureUser));
 
       this.logger.log(`[CREATE-EVENT-HANDLER-SUCCESS]`);
 

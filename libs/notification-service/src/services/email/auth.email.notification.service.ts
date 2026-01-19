@@ -50,15 +50,21 @@ export class AuthEmailNotificationService implements OnModuleInit {
         .concat(`/invitations?invitationHash=${account.invitationHash}`),
     });
 
-    if (this.adminSettings.isSMTPEnabled === true) {
+    if (
+      this.adminSettings.isSMTPEnabled === true &&
+      this.adminSettings.isKibaMailEnabled === false
+    ) {
       return await this.gmailMailerService.sendMail({
         html: htmlContent,
         to: account.email,
         subject: `Invitation To Join ${account.business.name}`,
         from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
       });
-    } else {
-      return this.emailSenderService.sendEmail({
+    } else if (
+      this.adminSettings.isKibaMailEnabled === true &&
+      this.adminSettings.isSMTPEnabled === false
+    ) {
+      return this.emailSenderService.sendEmailViaKibaAdmin({
         html: htmlContent,
         to_email: account.email,
         sub: `Invitation To Join ${account.business.name}`,
@@ -72,18 +78,24 @@ export class AuthEmailNotificationService implements OnModuleInit {
       account.activationCode,
     );
 
-    if (this.adminSettings.isSMTPEnabled === true) {
+    if (
+      this.adminSettings.isSMTPEnabled === true &&
+      this.adminSettings.isKibaMailEnabled === false
+    ) {
       return await this.gmailMailerService.sendMail({
         html: htmlContent,
         to: account.email,
         subject: 'Verify New Account Email',
         from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
       });
-    } else {
-      return this.emailSenderService.sendEmail({
+    } else if (
+      this.adminSettings.isKibaMailEnabled === true &&
+      this.adminSettings.isSMTPEnabled === false
+    ) {
+      return this.emailSenderService.sendEmailViaKibaAdmin({
         html: htmlContent,
+        to_email: account.email,
         sub: 'Verify New Account Email',
-        to_email: account.newEmail,
       });
     }
   }
@@ -91,15 +103,21 @@ export class AuthEmailNotificationService implements OnModuleInit {
   async resetPasswordNotification(account: Account) {
     const htmlContent = await reset_password_html_content();
 
-    if (this.adminSettings.isSMTPEnabled === true) {
+    if (
+      this.adminSettings.isSMTPEnabled === true &&
+      this.adminSettings.isKibaMailEnabled === false
+    ) {
       return await this.gmailMailerService.sendMail({
         html: htmlContent,
         to: account.email,
         subject: 'Password Reset',
         from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
       });
-    } else {
-      return this.emailSenderService.sendEmail({
+    } else if (
+      this.adminSettings.isKibaMailEnabled === true &&
+      this.adminSettings.isSMTPEnabled === false
+    ) {
+      return this.emailSenderService.sendEmailViaKibaAdmin({
         html: htmlContent,
         sub: 'Password Reset',
         to_email: account.email,
@@ -112,20 +130,33 @@ export class AuthEmailNotificationService implements OnModuleInit {
       account.passwordResetCode,
     );
 
-    if (this.adminSettings.isSMTPEnabled === true) {
+    if (
+      this.adminSettings.isSMTPEnabled === true &&
+      this.adminSettings.isKibaMailEnabled === false
+    ) {
       return await this.gmailMailerService.sendMail({
         html: htmlContent,
         to: account.email,
         subject: 'Reset Your Password',
         from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
       });
-    } else {
-      return this.emailSenderService.sendEmail({
+    } else if (
+      this.adminSettings.isKibaMailEnabled === true &&
+      this.adminSettings.isSMTPEnabled === false
+    ) {
+      return await this.emailSenderService.sendEmailViaKibaAdmin({
         html: htmlContent,
-        sub: 'Reset Your Password',
         to_email: account.email,
+        sub: 'Reset Your Password',
       });
     }
+    // else {
+    //   return this.emailSenderService.sendEmail({
+    //     html: htmlContent,
+    //     sub: 'Reset Your Password',
+    //     to_email: account.email,
+    //   });
+    // }
   }
 
   async newAccountNotifications(account: Account) {
@@ -136,15 +167,21 @@ export class AuthEmailNotificationService implements OnModuleInit {
             account.name,
           );
 
-          if (this.adminSettings.isSMTPEnabled === true) {
+          if (
+            this.adminSettings.isSMTPEnabled === true &&
+            this.adminSettings.isKibaMailEnabled === false
+          ) {
             return await this.gmailMailerService.sendMail({
               html: htmlContent,
               to: account.email,
               subject: 'Welcome to Invia!',
               from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
             });
-          } else {
-            return this.emailSenderService.sendEmail({
+          } else if (
+            this.adminSettings.isKibaMailEnabled === true &&
+            this.adminSettings.isSMTPEnabled === false
+          ) {
+            return this.emailSenderService.sendEmailViaKibaAdmin({
               html: htmlContent,
               sub: 'Welcome to Invia!',
               to_email: account.email,
@@ -156,15 +193,21 @@ export class AuthEmailNotificationService implements OnModuleInit {
             account.activationCode,
           );
 
-          if (this.adminSettings.isSMTPEnabled === true) {
+          if (
+            this.adminSettings.isSMTPEnabled === true &&
+            this.adminSettings.isKibaMailEnabled === false
+          ) {
             return await this.gmailMailerService.sendMail({
               html: htmlContent,
               to: account.email,
               subject: 'Email Verification',
               from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
             });
-          } else {
-            return this.emailSenderService.sendEmail({
+          } else if (
+            this.adminSettings.isKibaMailEnabled === true &&
+            this.adminSettings.isSMTPEnabled === false
+          ) {
+            return this.emailSenderService.sendEmailViaKibaAdmin({
               html: htmlContent,
               sub: 'Email Verification',
               to_email: account.email,
