@@ -46,6 +46,7 @@ import {
   RemoveMultipleEventGuestsCommand,
   InviteEventGuestCommand,
   UpdateEventGuestCommand,
+  AddEventGuestsToPartyCommand,
 } from '../commands/impl';
 import {
   EventInfo,
@@ -409,6 +410,42 @@ export class EventController {
   ): Promise<GuestProfileInfo> {
     return await this.queryBus.execute(
       new FetchEventGuestInfoQuery(eventId, guestId, secureUser),
+    );
+  }
+
+  @Patch('guests/update-party')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'partyId',
+    description: 'Event Party Primary ID',
+  })
+  @ApiQuery({
+    type: Number,
+    isArray: true,
+    required: true,
+    example: [1],
+    name: 'guestIds',
+    description: 'Guest Primary IDs',
+  })
+  @ApiOkResponse({ type: GuestInfo, isArray: true })
+  @ApiInternalServerErrorResponse()
+  async addEventGuestsToParty(
+    @Query('eventId') eventId: number,
+    @Query('partyId') partyId: number,
+    @Query('guestIds') guestIds: number[],
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<GuestInfo[]> {
+    return await this.command.execute(
+      new AddEventGuestsToPartyCommand(eventId, partyId, guestIds, secureUser),
     );
   }
 

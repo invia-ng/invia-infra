@@ -60,6 +60,15 @@ export class AddEventGuestsCommand {
   ) {}
 }
 
+export class AddEventGuestsToPartyCommand {
+  constructor(
+    public readonly eventId: number,
+    public readonly partyId: number,
+    public readonly guestIds: number[],
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
 export class UpdateEventGuestCommand {
   constructor(
     public readonly eventId: number,

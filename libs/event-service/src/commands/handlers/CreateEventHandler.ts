@@ -2,6 +2,7 @@ import {
   Inject,
   ForbiddenException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { Repository } from 'typeorm';
@@ -51,6 +52,17 @@ export class CreateEventHandler implements ICommandHandler<
 
       if (!business) {
         throw new UnauthorizedException('Business not found.');
+      }
+
+      const exists = await this.eventRepository.findOne({
+        where: {
+          name: payload.name,
+          business,
+        },
+      });
+
+      if (exists) {
+        throw new BadRequestException('An event with this namealready exists.');
       }
 
       const hash = createHash('sha256')

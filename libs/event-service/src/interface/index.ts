@@ -281,8 +281,8 @@ export class InviteEventGuestsDTO {
     description: 'Invitation cover image.',
     example: 'https://media.s3.amazonaws.com/avatars/avatar.png',
   })
-  @IsString()
   @IsOptional()
+  @IsString()
   image?: string;
 
   @ApiProperty({
@@ -297,6 +297,7 @@ export class InviteEventGuestsDTO {
     isArray: true,
     type: InviteFollowupMessage,
     description: 'Array of followup invitations',
+    required: false,
     example: [
       {
         interval: FollowupIntervalEnum.ONE_DAY,
@@ -308,8 +309,9 @@ export class InviteEventGuestsDTO {
   })
   @IsArray()
   @IsOptional()
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @Type(() => InviteFollowupMessage)
+  @Transform(({ value: InviteFollowupMessage }) => InviteFollowupMessage || [])
   followupInvitations?: InviteFollowupMessage[];
 }
 
