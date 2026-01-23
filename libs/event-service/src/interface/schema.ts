@@ -91,9 +91,14 @@ export class GenerateShareFormPasscodeInfo {
   passcode: string;
 
   @ApiProperty({
-    example: '1 hour',
+    example: '2026-01-23T12:34:56.789Z',
   })
-  passcodeExpires: string;
+  passcodeExpires: Date | string;
+
+  // @ApiProperty({
+  //   example: '1 hour',
+  // })
+  // passcodeExpires: string;
 }
 
 export class AuthenticateShareFormInfo {

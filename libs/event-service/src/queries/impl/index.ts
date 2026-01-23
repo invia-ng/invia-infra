@@ -1,5 +1,12 @@
 import { SecureUserPayload } from '@app/common/src/interface';
 
+export class FetchShareFormPasscodeQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
 export class FetchGuestPartyQuery {
   constructor() {}
 }

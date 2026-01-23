@@ -9,12 +9,13 @@ import { FetchEventGuestInfoQueryHandler } from './FetchEventGuestInfoQueryHandl
 import { FetchEventCategoriesQueryHandler } from './FetchEventCategoriesQueryHandler';
 import { FetchMessageTemplatesQueryHandler } from './FetchMessageTemplatesQueryHandler';
 import { FetchEventAuthorGuestsQueryHandler } from './author/FetchEventAuthorGuestsQuery';
+import { FetchShareFormPasscodeQueryHandler } from './admin/FetchShareFormPasscodeQueryHandler';
 import { FetchMessageTemplateVariablesQueryHandler } from './FetchMessageTemplateVariablesQueryHandler';
+import { EventAuthorSearchEventGuestsQueryHandler } from './author/EventAuthorSearchEventGuestsQueryHandler';
 import { EventAuthorFetchEventGuestIdsQueryHandler } from './author/EventAuthorFetchEventGuestIdsQueryHandler';
 import { EventAuthorFetchEventGuestInfoQueryHandler } from './author/EventAuthorFetchEventGuestInfoQueryHandler';
 import { FetchMessageTemplateFollowupIntervalsQueryHandler } from './FetchMessageTemplateFollowupIntervalsQueryHandler';
 import { FetchMessageTemplateFollowupConditionsQueryHandler } from './FetchMessageTemplateFollowupConditionsQueryHandler';
-import { EventAuthorSearchEventGuestsQueryHandler } from './author/EventAuthorSearchEventGuestsQueryHandler';
 
 export const EventServiceQueryHandlers = [
   FetchEventsQueryHandler,
@@ -27,6 +28,7 @@ export const EventServiceQueryHandlers = [
   FetchEventGuestInfoQueryHandler,
   FetchEventCategoriesQueryHandler,
   FetchMessageTemplatesQueryHandler,
+  FetchShareFormPasscodeQueryHandler,
   FetchEventAuthorGuestsQueryHandler,
   EventAuthorSearchEventGuestsQueryHandler,
   EventAuthorFetchEventGuestIdsQueryHandler,
