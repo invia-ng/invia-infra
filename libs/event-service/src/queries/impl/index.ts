@@ -4,15 +4,15 @@ export class FetchShareFormPasscodeQuery {
   constructor(
     public readonly eventId: number,
     public readonly secureUser: SecureUserPayload,
-  ) {}
+  ) { }
 }
 
 export class FetchGuestPartyQuery {
-  constructor() {}
+  constructor() { }
 }
 
 export class FetchEventCategoriesQuery {
-  constructor() {}
+  constructor() { }
 }
 
 export class FetchEventsQuery {
@@ -21,35 +21,53 @@ export class FetchEventsQuery {
     public readonly pageSize: number,
     public readonly isActive: boolean,
     public readonly secureUser: SecureUserPayload,
-  ) {}
+  ) { }
 }
 
 export class FetchEventGuestIdsQuery {
   constructor(
     public readonly eventId: number,
     public readonly secureUser: SecureUserPayload,
-  ) {}
+  ) { }
 }
 
 export class EventAuthorFetchEventGuestIdsQuery {
   constructor(
     public readonly eventId: number,
     public readonly accessToken: string,
-  ) {}
+  ) { }
+}
+
+export class EventAuthorFetchGuestTimelineEnumsQuery {
+  constructor() { }
 }
 
 export class FetchEventPartiesQuery {
   constructor(
     public readonly eventId: number,
     public readonly secureUser: SecureUserPayload,
-  ) {}
+  ) { }
+}
+
+export class EventAuthorFetchEventPartiesQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly accessToken: string,
+  ) { }
 }
 
 export class FetchEventInfoQuery {
   constructor(
     public readonly eventId: number,
     public readonly secureUser: SecureUserPayload,
-  ) {}
+  ) { }
+}
+
+export class EventAuthorFetchEventInfoQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly accessToken: string,
+  ) { }
 }
 
 export class FetchEventGuestsQuery {
@@ -58,11 +76,11 @@ export class FetchEventGuestsQuery {
     public readonly page: number,
     public readonly pageSize: number,
     public readonly secureUser: SecureUserPayload,
-  ) {}
+  ) { }
 }
 
 export class FetchMessageTemplateVariablesQuery {
-  constructor() {}
+  constructor() { }
 }
 
 export class FetchMessageTemplatesQuery {
@@ -70,15 +88,15 @@ export class FetchMessageTemplatesQuery {
     public readonly page: number,
     public readonly pageSize: number,
     public readonly secureUser: SecureUserPayload,
-  ) {}
+  ) { }
 }
 
 export class FetchMessageTemplateFollowupConditionsQuery {
-  constructor() {}
+  constructor() { }
 }
 
 export class FetchMessageTemplateFollowupIntervalsQuery {
-  constructor() {}
+  constructor() { }
 }
 
 export class FetchEventAuthorGuestsQuery {
@@ -86,7 +104,7 @@ export class FetchEventAuthorGuestsQuery {
     public readonly page: number,
     public readonly pageSize: number,
     public readonly accessToken: string,
-  ) {}
+  ) { }
 }
 
 export class SearchEventGuestsQuery {
@@ -99,7 +117,7 @@ export class SearchEventGuestsQuery {
     public readonly page: number,
     public readonly pageSize: number,
     public readonly secureUser: SecureUserPayload,
-  ) {}
+  ) { }
 }
 
 export class EventAuthorSearchEventGuestsQuery {
@@ -112,7 +130,7 @@ export class EventAuthorSearchEventGuestsQuery {
     public readonly page: number,
     public readonly pageSize: number,
     public readonly accessToken: string,
-  ) {}
+  ) { }
 }
 
 export class FetchEventGuestInfoQuery {
@@ -120,12 +138,12 @@ export class FetchEventGuestInfoQuery {
     public readonly eventId: number,
     public readonly guestId: number,
     public readonly secureUser: SecureUserPayload,
-  ) {}
+  ) { }
 }
 export class EventAuthorFetchEventGuestInfoQuery {
   constructor(
     public readonly eventId: number,
     public readonly guestId: number,
     public readonly accessToken: string,
-  ) {}
+  ) { }
 }

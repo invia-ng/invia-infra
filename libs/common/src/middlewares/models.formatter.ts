@@ -4,6 +4,7 @@ import {
   FollowupConditionEnum,
   FollowupIntervalEnum,
   GuestPartyEnum,
+  GuestTimelineActionEnum,
   MessageTemplateEnum,
 } from '../constants/enums';
 import {
@@ -23,6 +24,7 @@ import {
   MessageTemplateFollowupIntervalInfo,
   MessageTemplateFollowupConditionInfo,
   EventGuestIdInfo,
+  GuestTimelineActionEnumInfo,
 } from '@app/event-service/src/interface/schema';
 import {
   Guest,
@@ -452,6 +454,85 @@ export function FormatEventGuestIdInfo(guest: Guest): EventGuestIdInfo {
   } as unknown as EventGuestIdInfo;
 }
 
+export function FormatGuestTimelineActionEnumInfo(
+  values: GuestTimelineActionEnum[],
+): GuestTimelineActionEnumInfo[] {
+  return values.map((value) => {
+    switch (value) {
+      case GuestTimelineActionEnum.EDIT_EMAIL:
+        return {
+          value: value,
+          title: 'Edit email',
+        };
+      case GuestTimelineActionEnum.EDIT_PHONE:
+        return {
+          value: value,
+          title: 'Edit phone',
+        };
+      case GuestTimelineActionEnum.EDIT_NAME:
+        return {
+          value: value,
+          title: 'Edit name',
+        };
+      case GuestTimelineActionEnum.SENT_FOLLOWUP_MESSAGE:
+        return {
+          value: value,
+          title: 'Sent follow-up message',
+        };
+      case GuestTimelineActionEnum.GUEST_ACCEPTED_INVITE:
+        return {
+          value: value,
+          title: 'Guest accepted invite',
+        };
+      case GuestTimelineActionEnum.GUEST_REJECTED_INVITE:
+        return {
+          value: value,
+          title: 'Guest rejected invite',
+        };
+      case GuestTimelineActionEnum.GUEST_OPENED_MESSAGE:
+        return {
+          value: value,
+          title: 'Guest opened message',
+        };
+      case GuestTimelineActionEnum.EMAIL_DELIVERY_FAILED:
+        return {
+          value: value,
+          title: 'Email delivery failed',
+        };
+      case GuestTimelineActionEnum.EMAIL_DELIVERED:
+        return {
+          value: value,
+          title: 'Email delivered',
+        };
+      case GuestTimelineActionEnum.WHATSAPP_DELIVERY_FAILED:
+        return {
+          value: value,
+          title: 'WhatsApp delivery failed',
+        };
+      case GuestTimelineActionEnum.WHATSAPP_DELIVERED:
+        return {
+          value: value,
+          title: 'WhatsApp delivered',
+        };
+      case GuestTimelineActionEnum.SENT_INVITE_MESSAGE:
+        return {
+          value: value,
+          title: 'Sent invite message',
+        };
+      case GuestTimelineActionEnum.GUEST_ADDED_BY_USER:
+        return {
+          value: value,
+          title: 'Guest added by user',
+        };
+      case GuestTimelineActionEnum.GUEST_ADDED_VIA_FORM:
+        return {
+          value: value,
+          title: 'Guest added via form',
+        };
+    }
+  });
+}
+
 export default {
   FormatGuestInfo,
   FormatEventInfo,
@@ -469,6 +550,7 @@ export default {
   FormatPaystackChargeResponse,
   FormatBusinessMemberRoleInfo,
   FormatMessageTemplateEnumInfo,
+  FormatGuestTimelineActionEnumInfo,
   FormatMessageFollowupIntervalInfo,
   FormatMessageFollowupConditionInfo,
 };

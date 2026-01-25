@@ -36,12 +36,16 @@ import {
   DeleteDataInstanceInfo,
   AuthenticateShareFormInfo,
   EventGuestIdInfo,
+  GuestTimelineActionEnumInfo,
 } from '../interface/schema';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EventService } from '../services/event.service';
 import {
   EventAuthorFetchEventGuestIdsQuery,
   EventAuthorFetchEventGuestInfoQuery,
+  EventAuthorFetchEventInfoQuery,
+  EventAuthorFetchEventPartiesQuery,
+  EventAuthorFetchGuestTimelineEnumsQuery,
   EventAuthorSearchEventGuestsQuery,
   FetchEventAuthorGuestsQuery,
 } from '../queries/impl';
@@ -50,7 +54,8 @@ import {
   GuestProfileInfo,
   GuestsResponse,
 } from '@app/common/src/models/guest.model';
-import { EventsResponse } from '@app/common/src/models/event.model';
+import { EventPartyInfo, EventsResponse } from '@app/common/src/models/event.model';
+import { GuestTimelineActionEnum } from '@app/common/src/constants/enums';
 
 @ApiTags('event-author')
 @Controller({ path: 'author' })
@@ -60,7 +65,7 @@ export class EventAuthorController {
     public queryBus: QueryBus,
     public command: CommandBus,
     public readonly eventService: EventService,
-  ) {}
+  ) { }
 
   @Post('authenticate')
   @ApiQuery({
@@ -85,6 +90,56 @@ export class EventAuthorController {
   ): Promise<AuthenticateShareFormInfo> {
     return await this.command.execute(
       new AuthenticateShareFormPasscodeCommand(eventHash, passcode),
+    );
+  }
+
+  @Get('info')
+  @ApiHeader({
+    required: true,
+    example: '<access_token>',
+    name: 'AccessToken',
+    description: 'Access Token',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiOkResponse({ type: EventsResponse })
+  @ApiInternalServerErrorResponse()
+  async fetchEventInfo(
+    @Query('eventId') eventId: number,
+    @Headers('AccessToken') accessToken: string,
+  ): Promise<EventsResponse> {
+    return await this.queryBus.execute(
+      new EventAuthorFetchEventInfoQuery(eventId, accessToken),
+    );
+  }
+
+  @Get('parties')
+  @ApiHeader({
+    required: true,
+    example: '<access_token>',
+    name: 'AccessToken',
+    description: 'Access Token',
+  })
+  @ApiQuery({
+    example: 1,
+    type: Number,
+    required: true,
+    name: 'eventId',
+    description: 'Event primary ID',
+  })
+  @ApiOkResponse({ type: EventPartyInfo, isArray: true })
+  @ApiInternalServerErrorResponse()
+  async fetchEventParties(
+    @Query('eventId') eventId: number,
+    @Headers('AccessToken') accessToken: string,
+  ): Promise<EventPartyInfo> {
+    return await this.queryBus.execute(
+      new EventAuthorFetchEventPartiesQuery(eventId, accessToken),
     );
   }
 
@@ -144,6 +199,16 @@ export class EventAuthorController {
   ): Promise<EventGuestIdInfo[]> {
     return await this.queryBus.execute(
       new EventAuthorFetchEventGuestIdsQuery(eventId, accessToken),
+    );
+  }
+
+  @Get('guests/timeline/enums')
+  @ApiOkResponse({ type: GuestTimelineActionEnumInfo, isArray: true })
+  @ApiInternalServerErrorResponse()
+  async fetchGuestTimelineEnums(
+  ): Promise<GuestTimelineActionEnumInfo[]> {
+    return await this.queryBus.execute(
+      new EventAuthorFetchGuestTimelineEnumsQuery(),
     );
   }
 

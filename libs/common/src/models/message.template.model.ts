@@ -98,6 +98,11 @@ export class MessageTemplate {
 
 export class MessageTemplateInfo {
   @ApiProperty({
+		example: '1',
+	})
+	id: string;
+
+  @ApiProperty({
 		example: 'Mega weddings template',
 	})
 	name: string;

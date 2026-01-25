@@ -4,6 +4,7 @@ import {
   FollowupConditionEnum,
   FollowupIntervalEnum,
   GuestPartyEnum,
+  GuestTimelineActionEnum,
   MessageTemplateEnum,
 } from '@app/common/src/constants/enums';
 
@@ -44,6 +45,19 @@ export class MessageTemplateEnumInfo {
     example: MessageTemplateEnum.GUEST_NAME,
   })
   value: MessageTemplateEnum;
+}
+
+export class GuestTimelineActionEnumInfo {
+  @ApiProperty({
+    example: 'Guest Timeline Action',
+  })
+  title: string;
+
+  @ApiProperty({
+    enum: GuestTimelineActionEnum,
+    example: GuestTimelineActionEnum.EDIT_EMAIL,
+  })
+  value: GuestTimelineActionEnum;
 }
 
 export class MessageTemplateFollowupConditionInfo {
