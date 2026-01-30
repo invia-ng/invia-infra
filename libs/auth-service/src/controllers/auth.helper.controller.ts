@@ -16,7 +16,7 @@ export class AuthHelperController {
     public eventBus: EventBus,
     public command: CommandBus,
     public readonly authService: AuthService,
-  ) {}
+  ) { }
 
   @Get('/availability/email')
   @ApiOkResponse({ type: AvailabilityCheckInfo })
@@ -27,6 +27,21 @@ export class AuthHelperController {
     @Query('email') email: string,
   ): Promise<AvailabilityCheckInfo> {
     return await this.authService.isEmailAvailable(email);
+  }
+
+  @Get('/availability/business-phone')
+  @ApiOkResponse({ type: AvailabilityCheckInfo })
+  @ApiQuery({
+    name: 'phone',
+    type: String,
+    example: '+2349034567890',
+  })
+  @ApiConflictResponse()
+  async checkBusinessPhoneAvailability(
+    @Req() req: Request,
+    @Query('phone') phone: string,
+  ): Promise<AvailabilityCheckInfo> {
+    return await this.authService.isBusinessPhoneAvailable(phone);
   }
 
   @Get('/availability/business-email')
@@ -42,5 +57,20 @@ export class AuthHelperController {
     @Query('email') email: string,
   ): Promise<AvailabilityCheckInfo> {
     return await this.authService.isBusinessEmailAvailable(email);
+  }
+
+  @Get('/availability/business-send-from-email')
+  @ApiOkResponse({ type: AvailabilityCheckInfo })
+  @ApiQuery({
+    name: 'email',
+    type: String,
+    example: 'beduevents@tryinvia.com',
+  })
+  @ApiConflictResponse()
+  async checkBusinessSendFromEmailAvailability(
+    @Req() req: Request,
+    @Query('email') email: string,
+  ): Promise<AvailabilityCheckInfo> {
+    return await this.authService.isBusinessSendFromEmailAvailable(email);
   }
 }

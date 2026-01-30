@@ -27,9 +27,9 @@ import { EventGuestController } from './controllers/event.guest.controller';
 import { EventHelperController } from './controllers/event.helper.controller';
 import { EventAuthorController } from './controllers/event.author.controller';
 import { EventMessageController } from './controllers/event.message.controller';
-import { MessageTemplate } from '@app/common/src/models/message.template.model';
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
 import { EmailSenderService } from '@app/helper-service/src/services/email-sender.service';
+import { FollowupMessageTemplate, MessageTemplate } from '@app/common/src/models/message.template.model';
 import { EventEmailNotificationService } from '@app/notification-service/src/services/email/event.email.notification.service';
 
 @Module({
@@ -50,6 +50,7 @@ import { EventEmailNotificationService } from '@app/notification-service/src/ser
       GuestTimeline,
       MessageTemplate,
       FollowupInvitation,
+      FollowupMessageTemplate,
     ]),
   ],
   controllers: [

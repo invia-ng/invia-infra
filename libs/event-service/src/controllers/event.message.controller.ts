@@ -19,11 +19,11 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EventService } from '../services/event.service';
 import { SecureUserPayload } from '@app/common/src/interface';
-import { AddEventGuestsDTO, AddMessageTemplateDTO, CreateEventDTO } from '../interface';
+import { AddEventGuestsDTO, AddMessageTemplateDTO, CreateEventDTO, UpdateMessageTemplateDTO } from '../interface';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
 import { FetchMessageTemplatesQuery, FetchMessageTemplateVariablesQuery } from '../queries/impl';
-import { CreateMessageTemplateCommand, DeleteMessageTemplateCommand, UpdateMessageTemplateCommand } from '../commands/impl';
+import { CreateMessageTemplateCommand, DeleteFollowupMessageTemplateCommand, DeleteMessageTemplateCommand, UpdateMessageTemplateCommand } from '../commands/impl';
 import { MessageTemplateInfo } from '@app/common/src/models/message.template.model';
 import { DeleteDataInstanceInfo } from '../interface/schema';
 
@@ -95,8 +95,8 @@ export class EventMessageController {
   @ApiOkResponse({ type: MessageTemplateInfo})
   @ApiInternalServerErrorResponse()
   async updateMessageTemplate(
-    @Body() body: AddMessageTemplateDTO,
     @Query('messageId') messageId: number,
+    @Body() body: UpdateMessageTemplateDTO,
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<MessageTemplateInfo> {
     return await this.command.execute(
@@ -104,6 +104,37 @@ export class EventMessageController {
         secureUser,
         messageId,
         body,
+      ),
+    );
+  }
+
+  @Delete('message-templates/followup/delete')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'messageId',
+    description: 'Message Primary ID',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'followupMessageId',
+    description: 'Followup Message Primary ID',
+  })
+  @ApiOkResponse({ type:  DeleteDataInstanceInfo, })
+  @ApiInternalServerErrorResponse()
+  async deleteFollowupMessageTemplate(
+    @Query('messageId') messageId: number,
+    @Query('followupMessageId') followupMessageId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<DeleteDataInstanceInfo> {
+    return await this.command.execute(
+      new DeleteFollowupMessageTemplateCommand(
+        messageId,
+        followupMessageId,
+        secureUser,
       ),
     );
   }

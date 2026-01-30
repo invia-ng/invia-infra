@@ -50,38 +50,38 @@ export class MessageTemplate {
     description: 'Message content',
   })
   message: string;
-  
+
   @Column({
     default: false,
     nullable: true,
   })
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: false
   })
   sendFollowup: boolean;
-  
+
   @Column({
     type: 'enum',
     enum: FollowupConditionEnum,
     nullable: true,
   })
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     enum: FollowupConditionEnum,
     example: FollowupConditionEnum.NO_RSVP,
   })
   followupCondition: FollowupConditionEnum;
-  
+
   @Column({
     type: 'enum',
     nullable: true,
     enum: FollowupIntervalEnum,
   })
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     enum: FollowupIntervalEnum,
     example: FollowupIntervalEnum.FIVE_DAYS,
   })
   followupInterval: FollowupIntervalEnum;
-  
+
   @ManyToOne(() => Business, {
     onDelete: 'CASCADE',
     eager: true,
@@ -96,52 +96,138 @@ export class MessageTemplate {
   updatedAt: Date;
 }
 
+@Entity()
+export class FollowupMessageTemplate {
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+  })
+  id: number;
+
+  @Column({
+    default: '',
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Followup Invitation message',
+    example:
+      "Hi Mr & Mrs Ademola, you are cordially invited to Mr. & Mrs. Williams' Wedding.",
+  })
+  message: string;
+
+  @Column({
+    nullable: true,
+    type: 'enum',
+    enum: FollowupIntervalEnum,
+    default: FollowupIntervalEnum.ONE_DAY,
+  })
+  @ApiPropertyOptional({
+    description: 'Followup interval',
+    example: FollowupIntervalEnum.ONE_DAY,
+  })
+  interval: FollowupIntervalEnum;
+
+  @Column({
+    nullable: true,
+    type: 'enum',
+    enum: FollowupConditionEnum,
+    default: FollowupConditionEnum.RSVP,
+  })
+  @ApiPropertyOptional({
+    description: 'Followup condition',
+    example: FollowupConditionEnum.RSVP,
+  })
+  condition: FollowupConditionEnum;
+
+  @ManyToOne(() => MessageTemplate, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'messageTemplate' })
+  messageTemplate: MessageTemplate;
+
+  @CreateDateColumn({ nullable: true })
+  createdAt: Date;
+
+  @UpdateDateColumn({ nullable: true })
+  updatedAt: Date;
+}
+
+export class FollowupMessageTemplateInfo {
+  @ApiProperty({
+    example: '1',
+  })
+  id: string;
+
+  @ApiProperty({
+    example: 'Hi {guest_name}, you are cordially invited to {event_name}.',
+  })
+  message: string;
+
+  @ApiProperty({
+    enum: FollowupConditionEnum,
+    example: FollowupConditionEnum.NO_RSVP,
+  })
+  condition: FollowupConditionEnum;
+
+  @ApiProperty({
+    enum: FollowupIntervalEnum,
+    example: FollowupIntervalEnum.FIVE_DAYS,
+  })
+  interval: FollowupIntervalEnum;
+}
+
 export class MessageTemplateInfo {
   @ApiProperty({
-		example: '1',
-	})
-	id: string;
+    example: '1',
+  })
+  id: string;
 
   @ApiProperty({
-		example: 'Mega weddings template',
-	})
-	name: string;
+    example: 'Mega weddings template',
+  })
+  name: string;
 
-	@ApiProperty({
-		enum: EventCategoryEnum,
-		example: EventCategoryEnum.WEDDING,
-	})
-	eventType: EventCategoryEnum;
+  @ApiProperty({
+    enum: EventCategoryEnum,
+    example: EventCategoryEnum.WEDDING,
+  })
+  eventType: EventCategoryEnum;
 
-	@ApiProperty({
-		example: 'Hi {guest_name}, you are cordially invited to {event_name}.',
-	})
-	message: string;
+  @ApiProperty({
+    example: 'Hi {guest_name}, you are cordially invited to {event_name}.',
+  })
+  message: string;
 
-	@ApiProperty({
-		example: false
-	})
-	sendFollowup: boolean;
+  @ApiProperty({
+    example: false
+  })
+  sendFollowup: boolean;
 
-	@ApiProperty({
-		enum: FollowupConditionEnum,
-		example: FollowupConditionEnum.NO_RSVP,
-	})
-	followupCondition: FollowupConditionEnum;
+  @ApiProperty({
+    enum: FollowupConditionEnum,
+    example: FollowupConditionEnum.NO_RSVP,
+  })
+  followupCondition: FollowupConditionEnum;
 
-	@ApiProperty({
-		enum: FollowupIntervalEnum,
-		example: FollowupIntervalEnum.FIVE_DAYS,
-	})
-	followupInterval: FollowupIntervalEnum;
+  @ApiProperty({
+    enum: FollowupIntervalEnum,
+    example: FollowupIntervalEnum.FIVE_DAYS,
+  })
+  followupInterval: FollowupIntervalEnum;
+
+  @ApiProperty({
+    isArray: true,
+    type: FollowupMessageTemplateInfo,
+  })
+  followupTemplates: FollowupMessageTemplateInfo[];
 }
 
 export class MessageTemplatesResponse {
-	@ApiProperty({
-		isArray: true,
-		type: MessageTemplateInfo,
-	})
-	messages: MessageTemplateInfo[];
+  @ApiProperty({
+    isArray: true,
+    type: MessageTemplateInfo,
+  })
+  messages: MessageTemplateInfo[];
 
   @ApiProperty({
     example: 1,

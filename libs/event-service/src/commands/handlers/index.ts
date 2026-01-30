@@ -23,6 +23,7 @@ import { EventAuthorInviteEventGuestHandler } from "./author/EventAuthorInviteEv
 import { EventAuthorInviteEventGuestsHandler } from "./author/EventAuthorInviteEventGuestsHandler";
 import { AuthenticateShareFormPasscodeHandler } from "./author/AuthenticateShareFormPasscodeHandler";
 import { RemoveMultipleEventAuthorGuestsHandler } from "./author/RemoveMultipleEventAuthorGuestsHandler";
+import { DeleteFollowupMessageTemplateHandler } from "./DeleteFollowupMessageTemplateHandler";
 
 export const EventServiceCommandHandlers = [
     CreateEventHandler,
@@ -48,6 +49,7 @@ export const EventServiceCommandHandlers = [
     AcceptRejectEventInvitationHandler,
     AddEventGuestsToPartyCommandHandler,
     EventAuthorInviteEventGuestsHandler,
+    DeleteFollowupMessageTemplateHandler,
     AuthenticateShareFormPasscodeHandler,
     RemoveMultipleEventAuthorGuestsHandler,
 ];

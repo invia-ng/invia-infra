@@ -48,8 +48,8 @@ export class UpdateAccountPasswordCommand {
 
 export class DeleteAccountCommand {
   constructor(
+    public readonly password: string,
     public readonly secureUser: SecureUserPayload,
-    public readonly payload: DeleteAccountDTO,
   ) {}
 }
 

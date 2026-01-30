@@ -159,6 +159,14 @@ export class DeleteMessageTemplateCommand {
   ) {}
 }
 
+export class DeleteFollowupMessageTemplateCommand {
+  constructor(
+    public readonly messageId: number,
+    public readonly followupMessageId: number,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
 export class GenerateShareFormPasscodeCommand {
   constructor(
     public readonly eventId: number,

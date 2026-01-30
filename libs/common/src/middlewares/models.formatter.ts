@@ -14,6 +14,8 @@ import {
   EventPartyInfo,
 } from '../models/event.model';
 import {
+  FollowupMessageTemplate,
+  FollowupMessageTemplateInfo,
   MessageTemplate,
   MessageTemplateInfo,
 } from '../models/message.template.model';
@@ -83,6 +85,8 @@ export function FormatBusinessInfo(business: Business): BusinessInfo {
   return {
     id: business.id.toString(),
     name: business.name,
+    email: business.email,
+    phone: business.phone,
     avatar: business.avatar,
   } as unknown as BusinessInfo;
 }
@@ -284,6 +288,7 @@ export function FormatMessageFollowupIntervalInfo(
 
 export function FormatMessageTemplateInfo(
   template: MessageTemplate,
+  followupTemplates: FollowupMessageTemplate[],
 ): MessageTemplateInfo {
   return {
     id: template.id.toString(),
@@ -293,6 +298,14 @@ export function FormatMessageTemplateInfo(
     sendFollowup: template.sendFollowup,
     followupCondition: template.followupCondition,
     followupInterval: template.followupInterval,
+    followupTemplates: followupTemplates.map((followupTemplate) => {
+      return {
+        id: followupTemplate.id.toString(),
+        message: followupTemplate.message,
+        condition: followupTemplate.condition,
+        interval: followupTemplate.interval,
+      } as unknown as FollowupMessageTemplateInfo;
+    }),
   } as unknown as MessageTemplateInfo;
 }
 

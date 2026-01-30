@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -12,6 +14,7 @@ import {
   ApiOkResponse,
   ApiBearerAuth,
   ApiInternalServerErrorResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -38,6 +41,8 @@ import {
 } from '../commands/impl';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
+import { FetchAccountSummaryQuery } from '../queries/impl';
+import { AccountSummaryInfo } from '../interface/schema';
 
 @ApiTags('manage-account-info')
 @Controller({ path: 'manage-info' })
@@ -48,7 +53,7 @@ export class ManageAccountController {
     public queryBus: QueryBus,
     public command: CommandBus,
     public readonly accountService: AccountService,
-  ) {}
+  ) { }
 
   @Patch('update-name')
   @ApiOkResponse({ type: AccountInfo })
@@ -148,18 +153,37 @@ export class ManageAccountController {
     );
   }
 
+  @Get('summary')
+  @ApiOkResponse({ type: AccountSummaryInfo })
+  @ApiInternalServerErrorResponse()
+  async fetchAccountSummary(
+    @Req() req: Request,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<AccountSummaryInfo> {
+    return await this.queryBus.execute(
+      new FetchAccountSummaryQuery(
+        secureUser,
+      ),
+    );
+  }
+
   @Delete('delete')
   @ApiOkResponse()
+  @ApiQuery({
+    type: String,
+    name: 'password',
+    required: true,
+    description: 'Account password',
+  })
   @ApiInternalServerErrorResponse()
   async deleteAccount(
-    @Req() req: Request,
-    @Body() body: DeleteAccountDTO,
+    @Query('password') password: string,
     @SecureUser() secureUser: SecureUserPayload,
   ) {
     return await this.command.execute(
       new DeleteAccountCommand(
+        password,
         secureUser,
-        body,
       ),
     );
   }

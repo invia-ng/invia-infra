@@ -8,6 +8,10 @@ export class FetchBusinessInfoQuery {
   constructor(public readonly secureUser: SecureUserPayload) {}
 }
 
+export class FetchAccountSummaryQuery {
+  constructor(public readonly secureUser: SecureUserPayload) {}
+}
+
 export class FetchExistingCommunityUsersQuery {
   constructor(public readonly secureUser: SecureUserPayload) {}
 }

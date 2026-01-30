@@ -36,9 +36,29 @@ export class Business {
   })
   @ApiPropertyOptional({
     description: 'Business Email',
-    example: 'beduevents@tryinvia.com',
+    example: 'beduevents@gmail.com',
   })
   email: string;
+
+  @Column({
+    default: '',
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Business Send From Email',
+    example: 'beduevents@tryinvia.com',
+  })
+  sendFromEmail: string;
+
+  @Column({
+    nullable: true,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    example: '+2348054618649',
+    description: 'Phone number',
+  })
+  phone: string;
 
   @Column({
     nullable: true,
@@ -51,7 +71,9 @@ export class Business {
   })
   avatar: string;
 
-  @OneToMany(() => Account, (account) => account.business)
+  @OneToMany(() => Account, (account) => account.business, {
+    eager: true,
+  })
   members: Account[];
 
   @OneToOne(() => Account, {
@@ -80,6 +102,18 @@ export class BusinessInfo {
     description: 'Business name',
   })
   name: string;
+
+  @ApiProperty({
+    example: '',
+    description: 'Business email',
+  })
+  email: string;
+
+  @ApiProperty({
+    example: '',
+    description: 'Business phone',
+  })
+  phone: string;
 
   @ApiProperty({
     example: '',

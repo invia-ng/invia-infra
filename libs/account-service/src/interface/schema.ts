@@ -54,3 +54,35 @@ export class BusinessMemberRoleInfo {
   })
   description: string;
 }
+
+export class AccountSummaryInfo {
+  @ApiProperty({
+    example: 1,
+    description: 'Number of events',
+  })
+  events: number;
+
+  @ApiProperty({
+    example: 1,
+    description: 'Number of guests',
+  })
+  guests: number;
+
+  @ApiProperty({
+    example: 1,
+    description: 'Number of invitations',
+  })
+  invitations: number;
+
+  @ApiProperty({
+    example: 1,
+    description: 'Number of message templates',
+  })
+  messageTemplates: number;
+
+  @ApiProperty({
+    example: 1,
+    description: 'Number of members',
+  })
+  members: number;
+}

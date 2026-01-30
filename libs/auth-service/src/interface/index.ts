@@ -179,6 +179,14 @@ export class InitializeBusinessProfileDTO {
   businessAvatar: string;
 
   @ApiProperty({
+    example: 'Business Avatar',
+    description: 'Avatar of the business.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  businessPhone: string;
+
+  @ApiProperty({
     example: 'Business Name',
     description: 'Name of the business.',
   })
@@ -187,12 +195,20 @@ export class InitializeBusinessProfileDTO {
   businessName: string;
 
   @ApiProperty({
-    example: 'beduevents@tryinvia.com',
+    example: 'beduevents@gmail.com',
     description: 'Email of the business.',
   })
   @IsEmail()
   @IsNotEmpty()
   businessEmail: string;
+
+  @ApiProperty({
+    example: 'beduevents@tryinvia.com',
+    description: 'Email of the business.',
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  sendFromEmail: string;
 }
 
 export class OAuthSigninDTO {

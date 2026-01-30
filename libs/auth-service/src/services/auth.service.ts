@@ -64,6 +64,21 @@ export class AuthService {
       isAvailable,
     };
   }
+  async isBusinessPhoneAvailable(phone: string): Promise<AvailabilityCheckInfo> {
+    const existingUser = await this.businessRepository.findOne({
+      where: {
+        phone: phone,
+      },
+    });
+
+    const isAvailable = !existingUser;
+
+    this.logger.log(`[IS-PHONE-AVAILABLE] : ${isAvailable}`);
+
+    return {
+      isAvailable,
+    };
+  }
 
   async isBusinessEmailAvailable(
     email: string,
@@ -76,7 +91,25 @@ export class AuthService {
 
     const isAvailable = !existingUser;
 
-    this.logger.log(`[IS-EMAIL-AVAILABLE] : ${isAvailable}`);
+    this.logger.log(`[IS-BUSINESS-EMAIL-AVAILABLE] : ${isAvailable}`);
+
+    return {
+      isAvailable,
+    };
+  }
+
+  async isBusinessSendFromEmailAvailable(
+    email: string,
+  ): Promise<AvailabilityCheckInfo> {
+    const existingUser = await this.businessRepository.findOne({
+      where: {
+        sendFromEmail: email,
+      },
+    });
+
+    const isAvailable = !existingUser;
+
+    this.logger.log(`[IS-BUSINESS-SEND-FROM-EMAIL-AVAILABLE] : ${isAvailable}`);
 
     return {
       isAvailable,

@@ -1,15 +1,15 @@
 import { Repository } from 'typeorm';
 import { CommandBus } from '@nestjs/cqrs';
 import { ConfigService } from '@nestjs/config';
+import {
+  Invitation,
+  FollowupInvitation,
+} from '@app/common/src/models/invitation.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Setting } from '@app/common/src/models/setting.model';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { AppLogger } from '../../../../common/src/logger/logger.service';
-import {
-  FollowupInvitation,
-  Invitation,
-} from '@app/common/src/models/invitation.model';
 import { EmailSenderService } from 'libs/helper-service/src/services/email-sender.service';
 import { invite_event_guest_email_html_content } from '../../templates/event/invite_event_guest_email_template';
 
@@ -29,7 +29,7 @@ export class EventEmailNotificationService implements OnModuleInit {
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Setting)
     private readonly settingRepository: Repository<Setting>,
-  ) {}
+  ) { }
 
   async initializeAdminSettings() {
     this.adminSettings = await this.settingRepository.findOne({
@@ -75,7 +75,7 @@ export class EventEmailNotificationService implements OnModuleInit {
           html: htmlContent,
           to: invitation.guest.email,
           subject: `Event Invitation: ${invitation.event.name}`,
-          from: `"${invitation.event.business.name}" <${invitation.event.business.email}>`,
+          from: `"${invitation.event.business.name}" <${invitation.event.business.sendFromEmail}>`,
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
@@ -85,7 +85,7 @@ export class EventEmailNotificationService implements OnModuleInit {
           html: htmlContent,
           sub: `Event Invitation: ${invitation.event.name}`,
           to_email: invitation.guest.email,
-          from_email: invitation.event.business.email,
+          from_email: invitation.event.business.sendFromEmail,
           from_name: invitation.event.business.name,
         });
       }
@@ -140,7 +140,7 @@ export class EventEmailNotificationService implements OnModuleInit {
           html: htmlContent,
           subject: `Event Invitation: ${followupInvitation.invitation.event.name}`,
           to: followupInvitation.invitation.guest.email,
-          from: `"${followupInvitation.invitation.event.business.name}" <${followupInvitation.invitation.event.business.email}>`,
+          from: `"${followupInvitation.invitation.event.business.name}" <${followupInvitation.invitation.event.business.sendFromEmail}>`,
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
@@ -150,7 +150,7 @@ export class EventEmailNotificationService implements OnModuleInit {
           html: htmlContent,
           sub: `Event Invitation: ${followupInvitation.invitation.event.name}`,
           to_email: followupInvitation.invitation.guest.email,
-          from_email: followupInvitation.invitation.event.business.email,
+          from_email: followupInvitation.invitation.event.business.sendFromEmail,
           from_name: followupInvitation.invitation.event.business.name,
         });
       }

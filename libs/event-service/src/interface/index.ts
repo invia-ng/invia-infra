@@ -77,7 +77,7 @@ export class CreateEventDTO {
   location: string;
 }
 
-export class UpdateEventDTO extends CreateEventDTO {}
+export class UpdateEventDTO extends CreateEventDTO { }
 
 export class NewGuestDto {
   @ApiProperty({
@@ -169,6 +169,41 @@ export class UpdateEventGuestDTO {
 }
 
 export class InviteFollowupMessage {
+  @ApiProperty({
+    description: 'Followup message.',
+    example:
+      'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+
+  @ApiProperty({
+    description: 'Followup interval.',
+    example: FollowupIntervalEnum.ONE_DAY,
+  })
+  @IsEnum(FollowupIntervalEnum)
+  @IsNotEmpty()
+  interval: FollowupIntervalEnum;
+
+  @ApiProperty({
+    description: 'Followup interval.',
+    example: FollowupConditionEnum.NO_RSVP,
+  })
+  @IsEnum(FollowupConditionEnum)
+  @IsNotEmpty()
+  condition: FollowupConditionEnum;
+}
+
+export class UpdateInviteFollowupMessage {
+  @ApiProperty({
+    description: 'Followup message primary id.',
+    example: 1,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
+
   @ApiProperty({
     description: 'Followup message.',
     example:
@@ -363,6 +398,27 @@ export class AddMessageTemplateDTO {
   @IsEnum(FollowupIntervalEnum)
   @IsOptional()
   followupInterval?: FollowupIntervalEnum;
+
+  @ApiProperty({
+    isArray: true,
+    type: InviteFollowupMessage,
+    description: 'Array of followup invitations',
+    required: false,
+    example: [
+      {
+        interval: FollowupIntervalEnum.ONE_DAY,
+        condition: FollowupConditionEnum.NO_RSVP,
+        message:
+          'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+      },
+    ],
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => InviteFollowupMessage)
+  @Transform(({ value: InviteFollowupMessage }) => InviteFollowupMessage || [])
+  followupInvitations?: InviteFollowupMessage[];
 }
 
 export class UpdateMessageTemplateDTO {
@@ -413,6 +469,27 @@ export class UpdateMessageTemplateDTO {
   @IsEnum(FollowupIntervalEnum)
   @IsOptional()
   followupInterval?: FollowupIntervalEnum;
+
+  @ApiProperty({
+    isArray: true,
+    type: UpdateInviteFollowupMessage,
+    description: 'Array of followup invitations',
+    required: false,
+    example: [
+      {
+        interval: FollowupIntervalEnum.ONE_DAY,
+        condition: FollowupConditionEnum.NO_RSVP,
+        message:
+          'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+      },
+    ],
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateInviteFollowupMessage)
+  @Transform(({ value: UpdateInviteFollowupMessage }) => UpdateInviteFollowupMessage || [])
+  followupInvitations?: UpdateInviteFollowupMessage[];
 }
 
 export class AcceptRejectEventInvitationDTO {

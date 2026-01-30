@@ -49,7 +49,9 @@ export class InitializeBusinessProfileHandler implements ICommandHandler<
         account,
         name: payload.businessName,
         email: payload.businessEmail,
+        phone: payload.businessPhone,
         avatar: payload.businessAvatar,
+        sendFromEmail: payload.sendFromEmail,
       });
 
       const business = await this.businessRepository.save(instance);

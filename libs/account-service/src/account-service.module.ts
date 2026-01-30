@@ -3,6 +3,8 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentBuilder } from '@nestjs/swagger';
 import { AccountServiceCronHandlers } from './jobs';
+import { Event } from '@app/common/src/models/event.model';
+import { Guest } from '@app/common/src/models/guest.model';
 import { AccountService } from './services/account.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Setting } from '@app/common/src/models/setting.model';
@@ -14,9 +16,11 @@ import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from '../../common/src/logger/logger.service';
 import { AccountServiceCommandHandlers } from './commands/handlers';
 import { AccountController } from './controllers/account.controller';
+import { Invitation } from '@app/common/src/models/invitation.model';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
 import { AuthService } from '@app/auth-service/src/services/auth.service';
+import { MessageTemplate } from '@app/common/src/models/message.template.model';
 import { ManageMemberController } from './controllers/manage.member.controller';
 import { ManageAccountController } from './controllers/manage.account.controller';
 import { ManageBusinessController } from './controllers/manage.business.controller';
@@ -35,7 +39,7 @@ import { AuthEmailNotificationService } from '@app/notification-service/src/serv
     ConfigModule,
     HelperServiceModule,
     GetSystemJWTModule(),
-    TypeOrmModule.forFeature([Account, Setting, Business, Notification]),
+    TypeOrmModule.forFeature([Account, Setting, Business, Notification, Event, Guest, Invitation, MessageTemplate]),
   ],
   controllers: [
     AccountController,
