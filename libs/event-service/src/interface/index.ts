@@ -477,6 +477,7 @@ export class UpdateMessageTemplateDTO {
     required: false,
     example: [
       {
+        id: 22,
         interval: FollowupIntervalEnum.ONE_DAY,
         condition: FollowupConditionEnum.NO_RSVP,
         message:
@@ -490,6 +491,27 @@ export class UpdateMessageTemplateDTO {
   @Type(() => UpdateInviteFollowupMessage)
   @Transform(({ value: UpdateInviteFollowupMessage }) => UpdateInviteFollowupMessage || [])
   followupInvitations?: UpdateInviteFollowupMessage[];
+
+  @ApiProperty({
+    isArray: true,
+    type: InviteFollowupMessage,
+    description: 'Array of followup invitations',
+    required: false,
+    example: [
+      {
+        interval: FollowupIntervalEnum.ONE_DAY,
+        condition: FollowupConditionEnum.NO_RSVP,
+        message:
+          'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+      },
+    ],
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => InviteFollowupMessage)
+  @Transform(({ value: InviteFollowupMessage }) => InviteFollowupMessage || [])
+  newFollowupInvitations?: InviteFollowupMessage[];
 }
 
 export class AcceptRejectEventInvitationDTO {

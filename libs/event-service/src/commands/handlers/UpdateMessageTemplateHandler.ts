@@ -80,6 +80,27 @@ export class UpdateMessageTemplateHandler
         }
       }));
 
+      await Promise.all(payload.newFollowupInvitations.map(async (followupInvitation) => {
+        try {
+          this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-PROCESSING]`);
+
+          const newFollowupInstance = this.followupMessageTemplateRepository.create({
+            messageTemplate: instance,
+            message: followupInvitation.message,
+            interval: followupInvitation.interval,
+            condition: followupInvitation.condition,
+          });
+
+          const _instance = await this.followupMessageTemplateRepository.save(newFollowupInstance);
+
+          this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-SUCCESS]`);
+
+          return followupInvitations.push(_instance);
+        } catch (error) {
+          this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-ERROR] :: ${error}`);
+        }
+      }));
+
       this.logger.log(`[UPDATE-EVENT-GUESTS-HANDLER-SUCCESS]`);
 
       return modelsFormatter.FormatMessageTemplateInfo(instance, followupInvitations);
