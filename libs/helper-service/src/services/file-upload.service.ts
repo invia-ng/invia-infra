@@ -15,7 +15,7 @@ export class FileUploadService implements OnModuleInit {
   constructor(
     private s3Service: S3UploadService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   onModuleInit() {
     this.cloudinaryConfig = {
@@ -267,11 +267,14 @@ export class FileUploadService implements OnModuleInit {
       const extension = parts.length > 1 ? parts.pop() : '';
       const nameWithoutExtension = parts.join('.');
 
+      // const publicId = `${sanitizeString(nameWithoutExtension)}_${uuid}`;
+      const publicId = `${sanitizeString(nameWithoutExtension)}_${uuid}.${extension}`;
+
       const upload = await cloudinary.uploader.upload(
         `data:${mimetype};base64,${buffer.toString('base64')}`,
         {
-          folder: 'exports',
-          public_id: `${sanitizeString(nameWithoutExtension)}_${uuid}.${extension}`,
+          // format: 'pdf',
+          public_id: publicId,
           resource_type: 'raw',
           access_mode: 'public',
           use_filename: true,
@@ -279,8 +282,17 @@ export class FileUploadService implements OnModuleInit {
         },
       );
 
+      console.log('[PUBLIC-ID] :: ', publicId);
+      console.log('[UPLOAD] :: ', upload.public_id);
+
+      const url = await cloudinary.url(upload.public_id, {
+        resource_type: 'raw',
+      });
+
+      console.log('[URL] :: ', url);
+
       return {
-        url: upload.secure_url,
+        url: url,
         public_id: upload.public_id,
       };
     } catch (error) {

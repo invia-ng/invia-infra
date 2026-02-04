@@ -81,6 +81,27 @@ export class VerifyNewAccountEmailCommand {
   ) {}
 }
 
+export class UpdateBusinessEmailCommand {
+  constructor(
+    public readonly secureUser: SecureUserPayload,
+    public readonly payload: UpdateAccountEmailDTO,
+  ) {}
+}
+
+export class VerifyNewBusinessEmailCommand {
+  constructor(
+    public readonly secureUser: SecureUserPayload,
+    public readonly payload: VerifyNewAccountEmailDTO,
+  ) {}
+}
+
+export class UpdateBusinessPhoneCommand {
+  constructor(
+    public readonly secureUser: SecureUserPayload,
+    public readonly payload: UpdateAccountPhoneDTO,
+  ) {}
+}
+
 export class UpdateAccountPhoneCommand {
   constructor(
     public readonly secureUser: SecureUserPayload,

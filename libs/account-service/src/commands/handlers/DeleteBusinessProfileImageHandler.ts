@@ -12,13 +12,12 @@ import { Business, BusinessInfo } from 'libs/common/src/models/business.model';
 
 @CommandHandler(DeleteBusinessProfileImageCommand)
 export class DeleteBusinessProfileImageHandler
-  implements ICommandHandler<DeleteBusinessProfileImageCommand, BusinessInfo>
-{
+  implements ICommandHandler<DeleteBusinessProfileImageCommand, BusinessInfo> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
-  ) {}
+  ) { }
 
   async execute(command: DeleteBusinessProfileImageCommand) {
     try {

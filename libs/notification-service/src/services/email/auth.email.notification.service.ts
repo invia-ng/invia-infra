@@ -15,6 +15,8 @@ import { update_account_email_html_content } from '../../templates/auth/update_a
 import { welcome_customer_email_html_content } from '../../templates/auth/welcome_buyer_email_template';
 import { email_verification_html_content } from '../../templates/auth/email_verification_email_template';
 import { invite_business_member_email_html_content } from '../../templates/auth/invite_business_member_email_template';
+import { Business } from '@app/common/src/models/business.model';
+import { update_business_email_html_content } from '../../templates/auth/update_business_email_template';
 
 @Injectable()
 export class AuthEmailNotificationService implements OnModuleInit {
@@ -32,7 +34,7 @@ export class AuthEmailNotificationService implements OnModuleInit {
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Setting)
     private readonly settingRepository: Repository<Setting>,
-  ) {}
+  ) { }
 
   async initializeAdminSettings() {
     this.adminSettings = await this.settingRepository.findOne({
@@ -96,6 +98,34 @@ export class AuthEmailNotificationService implements OnModuleInit {
         html: htmlContent,
         to_email: account.email,
         sub: 'Verify New Account Email',
+      });
+    }
+  }
+
+  async verifyNewBusinessEmailNotification(account: Business) {
+    const htmlContent = await update_business_email_html_content(
+      account.name,
+      account.activationCode,
+    );
+
+    if (
+      this.adminSettings.isSMTPEnabled === true &&
+      this.adminSettings.isKibaMailEnabled === false
+    ) {
+      return await this.gmailMailerService.sendMail({
+        html: htmlContent,
+        to: account.email,
+        subject: 'Verify New Business Email',
+        from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+      });
+    } else if (
+      this.adminSettings.isKibaMailEnabled === true &&
+      this.adminSettings.isSMTPEnabled === false
+    ) {
+      return this.emailSenderService.sendEmailViaKibaAdmin({
+        html: htmlContent,
+        to_email: account.email,
+        sub: 'Verify New Business Email',
       });
     }
   }

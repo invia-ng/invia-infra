@@ -41,6 +41,15 @@ export class Business {
   email: string;
 
   @Column({
+    nullable: false,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    description: 'New email address e.g tundeomotayo11@gmail.com.',
+  })
+  newEmail: string;
+
+  @Column({
     default: '',
     nullable: true,
   })
@@ -70,6 +79,25 @@ export class Business {
       'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767799379/event_ypdcrh.png',
   })
   avatar: string;
+
+  @Column({
+    nullable: true,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    description: 'Activation code by e.g 5492',
+  })
+  activationCode: string;
+
+  @Column({
+    default: null,
+    nullable: true,
+    type: 'timestamp',
+  })
+  @ApiPropertyOptional({
+    description: 'Activation code expires by e.g 2024-11-10_T_11:29:22',
+  })
+  activationCodeExpires: Date;
 
   @OneToMany(() => Account, (account) => account.business, {
     eager: true,

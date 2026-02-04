@@ -1,8 +1,11 @@
 import {
   InviteBusinessMemberDTO,
+  UpdateAccountEmailDTO,
   UpdateAccountNameDTO,
+  UpdateAccountPhoneDTO,
   UpdateBusinessNameDTO,
   UpdateProfileImageDTO,
+  VerifyNewAccountEmailDTO,
 } from '../interface';
 import {
   Body,
@@ -28,6 +31,9 @@ import {
   RemoveBusinessMemberCommand,
   DeleteBusinessProfileImageCommand,
   UpdateBusinessProfileImageCommand,
+  UpdateBusinessEmailCommand,
+  VerifyNewBusinessEmailCommand,
+  UpdateBusinessPhoneCommand,
 } from '../commands/impl';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -52,7 +58,7 @@ export class ManageBusinessController {
     public queryBus: QueryBus,
     public command: CommandBus,
     public readonly accountService: AccountService,
-  ) {}
+  ) { }
 
   @Get('business-info')
   @ApiOkResponse({ type: BusinessInfo })
@@ -126,6 +132,53 @@ export class ManageBusinessController {
   ): Promise<BusinessInfo> {
     return await this.command.execute(
       new UpdateBusinessNameCommand(secureUser, body),
+    );
+  }
+
+  @Post('update-email')
+  @ApiOkResponse()
+  @ApiInternalServerErrorResponse()
+  async updateAccountEmail(
+    @Req() req: Request,
+    @Body() body: UpdateAccountEmailDTO,
+    @SecureUser() secureUser: SecureUserPayload,
+  ) {
+    return await this.command.execute(
+      new UpdateBusinessEmailCommand(
+        secureUser,
+        body,
+      ),
+    );
+  }
+
+  @Patch('verify-new-email')
+  @ApiOkResponse({ type: BusinessInfo })
+  @ApiInternalServerErrorResponse()
+  async verifyNewAccountEmail(
+    @Req() req: Request,
+    @Body() body: VerifyNewAccountEmailDTO,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<BusinessInfo> {
+    return await this.command.execute(
+      new VerifyNewBusinessEmailCommand(
+        secureUser,
+        body,
+      ),
+    );
+  }
+
+  @Patch('update-phone')
+  @ApiOkResponse({ type: BusinessInfo })
+  @ApiInternalServerErrorResponse()
+  async updatePhoneContact(
+    @Body() body: UpdateAccountPhoneDTO,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<BusinessInfo> {
+    return await this.command.execute(
+      new UpdateBusinessPhoneCommand(
+        secureUser,
+        body,
+      ),
     );
   }
 
