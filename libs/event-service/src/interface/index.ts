@@ -34,6 +34,16 @@ export class CreateEventPartyDTO {
   name: string;
 }
 
+export class UpdateEventPartyDTO {
+  @ApiProperty({
+    example: "Bride's Family",
+    description: 'Event party name.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+}
+
 export class CreateEventDTO {
   @ApiProperty({
     example: 'Bunke Dinner',

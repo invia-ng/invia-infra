@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   NotFoundException,
   UnauthorizedException,
@@ -48,6 +49,18 @@ export class DeleteEventPartyHandler implements ICommandHandler<
 
       if (!eventParty) {
         throw new NotFoundException('Event party not found.');
+      }
+
+      const isLastParty = await this.eventPartyRepository.count({
+        where: {
+          event: {
+            id: eventId,
+          },
+        },
+      });
+
+      if (isLastParty === 1) {
+        throw new BadRequestException('Event must have at least one party.');
       }
 
       await this.eventPartyRepository.remove(eventParty);

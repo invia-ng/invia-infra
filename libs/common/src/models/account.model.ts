@@ -65,6 +65,15 @@ export class Account {
     default: '',
   })
   @ApiPropertyOptional({
+    description: 'Email verification hash e.g ja92jkAjj11ma2',
+  })
+  emailVerificationHash: string;
+
+  @Column({
+    nullable: false,
+    default: '',
+  })
+  @ApiPropertyOptional({
     example: '',
     description: 'Password',
   })

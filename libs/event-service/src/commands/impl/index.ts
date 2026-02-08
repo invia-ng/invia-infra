@@ -10,6 +10,7 @@ import {
   ExportGuestListDto,
   InviteEventGuestDTO,
   UpdateEventGuestDTO,
+  UpdateEventPartyDTO,
 } from '../../interface';
 import { SecureUserPayload } from '@app/common/src/interface';
 
@@ -27,6 +28,15 @@ export class DeleteEventPartyCommand {
     public readonly partyId: number,
     public readonly secureUser: SecureUserPayload,
     public readonly newPartyId?: number,
+  ) {}
+}
+
+export class UpdateEventPartyCommand {
+  constructor(
+    public readonly eventId: number,
+    public readonly partyId: number,
+    public readonly payload: UpdateEventPartyDTO,
+    public readonly secureUser: SecureUserPayload,
   ) {}
 }
 

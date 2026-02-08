@@ -75,10 +75,13 @@ export class AuthEmailNotificationService implements OnModuleInit {
   }
 
   async verifyNewAccountEmailNotification(account: Account) {
-    const htmlContent = await update_account_email_html_content(
-      account.name,
-      account.activationCode,
-    );
+    const htmlContent = await update_account_email_html_content({
+      name: account.name,
+      activationCode: account.activationCode,
+      resetPasswordLink: this.configService
+        .get<string>('WEB_APP_URL')
+        .concat(`/auth/update-email?hash=${account.emailVerificationHash}`)
+    });
 
     if (
       this.adminSettings.isSMTPEnabled === true &&

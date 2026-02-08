@@ -76,6 +76,7 @@ export class UpdateAccountEmailCommand {
 
 export class VerifyNewAccountEmailCommand {
   constructor(
+    public readonly emailVerificationHash: string,
     public readonly secureUser: SecureUserPayload,
     public readonly payload: VerifyNewAccountEmailDTO,
   ) {}

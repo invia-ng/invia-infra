@@ -16,7 +16,6 @@ import {
   ApiInternalServerErrorResponse,
   ApiQuery,
 } from '@nestjs/swagger';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   DeleteAccountDTO,
   UpdateAccountEmailDTO,
@@ -26,23 +25,23 @@ import {
   UpdateProfileImageDTO,
   VerifyNewAccountEmailDTO,
 } from '../interface';
-import authUtils from 'libs/common/src/security/auth.utils';
-import { AccountService } from '../services/account.service';
-import { SecureUserPayload } from '@app/common/src/interface';
-import { AccountInfo } from '@app/common/src/models/account.model';
 import {
+  DeleteAccountCommand,
   UpdateAccountNameCommand,
   UpdateAccountEmailCommand,
   UpdateAccountPhoneCommand,
-  VerifyNewAccountEmailCommand,
-  DeleteAccountCommand,
-  UpdateAccountPasswordCommand,
   UpdateProfileImageCommand,
+  VerifyNewAccountEmailCommand,
+  UpdateAccountPasswordCommand,
 } from '../commands/impl';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { AccountSummaryInfo } from '../interface/schema';
+import { FetchAccountSummaryQuery } from '../queries/impl';
+import { AccountService } from '../services/account.service';
+import { SecureUserPayload } from '@app/common/src/interface';
+import { AccountInfo } from '@app/common/src/models/account.model';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
-import { FetchAccountSummaryQuery } from '../queries/impl';
-import { AccountSummaryInfo } from '../interface/schema';
 
 @ApiTags('manage-account-info')
 @Controller({ path: 'manage-info' })
@@ -88,15 +87,23 @@ export class ManageAccountController {
   }
 
   @Patch('verify-new-email')
+  @ApiQuery({
+    type: String,
+    required: true,
+    name: 'emailVerificationHash',
+    description: 'Account email verification hash',
+  })
   @ApiOkResponse({ type: AccountInfo })
   @ApiInternalServerErrorResponse()
   async verifyNewAccountEmail(
     @Req() req: Request,
     @Body() body: VerifyNewAccountEmailDTO,
+    @Query('emailVerificationHash') emailVerificationHash: string,
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<AccountInfo> {
     return await this.command.execute(
       new VerifyNewAccountEmailCommand(
+        emailVerificationHash,
         secureUser,
         body,
       ),
@@ -118,8 +125,6 @@ export class ManageAccountController {
       ),
     );
   }
-
-
 
   @Patch('update-profile-image')
   @ApiOkResponse({ type: AccountInfo })

@@ -24,11 +24,12 @@ export class VerifyNewAccountEmailHandler
     try {
       this.logger.log(`[VERIFY-NEW-ACCOUNT-EMAIL-HANDLER-PROCESSING]`);
 
-      const { payload } = command;
+      const { payload, emailVerificationHash } = command;
 
       const account = await this.accountRepository.findOne({
         where: {
           activationCode: payload.otp,
+          emailVerificationHash: emailVerificationHash,
           activationCodeExpires: MoreThanOrEqual(new Date()),
         },
       });
@@ -41,6 +42,7 @@ export class VerifyNewAccountEmailHandler
         newEmail: '',
         activationCode: '',
         email: account.newEmail,
+        emailVerificationHash: '',
         activationCodeExpires: null,
       });
 

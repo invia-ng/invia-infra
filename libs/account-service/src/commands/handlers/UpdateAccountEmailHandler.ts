@@ -7,17 +7,17 @@ import authUtils from 'libs/common/src/security/auth.utils';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
+import { createHash } from 'crypto';
 
 @CommandHandler(UpdateAccountEmailCommand)
 export class UpdateAccountEmailHandler
-  implements ICommandHandler<UpdateAccountEmailCommand>
-{
+  implements ICommandHandler<UpdateAccountEmailCommand> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
     private readonly AuthEmailNotificationService: AuthEmailNotificationService,
-  ) {}
+  ) { }
 
   async execute(command: UpdateAccountEmailCommand) {
     try {
@@ -43,10 +43,14 @@ export class UpdateAccountEmailHandler
 
       const activationCode = authUtils.generateRandomPin();
       const activationCodeExpiration = authUtils.generateFutureDate(1, 'hours');
+      const emailVerificationHash = createHash('sha256')
+        .update(JSON.stringify({ newEmail: payload.newEmail, accountId: account.id, email: account.email }))
+        .digest('hex');
 
       Object.assign(account, {
         newEmail: payload.newEmail,
         activationCode: activationCode,
+        emailVerificationHash: emailVerificationHash,
         activationCodeExpires: activationCodeExpiration,
       });
 

@@ -6,6 +6,7 @@ import {
   CreateEventPartyDTO,
   InviteEventGuestDTO,
   UpdateEventGuestDTO,
+  UpdateEventPartyDTO,
 } from '../interface';
 import {
   FetchEventsQuery,
@@ -47,6 +48,7 @@ import {
   InviteEventGuestCommand,
   UpdateEventGuestCommand,
   AddEventGuestsToPartyCommand,
+  UpdateEventPartyCommand,
 } from '../commands/impl';
 import {
   EventInfo,
@@ -74,7 +76,7 @@ export class EventController {
     public queryBus: QueryBus,
     public command: CommandBus,
     public readonly eventService: EventService,
-  ) {}
+  ) { }
 
   @Get('parties')
   @ApiQuery({
@@ -112,6 +114,34 @@ export class EventController {
   ): Promise<EventPartyInfo> {
     return await this.command.execute(
       new CreateEventPartyCommand(eventId, payload, secureUser),
+    );
+  }
+
+  @Patch('parties/update')
+  @ApiQuery({
+    example: 1,
+    type: Number,
+    required: true,
+    name: 'eventId',
+    description: 'Event primary ID',
+  })
+  @ApiQuery({
+    example: 1,
+    type: Number,
+    required: true,
+    name: 'partyId',
+    description: 'Event party primary ID',
+  })
+  @ApiOkResponse({ type: EventPartyInfo })
+  @ApiInternalServerErrorResponse()
+  async updateEventParty(
+    @Query('eventId') eventId: number,
+    @Query('partyId') partyId: number,
+    @Body() payload: UpdateEventPartyDTO,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<EventPartyInfo> {
+    return await this.command.execute(
+      new UpdateEventPartyCommand(eventId, partyId, payload, secureUser),
     );
   }
 

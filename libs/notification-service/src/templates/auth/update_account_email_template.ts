@@ -1,8 +1,9 @@
-export const update_account_email_html_content = (
-  name: string,
-  activationCode: string,
-) => {
-  return `
+export const update_account_email_html_content = (payload: {
+	name: string,
+	activationCode: string,
+	resetPasswordLink: string,
+}) => {
+	return `
 <!DOCTYPE html>
 <html dir="ltr" lang="en">
 <head>
@@ -93,6 +94,18 @@ export const update_account_email_html_content = (
             height: 24px;
         }
 
+        .cta-button {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 20px auto;
+            background-color: #1C3B4E;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
         /* Mobile responsiveness */
         @media only screen and (max-width: 600px) {
             .wrapper {
@@ -117,16 +130,24 @@ export const update_account_email_html_content = (
                     <img src="https://res.cloudinary.com/dt0epuz7w/image/upload/v1766492310/versions/4df5bffe-0122-4dfa-a631-eef51574f623_invialogo.jpg"  
                          alt="Logo" 
                          class="logo">
-                    <h1 class="title">Verify New Account Email</h1>
+                    <!-- <h1 class="title">Verify New Account Email</h1> -->
                 </div>
                 
                 <div class="message">
-                    Hello ${name},<br><br>
+                    Hello ${payload.name},<br><br>
                     We received a request to update the email for your Invia account. To proceed, verify your new email address with this activation code:
                 </div>
                 
-                <div class="verification-code">
-                    ${activationCode}
+                 <div class="verification-code">
+									${payload.activationCode}
+                </div>
+
+                <br/>
+
+                <div style="text-align: center;">
+									<a target="_blank" href="${payload.resetPasswordLink}" class="cta-button">
+										Update Email
+									</a>
                 </div>
                 
                 <div class="message">
