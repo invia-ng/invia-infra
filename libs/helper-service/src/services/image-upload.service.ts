@@ -1,77 +1,28 @@
 import * as sharp from 'sharp';
 import { randomUUID } from 'crypto';
-import { v2 as cloudinary, ConfigOptions } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
 import { FileUploadResult } from '../interface';
 import { S3UploadService } from './s3-upload.service';
-import { BadGatewayException, Injectable, OnModuleInit } from '@nestjs/common';
+import { BadGatewayException, Injectable } from '@nestjs/common';
 import { OptimizedImageType } from 'libs/common/src/constants/enums';
 import { sanitizeString } from '@app/common/src/utils/string.utils';
-import { ImageUploadService } from './image-upload.service';
 
 @Injectable()
-export class FileUploadService implements OnModuleInit {
-  private cloudinaryConfig: ConfigOptions;
-
+export class ImageUploadService {
   constructor(
     private s3Service: S3UploadService,
-    private fileUploadService: ImageUploadService,
     private readonly configService: ConfigService,
   ) { }
 
-  onModuleInit() {
-    this.cloudinaryConfig = {
-      cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
-      api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
-      api_secret: this.configService.get<string>('CLOUDINARY_API_SECRET'),
-    };
-
-    cloudinary.config(this.cloudinaryConfig);
-  }
-
-  async uploadFileToCloudinary(
+  async uploadImageToAws(
     file: Express.Multer.File,
+    type: OptimizedImageType,
     fileName?: string,
-  ): Promise<any> {
+  ): Promise<FileUploadResult> {
     try {
-      const originalName = fileName ?? file.originalname;
-      const lastDotIndex = originalName.lastIndexOf('.');
-
-      let nameWithoutExtension: string;
-      let extension: string;
-
-      if (lastDotIndex === -1) {
-        nameWithoutExtension = originalName;
-        // Try to infer extension from mimetype for common types
-        if (file.mimetype === 'application/pdf') {
-          extension = 'pdf';
-        } else if (file.mimetype === 'text/plain') {
-          extension = 'txt';
-        } else if (
-          file.mimetype === 'text/csv' ||
-          file.mimetype === 'application/csv' ||
-          file.mimetype === 'application/vnd.ms-excel'
-        ) {
-          extension = 'csv';
-        } else if (
-          file.mimetype ===
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        ) {
-          extension = 'xlsx';
-        } else if (file.mimetype.startsWith('image/')) {
-          extension = file.mimetype.split('/')[1];
-        } else {
-          extension = '';
-        }
-      } else {
-        nameWithoutExtension = originalName.substring(0, lastDotIndex);
-        extension = originalName.substring(lastDotIndex + 1);
-      }
-
       const uuid = randomUUID().concat(
         '_',
-        sanitizeString(nameWithoutExtension),
-        extension ? `.${extension}` : '',
+        sanitizeString(fileName ?? file.originalname),
       );
 
       const sizeMap: Record<string, { width: number; height?: number }> = {
@@ -80,43 +31,61 @@ export class FileUploadService implements OnModuleInit {
 
       let uploadResult: FileUploadResult;
 
-      if (file.mimetype.startsWith('image/')) {
-        for (const [sizeKey, dimensions] of Object.entries(sizeMap)) {
-          const resizedBuffer = await sharp(file.buffer)
-            .resize(dimensions.width, dimensions.height, {
-              fit: 'contain',
-            })
-            .toBuffer();
+      for (const [sizeKey, dimensions] of Object.entries(sizeMap)) {
+        const resizedBuffer = await sharp(file.buffer)
+          .resize(dimensions.width, dimensions.height, {
+            fit: 'contain',
+          })
+          .jpeg({ mozjpeg: true })
+          .toBuffer();
 
-          const upload = await cloudinary.uploader.upload(
-            `data:${file.mimetype};base64,${resizedBuffer.toString('base64')}`,
-            {
-              folder: 'versions',
-              public_id: uuid,
-              resource_type: 'image',
-            },
-          );
+        const versionKey = `versions/${sizeKey}/${uuid}.jpeg`;
 
-          uploadResult = {
-            url: upload.secure_url,
-            public_id: upload.public_id,
-          };
-        }
-      } else {
-        const upload = await cloudinary.uploader.upload(
-          `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
-          {
-            folder: 'versions',
-            public_id: uuid,
-            resource_type: 'raw',
-          },
+        const upload = await this.s3Service.uploadBufferToS3(
+          resizedBuffer,
+          versionKey,
+          file.mimetype,
         );
 
         uploadResult = {
-          url: upload.secure_url,
-          public_id: upload.public_id,
+          url: `${this.configService.get<string>('AWS_PREVIEW_ENDPOINT')}/storage/v1/object/public/${this.configService.get<string>('AWS_BUCKET_NAME')}/${versionKey}`,
+          public_id: upload.Key,
         };
       }
+
+      return uploadResult;
+    } catch (error) {
+      console.log(`Error uploading image: ${error.message}`);
+
+      throw error;
+    }
+  }
+
+  async uploadFileToAws(
+    file: Express.Multer.File,
+    fileName?: string,
+  ): Promise<FileUploadResult> {
+    try {
+      const uuid = randomUUID().concat(
+        '_',
+        sanitizeString(fileName ?? file.originalname),
+      );
+
+      let uploadResult: FileUploadResult;
+
+      const versionKey = `original/${uuid}.${file.mimetype.split('/')[1]}`;
+
+      const upload = await this.s3Service.uploadFileToS3(
+        file,
+        versionKey,
+        // file.mimetype,
+      );
+
+      uploadResult = {
+        public_id: upload.Key,
+        url: `${this.configService.get<string>('AWS_PREVIEW_ENDPOINT')}/object/public/${this.configService.get<string>('AWS_BUCKET_NAME')}/${versionKey}`,
+      };
+
       return uploadResult;
     } catch (error) {
       console.log(`Error uploading image: ${error.message}`);
@@ -234,7 +203,7 @@ export class FileUploadService implements OnModuleInit {
         );
 
         uploadResults.push({
-          url: `${this.configService.get<string>('AWS_ENDPOINT') ?? 'https://s3.amazonaws.com'}/${this.configService.get<string>('AWS_BUCKET_NAME')}/${versionKey}`,
+          url: `${this.configService.get<string>('AWS_PREVIEW_ENDPOINT')}/storage/v1/object/public/${this.configService.get<string>('AWS_BUCKET_NAME')}/${versionKey}`,
           public_id: uploadResult.Key,
         });
       }
@@ -255,34 +224,6 @@ export class FileUploadService implements OnModuleInit {
       throw new BadGatewayException(
         `Error generating and uploading file versions: ${error.message}`,
       );
-    }
-  }
-
-  async uploadGuestListExport(
-    buffer: Express.Multer.File,
-    filename: string,
-    mimetype: string,
-  ): Promise<FileUploadResult> {
-    try {
-      const uuid = randomUUID();
-      const parts = filename.split('.');
-      const extension = parts.length > 1 ? parts.pop() : '';
-      const nameWithoutExtension = parts.join('.');
-
-      // const publicId = `${sanitizeString(nameWithoutExtension)}_${uuid}`;
-      const publicId = `${sanitizeString(nameWithoutExtension)}_${uuid}.${extension}`;
-
-      const url = await this.fileUploadService.uploadFileToAws(buffer);
-
-      console.log('[URL] :: ', url);
-
-      return {
-        url: url.url,
-        public_id: url.public_id,
-      };
-    } catch (error) {
-      console.log(`Error uploading guest list: ${error.message}`);
-      throw error;
     }
   }
 }

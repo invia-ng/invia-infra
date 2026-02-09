@@ -9,12 +9,14 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { FileUploadService } from './services/file-upload.service';
 import { EmailSenderService } from './services/email-sender.service';
 import { AddressHelperService } from './services/address.helper.service';
+import { ImageUploadService } from './services/image-upload.service';
 
 @Module({
   imports: [CqrsModule, ConfigModule, TypeOrmModule.forFeature([])],
   exports: [
     AddressHelperService,
     FileUploadService,
+    ImageUploadService,
     S3UploadService,
     EmailSenderService,
     SeederService,
@@ -25,6 +27,7 @@ import { AddressHelperService } from './services/address.helper.service';
       useClass: AppLogger,
     },
     AddressHelperService,
+    ImageUploadService,
     FileUploadService,
     S3UploadService,
     EmailSenderService,

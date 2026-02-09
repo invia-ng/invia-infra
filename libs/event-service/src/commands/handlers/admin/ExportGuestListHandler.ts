@@ -23,7 +23,7 @@ export class ExportGuestListHandler implements ICommandHandler<
     @InjectRepository(Guest)
     private readonly guestRepository: Repository<Guest>,
     private readonly fileUploadService: FileUploadService,
-  ) {}
+  ) { }
 
   async execute(command: ExportGuestListCommand) {
     try {
@@ -70,20 +70,115 @@ export class ExportGuestListHandler implements ICommandHandler<
       let filename: string;
 
       if (payload.exportFormat === 'pdf') {
-        const doc = new PDFDocument();
+        const doc = new PDFDocument({ layout: 'landscape', margin: 30 });
         const buffers: Buffer[] = [];
 
         doc.on('data', buffers.push.bind(buffers));
 
-        doc.text(`Guest List for Event: ${event.name || eventId}`);
+        // -- 1. Title --
+        doc.fontSize(18).text(`Guest List for Event: ${event.name || eventId}`, {
+          align: 'center',
+        });
         doc.moveDown();
 
-        data.forEach((guest, index) => {
-          doc.text(
-            `${index + 1}. ${Object.entries(guest)
-              .map(([k, v]) => `${k}: ${v}`)
-              .join(', ')}`,
-          );
+        // -- 2. Define Table Columns --
+        const tableTop = 100;
+        const initialX = 30;
+        const rowHeight = 20;
+
+        // Based on possible keys in 'row' object from previous step
+        // We'll map them to column configurations (header label, width, etc.)
+        const allPossibleColumns = [
+          { key: 'Guest Name', label: 'Guest Name', width: 150 },
+          { key: 'Phone Number', label: 'Phone Number', width: 100 },
+          { key: 'Email Address', label: 'Email Address', width: 180 },
+          { key: 'Party', label: 'Party', width: 100 },
+          { key: 'RSVP', label: 'RSVP', width: 50 },
+          { key: 'Invite Sent', label: 'Invite Sent', width: 60 },
+          { key: 'Invite Delivered', label: 'Invite Delivered', width: 80 },
+        ];
+
+        // Filter columns based on what's actually present in the data (or requested payload)
+        // Since 'data' allows optional fields, we check the first row or payload flags directly.
+        // Using payload flags is safer as data might be empty.
+        const columns = allPossibleColumns.filter((col) => {
+          if (col.key === 'Guest Name' && payload.guestName) return true;
+          if (col.key === 'Phone Number' && payload.phoneNumber) return true;
+          if (col.key === 'Email Address' && payload.emailAddress) return true;
+          if (col.key === 'Party' && payload.party) return true;
+          if (col.key === 'RSVP' && payload.isRSVP) return true;
+          if (
+            (col.key === 'Invite Sent' || col.key === 'Invite Delivered') &&
+            payload.inviteStatus
+          )
+            return true;
+          return false;
+        });
+
+        let currentY = tableTop;
+
+        // Helper to draw headers
+        const drawHeaders = (y: number) => {
+          let currentX = initialX;
+          doc
+            .font('Helvetica-Bold')
+            .fontSize(10)
+            .fillColor('black');
+
+          columns.forEach((col) => {
+            doc.text(col.label, currentX + 5, y + 5, {
+              width: col.width,
+              align: 'left',
+            });
+            currentX += col.width;
+          });
+
+          // Draw bottom line for header
+          doc
+            .moveTo(initialX, y + rowHeight)
+            .lineTo(currentX, y + rowHeight)
+            .stroke();
+        };
+
+        drawHeaders(currentY);
+        currentY += rowHeight;
+
+        // -- 3. Draw Rows --
+        doc.font('Helvetica').fontSize(10); // Reset font for data
+
+        data.forEach((guestRow) => {
+          let currentX = initialX;
+
+          // Check for pagination
+          if (currentY + rowHeight > doc.page.height - 50) {
+            doc.addPage({ layout: 'landscape', margin: 30 });
+            currentY = 30; // Reset Y to top margin
+            drawHeaders(currentY);
+            currentY += rowHeight;
+            doc.font('Helvetica').fontSize(10); // Reset font after header
+          }
+
+          // Draw alternation (optional, skipping for clean look)
+          // Draw cell content
+          columns.forEach((col) => {
+            const cellText = guestRow[col.key] ? String(guestRow[col.key]) : '-';
+            doc.text(cellText, currentX + 5, currentY + 5, {
+              width: col.width - 10, // padding
+              align: 'left',
+              ellipsis: true, // truncate if too long
+            });
+            currentX += col.width;
+          });
+
+          // Draw bottom line (light) for row
+          doc
+            .moveTo(initialX, currentY + rowHeight)
+            .lineTo(currentX, currentY + rowHeight)
+            .opacity(0.3)
+            .stroke()
+            .opacity(1); // Reset opacity for text
+
+          currentY += rowHeight;
         });
 
         doc.end();
@@ -109,7 +204,7 @@ export class ExportGuestListHandler implements ICommandHandler<
       };
 
       const result = await this.fileUploadService.uploadGuestListExport(
-        file.buffer,
+        file,
         file.originalname,
         file.mimetype,
       );

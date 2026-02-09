@@ -17,6 +17,8 @@ import { FileUploadResult } from '../interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { OptimizedImageType } from 'libs/common/src/constants/enums';
 import { FileUploadService } from '../services/file-upload.service';
+import { S3UploadService } from '../services/s3-upload.service';
+import { ImageUploadService } from '../services/image-upload.service';
 
 /**
  * @Controller('upload')
@@ -25,7 +27,9 @@ import { FileUploadService } from '../services/file-upload.service';
 @ApiTags('upload')
 @Controller('upload')
 export class FileUploadController {
-  constructor(private readonly fileUploadService: FileUploadService) {}
+  constructor(
+    private readonly s3UploadService: ImageUploadService,
+    private readonly fileUploadService: FileUploadService) { }
 
   /**
    * Uploads an image to Cloudinary with optional transformations.
@@ -87,49 +91,7 @@ export class FileUploadController {
    * @param height - Optional height for image resizing.
    * @returns The URL and public ID of the uploaded image.
    */
-  // @Post('file')
-  // @UseInterceptors(FileInterceptor('file'))
-  // @ApiOperation({ summary: 'Upload an file' })
-  // @ApiQuery({
-  //   type: String,
-  //   name: 'fileName',
-  //   required: false,
-  //   description: 'The name of the file',
-  // })
-  // @ApiResponse({
-  //   description: 'File uploaded successfully',
-  //   type: FileUploadResult,
-  // })
-  // @ApiConsumes('multipart/form-data') // Set content type as multipart/form-data
-  // @ApiBody({
-  //   description: 'Upload an file',
-  //   required: true,
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       file: {
-  //         type: 'string',
-  //         format: 'binary',
-  //       },
-  //     },
-  //   },
-  // })
-  // async uploadFile(
-  //   @UploadedFile() file: Express.Multer.File,
-  //   @Query('fileName') fileName?: string,
-  // ) {
-  //   return await this.imageUploadService.uploadFileToAws(file, fileName);
-  // }
-
-  /**
-   * Uploads an image to Cloudinary with optional transformations.
-   *
-   * @param file - The image file to be uploaded, provided by Multer.
-   * @param width - Optional width for image resizing.
-   * @param height - Optional height for image resizing.
-   * @returns The URL and public ID of the uploaded image.
-   */
-  @Post('file/cloudinary')
+  @Post('file')
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Upload an file' })
   @ApiQuery({
@@ -156,10 +118,52 @@ export class FileUploadController {
       },
     },
   })
-  async uploadFileToCloudinary(
+  async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Query('fileName') fileName?: string,
   ) {
-    return await this.fileUploadService.uploadFileToCloudinary(file, fileName);
+    return await this.s3UploadService.uploadFileToAws(file, fileName);
   }
+
+  /**
+   * Uploads an image to Cloudinary with optional transformations.
+   *
+   * @param file - The image file to be uploaded, provided by Multer.
+   * @param width - Optional width for image resizing.
+   * @param height - Optional height for image resizing.
+   * @returns The URL and public ID of the uploaded image.
+   */
+  // @Post('file/cloudinary')
+  // @UseInterceptors(FileInterceptor('file'))
+  // @ApiOperation({ summary: 'Upload an file' })
+  // @ApiQuery({
+  //   type: String,
+  //   name: 'fileName',
+  //   required: false,
+  //   description: 'The name of the file',
+  // })
+  // @ApiResponse({
+  //   description: 'File uploaded successfully',
+  //   type: FileUploadResult,
+  // })
+  // @ApiConsumes('multipart/form-data') // Set content type as multipart/form-data
+  // @ApiBody({
+  //   description: 'Upload an file',
+  //   required: true,
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       file: {
+  //         type: 'string',
+  //         format: 'binary',
+  //       },
+  //     },
+  //   },
+  // })
+  // async uploadFileToCloudinary(
+  //   @UploadedFile() file: Express.Multer.File,
+  //   @Query('fileName') fileName?: string,
+  // ) {
+  //   return await this.fileUploadService.uploadFileToCloudinary(file, fileName);
+  // }
 }

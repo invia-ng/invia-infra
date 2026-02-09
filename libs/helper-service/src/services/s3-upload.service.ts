@@ -12,7 +12,11 @@ export class S3UploadService {
   private s3 = new S3({ region: 'eu-north-1' });
 
   constructor(private readonly configService: ConfigService) {
-    this.s3 = new S3({ region: this.configService.get<string>('AWS_REGION') });
+    this.s3 = new S3({
+      forcePathStyle: true,
+      region: this.configService.get<string>('AWS_REGION'),
+      endpoint: this.configService.get<string>('AWS_UPLOAD_ENDPOINT'),
+    });
   }
 
   private generateS3Key(file: Express.Multer.File): string {
@@ -27,7 +31,7 @@ export class S3UploadService {
         Bucket: this.configService.get<string>('AWS_BUCKET_NAME'),
         Key: key,
         Body: file.buffer,
-        ACL: 'public-read-write',
+        ACL: 'public-read',
         ContentType: file.mimetype,
       };
 
@@ -53,7 +57,7 @@ export class S3UploadService {
         Bucket: this.configService.get<string>('AWS_BUCKET_NAME'),
         Key: key,
         Body: buffer,
-        ACL: 'public-read-write',
+        ACL: 'public-read',
         ContentType: mimetype,
       };
 
@@ -82,7 +86,7 @@ export class S3UploadService {
         Bucket: this.configService.get<string>('AWS_BUCKET_NAME'),
         Key: key,
         Body: buffer,
-        ACL: 'public-read-write',
+        ACL: 'public-read',
         ContentType: mimetype,
       };
 
