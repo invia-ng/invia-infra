@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   NotFoundException,
   UnauthorizedException,
@@ -14,13 +15,12 @@ import { RemoveMultipleEventAuthorGuestsCommand } from '../../impl';
 
 @CommandHandler(RemoveMultipleEventAuthorGuestsCommand)
 export class RemoveMultipleEventAuthorGuestsHandler
-  implements ICommandHandler<RemoveMultipleEventAuthorGuestsCommand, DeleteDataInstanceInfo>
-{
+  implements ICommandHandler<RemoveMultipleEventAuthorGuestsCommand, DeleteDataInstanceInfo> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Guest)
     private readonly guestRepository: Repository<Guest>,
-  ) {}
+  ) { }
 
   async execute(command: RemoveMultipleEventAuthorGuestsCommand) {
     try {
@@ -29,10 +29,10 @@ export class RemoveMultipleEventAuthorGuestsHandler
       const { guestIds, accessToken } = command;
 
       const isTokenExpired = authUtils.isAccessTokenExpired(accessToken);
-                  
+
       // console.log('[TOKEN] :: ', accessToken, isTokenExpired)
 
-      if(isTokenExpired){
+      if (isTokenExpired) {
         this.logger.log('[FETCH-EVENT-GUESTS-QUERY-ERROR]');
 
         throw new UnauthorizedException('Invalid access token');
@@ -56,7 +56,13 @@ export class RemoveMultipleEventAuthorGuestsHandler
         throw new NotFoundException('Guests not found.');
       }
 
-      await Promise.all(guests.map(async(guest) => {
+      if (guests.some((guest) => guest.authorEmail !== decodedToken.guestEmail)) {
+        throw new BadRequestException(
+          `You are not authorized to remove these guests from this event.`,
+        );
+      }
+
+      await Promise.all(guests.map(async (guest) => {
         try {
           this.logger.log(`[REMOVE-EVENT-GUEST-HANDLER-PROCESSING]`);
 
@@ -64,7 +70,7 @@ export class RemoveMultipleEventAuthorGuestsHandler
 
           this.logger.log(`[REMOVE-EVENT-GUEST-HANDLER-SUCCESS]`);
 
-        } catch(error) {
+        } catch (error) {
           this.logger.error(`[REMOVE-EVENT-GUEST-HANDLER-ERROR] :: ${error}`);
         }
       }));

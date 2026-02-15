@@ -191,6 +191,14 @@ export class AuthenticateShareFormPasscodeCommand {
   ) {}
 }
 
+export class AuthenticateShareFormPasscodeWithEmailCommand {
+  constructor(
+    public readonly passcode: string,
+    public readonly eventHash: string,
+    public readonly guestEmail: string,
+  ) {}
+}
+
 export class AddEventAuthorGuestsCommand {
   constructor(
     public readonly payload: AddEventGuestsDTO,

@@ -40,11 +40,12 @@ export class AuthenticateShareFormPasscodeHandler
       }
 
 			const accessToken = authUtils.generateAccessToken({
+        guestEmail: '',
 				eventId: event.id,
 				eventHash: event.hash,
 				expiresAt: authUtils.generateFutureDate(
-					2,
-					'hours',
+					7,
+					'days',
 				),
 			});
 

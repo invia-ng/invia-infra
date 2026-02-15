@@ -7,6 +7,14 @@ export class FetchShareFormPasscodeQuery {
   ) { }
 }
 
+export class FetchShareFormPasscodeViaEmailQuery {
+  constructor(
+    public readonly eventId: number,
+    public readonly guestEmail: string,
+    public readonly secureUser: SecureUserPayload,
+  ) { }
+}
+
 export class FetchGuestPartyQuery {
   constructor() { }
 }

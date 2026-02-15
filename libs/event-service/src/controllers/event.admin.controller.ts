@@ -30,7 +30,7 @@ import {
   GenerateShareFormPasscodeCommand,
 } from '../commands/impl';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
-import { FetchShareFormPasscodeQuery } from '../queries/impl';
+import { FetchShareFormPasscodeQuery, FetchShareFormPasscodeViaEmailQuery } from '../queries/impl';
 
 @ApiTags('event-admin')
 @Controller({ path: '' })
@@ -59,6 +59,33 @@ export class EventAdminController {
   ): Promise<GenerateShareFormPasscodeInfo> {
     return await this.queryBus.execute(
       new FetchShareFormPasscodeQuery(eventId, secureUser),
+    );
+  }
+
+  @Get('share-form/passcode')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiQuery({
+    type: String,
+    required: true,
+    example: 'biodun@gmail.com',
+    name: 'guestEmail',
+    description: 'Guest Email',
+  })
+  @ApiOkResponse({ type: GenerateShareFormPasscodeInfo })
+  @ApiInternalServerErrorResponse()
+  async fetchShareFormPasscodeViaEmail(
+    @Query('eventId') eventId: number,
+    @Query('guestEmail') guestEmail: string,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<GenerateShareFormPasscodeInfo> {
+    return await this.queryBus.execute(
+      new FetchShareFormPasscodeViaEmailQuery(eventId, guestEmail, secureUser),
     );
   }
 

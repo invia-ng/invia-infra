@@ -35,7 +35,7 @@ export class EventAuthorUpdateEventGuestHandler implements ICommandHandler<
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
-  ) {}
+  ) { }
 
   async execute(command: EventAuthorUpdateEventGuestCommand) {
     try {
@@ -52,6 +52,8 @@ export class EventAuthorUpdateEventGuestHandler implements ICommandHandler<
 
         throw new UnauthorizedException('Invalid access token');
       }
+
+      const decodedToken = authUtils.decodeAccessToken(accessToken);
 
       const eventInstance = await this.eventRepository.findOne({
         where: {
@@ -84,6 +86,12 @@ export class EventAuthorUpdateEventGuestHandler implements ICommandHandler<
       if (exists && Number(exists.id) !== Number(guestId)) {
         throw new BadRequestException(
           `A guest with the phone number ${exists.phone} already exists.`,
+        );
+      }
+
+      if (guest.authorEmail !== decodedToken.guestEmail) {
+        throw new BadRequestException(
+          `You are not authorized to update this guest.`,
         );
       }
 

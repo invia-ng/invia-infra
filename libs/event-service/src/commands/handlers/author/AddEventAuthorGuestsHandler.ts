@@ -28,7 +28,7 @@ export class AddEventAuthorGuestsHandler implements ICommandHandler<
     private readonly guestRepository: Repository<Guest>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
-  ) {}
+  ) { }
 
   async execute(command: AddEventAuthorGuestsCommand) {
     try {
@@ -62,6 +62,7 @@ export class AddEventAuthorGuestsHandler implements ICommandHandler<
         throw new UnauthorizedException('Invalid access token');
       }
 
+
       const exists = await this.guestRepository.findOne({
         where: {
           event: {
@@ -88,6 +89,7 @@ export class AddEventAuthorGuestsHandler implements ICommandHandler<
               email: guest.email,
               party: guest.party,
               phone: guest.phone,
+              authorEmail: decodedToken.guestEmail,
             });
 
             const instance = await this.guestRepository.save(_guest);

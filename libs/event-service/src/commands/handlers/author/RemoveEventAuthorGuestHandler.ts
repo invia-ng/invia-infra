@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   NotFoundException,
   UnauthorizedException,
@@ -14,13 +15,12 @@ import { DeleteDataInstanceInfo } from '../../../interface/schema';
 
 @CommandHandler(RemoveEventAuthorGuestCommand)
 export class RemoveEventAuthorGuestHandler
-  implements ICommandHandler<RemoveEventAuthorGuestCommand, DeleteDataInstanceInfo>
-{
+  implements ICommandHandler<RemoveEventAuthorGuestCommand, DeleteDataInstanceInfo> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Guest)
     private readonly guestRepository: Repository<Guest>,
-  ) {}
+  ) { }
 
   async execute(command: RemoveEventAuthorGuestCommand) {
     try {
@@ -29,10 +29,10 @@ export class RemoveEventAuthorGuestHandler
       const { guestId, accessToken } = command;
 
       const isTokenExpired = authUtils.isAccessTokenExpired(accessToken);
-            
+
       // console.log('[TOKEN] :: ', accessToken, isTokenExpired)
 
-      if(isTokenExpired){
+      if (isTokenExpired) {
         this.logger.log('[FETCH-EVENT-GUESTS-QUERY-ERROR]');
 
         throw new UnauthorizedException('Invalid access token');
@@ -51,6 +51,12 @@ export class RemoveEventAuthorGuestHandler
 
       if (!guest) {
         throw new NotFoundException('Guest not found.');
+      }
+
+      if (guest.authorEmail !== decodedToken.guestEmail) {
+        throw new BadRequestException(
+          `You are not authorized to remove this guest from this event.`,
+        );
       }
 
       await this.guestRepository.remove(guest);

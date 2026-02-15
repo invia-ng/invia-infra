@@ -12,6 +12,8 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { AppLogger } from '../../../../common/src/logger/logger.service';
 import { EmailSenderService } from 'libs/helper-service/src/services/email-sender.service';
 import { invite_event_guest_email_html_content } from '../../templates/event/invite_event_guest_email_template';
+import { share_event_guest_form_email_html_content } from '../../templates/event/share_event_guest_form_email_template';
+import { Event } from '@app/common/src/models/event.model';
 
 @Injectable()
 export class EventEmailNotificationService implements OnModuleInit {
@@ -37,6 +39,53 @@ export class EventEmailNotificationService implements OnModuleInit {
         position: 1,
       },
     });
+  }
+
+  async sendEventShareFormPasscodeEmailNotification(payload: {
+    event: Event,
+    guestEmail: string
+  }): Promise<boolean> {
+    try {
+      this.logger.log(`[SEND-EVENT-SHARE-FORM-PASSCODE-EMAIL-NOTIFICATION-PROCESSING]`);
+
+      const htmlContent = await share_event_guest_form_email_html_content({
+        passcode: payload.event.passcode,
+        shareFormLink: this.configService.get<string>('WEB_APP_URL').concat(`/events/shareform/authenticate?hash=${payload.event.hash}`),
+      });
+
+      if (
+        this.adminSettings.isSMTPEnabled === true &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.gmailMailerService.sendMail({
+          html: htmlContent,
+          to: payload.guestEmail,
+          subject: `Event Share Form Access: ${payload.event.name}`,
+          from: `"${payload.event.business.name}" <${payload.event.business.sendFromEmail}>`,
+        });
+      } else if (
+        this.adminSettings.isKibaMailEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false
+      ) {
+        this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          sub: `Event Share Form Access: ${payload.event.name}`,
+          to_email: payload.guestEmail,
+          from_email: payload.event.business.sendFromEmail,
+          from_name: payload.event.business.name,
+        });
+      }
+
+      this.logger.log(`[SEND-EVENT-SHARE-FORM-PASSCODE-EMAIL-NOTIFICATION-SUCCESS]`);
+
+      return true;
+    } catch (error) {
+      this.logger.log(
+        `[SEND-EVENT-SHARE-FORM-PASSCODE-EMAIL-NOTIFICATION-ERROR]: ${error}`,
+      );
+
+      return false;
+    }
   }
 
   async inviteEventGuestEmailNotification(

@@ -9,8 +9,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Event } from './event.model';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { GuestTimelineActionEnum } from '../constants/enums';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 @Entity()
 export class Guest {
@@ -88,6 +88,16 @@ export class Guest {
     description: 'Guest RSVP status',
   })
   isInviteRSVP: boolean;
+
+  @Column({
+    nullable: true,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    example: 'You',
+    description: 'Guest added by',
+  })
+  authorEmail: string;
 
   @ManyToOne(() => Event, {
     onDelete: 'CASCADE',
