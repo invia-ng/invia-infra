@@ -31,6 +31,7 @@ import {
   RemoveMultipleEventAuthorGuestsCommand,
   EventAuthorInviteEventGuestCommand,
   EventAuthorUpdateEventGuestCommand,
+  AuthenticateShareFormPasscodeWithEmailCommand,
 } from '../commands/impl';
 import {
   DeleteDataInstanceInfo,
@@ -90,6 +91,40 @@ export class EventAuthorController {
   ): Promise<AuthenticateShareFormInfo> {
     return await this.command.execute(
       new AuthenticateShareFormPasscodeCommand(eventHash, passcode),
+    );
+  }
+
+  @Post('authenticate-with-email')
+  @ApiQuery({
+    type: String,
+    required: true,
+    example: '315890',
+    name: 'passcode',
+    description: 'Passcode',
+  })
+  @ApiQuery({
+    type: String,
+    required: true,
+    example: '928991HJA8191MHGA8',
+    name: 'eventHash',
+    description: 'Event Primary ID',
+  })
+  @ApiQuery({
+    type: String,
+    required: true,
+    example: 'tobiasrok24@gmail.com',
+    name: 'guestEmail',
+    description: 'Guest Email',
+  })
+  @ApiOkResponse({ type: AuthenticateShareFormInfo })
+  @ApiInternalServerErrorResponse()
+  async authenticateShareFormWithEmail(
+    @Query('passcode') passcode: string,
+    @Query('eventHash') eventHash: string,
+    @Query('guestEmail') guestEmail: string,
+  ): Promise<AuthenticateShareFormInfo> {
+    return await this.command.execute(
+      new AuthenticateShareFormPasscodeWithEmailCommand(passcode, eventHash, guestEmail),
     );
   }
 
