@@ -25,6 +25,7 @@ import { EventAuthorInviteEventGuestHandler } from "./author/EventAuthorInviteEv
 import { EventAuthorInviteEventGuestsHandler } from "./author/EventAuthorInviteEventGuestsHandler";
 import { AuthenticateShareFormPasscodeHandler } from "./author/AuthenticateShareFormPasscodeHandler";
 import { RemoveMultipleEventAuthorGuestsHandler } from "./author/RemoveMultipleEventAuthorGuestsHandler";
+import { AuthenticateShareFormPasscodeWithEmailHandler } from "./author/AuthenticateShareFormPasscodeWithEmailHandler";
 
 export const EventServiceCommandHandlers = [
     CreateEventHandler,
@@ -54,4 +55,5 @@ export const EventServiceCommandHandlers = [
     DeleteFollowupMessageTemplateHandler,
     AuthenticateShareFormPasscodeHandler,
     RemoveMultipleEventAuthorGuestsHandler,
+    AuthenticateShareFormPasscodeWithEmailHandler,
 ];
