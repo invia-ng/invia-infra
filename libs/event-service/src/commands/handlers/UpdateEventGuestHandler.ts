@@ -10,9 +10,9 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Event, EventInfo } from '@app/common/src/models/event.model';
-import { GuestTimelineActionEnum } from '@app/common/src/constants/enums';
+import { AccountRole, GuestTimelineActionEnum } from '@app/common/src/constants/enums';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
-import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 
 @CommandHandler(UpdateEventGuestCommand)
 export class UpdateEventGuestHandler implements ICommandHandler<
@@ -29,13 +29,19 @@ export class UpdateEventGuestHandler implements ICommandHandler<
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
-  ) {}
+  ) { }
 
   async execute(command: UpdateEventGuestCommand) {
     try {
       this.logger.log(`[UPDATE-EVENT-GUEST-HANDLER-PROCESSING]`);
 
       const { eventId, guestId, payload, secureUser } = command;
+
+      if (secureUser.role === AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to update guests.',
+        );
+      }
 
       const business = await this.businessRepository.findOne({
         where: [

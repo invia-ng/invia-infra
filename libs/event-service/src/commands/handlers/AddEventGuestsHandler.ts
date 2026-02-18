@@ -1,18 +1,18 @@
-import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
-import { In, Raw, Repository } from 'typeorm';
-import { AddEventGuestsCommand } from '../impl';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Business } from '@app/common/src/models/business.model';
-import { AppLogger } from 'libs/common/src/logger/logger.service';
-import { Event, EventInfo } from '@app/common/src/models/event.model';
+import { In, Repository } from 'typeorm';
 import {
   Guest,
   GuestInfo,
   GuestTimeline,
 } from '@app/common/src/models/guest.model';
+import { AddEventGuestsCommand } from '../impl';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Event } from '@app/common/src/models/event.model';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Business } from '@app/common/src/models/business.model';
+import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
-import { GuestTimelineActionEnum } from '@app/common/src/constants/enums';
+import { AccountRole, GuestTimelineActionEnum } from '@app/common/src/constants/enums';
+import { Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 
 @CommandHandler(AddEventGuestsCommand)
 export class AddEventGuestsHandler implements ICommandHandler<
@@ -29,13 +29,19 @@ export class AddEventGuestsHandler implements ICommandHandler<
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
-  ) {}
+  ) { }
 
   async execute(command: AddEventGuestsCommand) {
     try {
       this.logger.log(`[ADD-EVENT-GUESTS-HANDLER-PROCESSING]`);
 
       const { eventId, payload, secureUser } = command;
+
+      if (secureUser.role === AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to add guests to events.',
+        );
+      }
 
       const guests: GuestInfo[] = [];
 

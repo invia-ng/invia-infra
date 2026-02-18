@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { createHash } from 'crypto';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 import { CreateEventCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateNewEventPartyEvent } from '../../events/impl';
@@ -14,6 +14,7 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Event, EventInfo } from '@app/common/src/models/event.model';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 @CommandHandler(CreateEventCommand)
 export class CreateEventHandler implements ICommandHandler<
@@ -27,13 +28,19 @@ export class CreateEventHandler implements ICommandHandler<
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
-  ) {}
+  ) { }
 
   async execute(command: CreateEventCommand) {
     try {
       this.logger.log(`[CREATE-EVENT-HANDLER-PROCESSING]`);
 
       const { payload, secureUser } = command;
+
+      if (secureUser.role === AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to create events.',
+        );
+      }
 
       const business = await this.businessRepository.findOne({
         where: [
@@ -63,6 +70,17 @@ export class CreateEventHandler implements ICommandHandler<
 
       if (exists) {
         throw new BadRequestException('An event with this namealready exists.');
+      }
+
+      const eventCount = await this.eventRepository.count({
+        where: {
+          business: business,
+          date: LessThanOrEqual(payload.date),
+        },
+      });
+
+      if (eventCount >= 5) {
+        throw new BadRequestException('You can only have 5 active events at a time.');
       }
 
       const hash = createHash('sha256')

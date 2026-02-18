@@ -3,12 +3,13 @@ import * as PDFDocument from 'pdfkit';
 import { Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExportGuestListCommand } from '../../impl';
-import { Inject, NotFoundException } from '@nestjs/common';
 import { Event } from '@app/common/src/models/event.model';
 import { Guest } from '@app/common/src/models/guest.model';
+import { AccountRole } from '@app/common/src/constants/enums';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { ExportGuestListInfo } from '@app/event-service/src/interface/schema';
+import { ForbiddenException, Inject, NotFoundException } from '@nestjs/common';
 import { FileUploadService } from '@app/helper-service/src/services/file-upload.service';
 
 @CommandHandler(ExportGuestListCommand)
@@ -30,6 +31,12 @@ export class ExportGuestListHandler implements ICommandHandler<
       this.logger.log(`[EXPORT-GUEST-LIST-HANDLER-PROCESSING]`);
 
       const { eventId, payload, secureUser } = command;
+
+      if (secureUser.role === AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to export guest lists.',
+        );
+      }
 
       const event = await this.eventRepository.findOne({
         where: {

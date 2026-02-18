@@ -8,6 +8,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 @CommandHandler(InviteBusinessMemberCommand)
 export class InviteBusinessMemberHandler implements ICommandHandler<InviteBusinessMemberCommand> {
@@ -18,13 +19,19 @@ export class InviteBusinessMemberHandler implements ICommandHandler<InviteBusine
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
     private readonly AuthEmailNotificationService: AuthEmailNotificationService,
-  ) {}
+  ) { }
 
   async execute(command: InviteBusinessMemberCommand) {
     try {
       this.logger.log(`[INVITE-BUSINESS-MEMBER-HANDLER-PROCESSING]`);
 
       const { payload, secureUser } = command;
+
+      if (secureUser.role === AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to invite members.',
+        );
+      }
 
       const accountExists = await this.accountRepository.findOne({
         where: {

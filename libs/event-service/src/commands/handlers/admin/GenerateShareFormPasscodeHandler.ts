@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Inject,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { GenerateShareFormPasscodeCommand } from '../../impl';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { GenerateShareFormPasscodeInfo } from '@app/event-service/src/interface/schema';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 @CommandHandler(GenerateShareFormPasscodeCommand)
 export class GenerateShareFormPasscodeHandler
@@ -26,6 +28,12 @@ export class GenerateShareFormPasscodeHandler
       this.logger.log(`[GENERATE-SHAREFORM-PASSCODE-HANDLER-PROCESSING]`);
 
       const { eventId, secureUser } = command;
+
+      if (secureUser.role === AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to generate share form passcode.',
+        );
+      }
 
 	    const event = await this.eventRepository.findOne({
 				where: {

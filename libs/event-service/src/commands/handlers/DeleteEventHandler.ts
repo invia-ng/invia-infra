@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Inject,
   NotFoundException,
   UnauthorizedException,
@@ -21,13 +22,19 @@ export class DeleteEventHandler implements ICommandHandler<
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
-  ) {}
+  ) { }
 
   async execute(command: DeleteEventCommand) {
     try {
       this.logger.log(`[DELETE-EVENT-HANDLER-PROCESSING]`);
 
       const { eventId, secureUser } = command;
+
+      if (secureUser.role === AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to delete events.',
+        );
+      }
 
       const event = await this.eventRepository.findOne({
         where: {

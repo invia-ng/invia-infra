@@ -2,13 +2,14 @@ import { Repository } from 'typeorm';
 import { UpdateEventCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Guest } from '@app/common/src/models/guest.model';
-import { Inject, UnauthorizedException } from '@nestjs/common';
+import { AccountRole } from '@app/common/src/constants/enums';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Invitation } from '@app/common/src/models/invitation.model';
 import { Event, EventInfo } from '@app/common/src/models/event.model';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
+import { ForbiddenException, Inject, UnauthorizedException } from '@nestjs/common';
 
 @CommandHandler(UpdateEventCommand)
 export class UpdateEventHandler implements ICommandHandler<
@@ -25,13 +26,19 @@ export class UpdateEventHandler implements ICommandHandler<
     private readonly guestRepository: Repository<Guest>,
     @InjectRepository(Invitation)
     private readonly invitationRepository: Repository<Invitation>,
-  ) {}
+  ) { }
 
   async execute(command: UpdateEventCommand) {
     try {
       this.logger.log(`[UPDATE-EVENT-HANDLER-PROCESSING]`);
 
       const { eventId, payload, secureUser } = command;
+
+      if (secureUser.role === AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to update events.',
+        );
+      }
 
       const business = await this.businessRepository.findOne({
         where: [

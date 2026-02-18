@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Inject,
   NotFoundException,
 } from '@nestjs/common';
@@ -6,6 +7,7 @@ import { Repository } from 'typeorm';
 import { RemoveEventGuestCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Guest } from '@app/common/src/models/guest.model';
+import { AccountRole } from '@app/common/src/constants/enums';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteDataInstanceInfo } from '../../interface/schema';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
@@ -25,6 +27,12 @@ export class RemoveEventGuestHandler
       this.logger.log(`[REMOVE-EVENT-GUEST-HANDLER-PROCESSING]`);
 
       const { guestId, eventId, secureUser } = command;
+
+      if (secureUser.role === AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to remove guests from events.',
+        );
+      }
 
       const guest = await this.guestRepository.findOne({
         where: {
