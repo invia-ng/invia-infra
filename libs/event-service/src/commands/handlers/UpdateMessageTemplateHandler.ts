@@ -50,56 +50,60 @@ export class UpdateMessageTemplateHandler
 
       const instance = await this.messageTemplateRepository.save(template);
 
-      await Promise.all(payload.followupInvitations.map(async (followupInvitation) => {
-        try {
-          this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-PROCESSING]`);
+      if (payload.followupInvitations && payload.followupInvitations.length > 0) {
+        await Promise.all(payload.followupInvitations.map(async (followupInvitation) => {
+          try {
+            this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-PROCESSING]`);
 
-          const followupInvitationInstance = await this.followupMessageTemplateRepository.findOne({
-            where: {
-              id: followupInvitation.id,
-            },
-          });
+            const followupInvitationInstance = await this.followupMessageTemplateRepository.findOne({
+              where: {
+                id: followupInvitation.id,
+              },
+            });
 
-          if (!followupInvitationInstance) {
-            throw new NotFoundException(`Followup message tem not allowed`);
+            if (!followupInvitationInstance) {
+              throw new NotFoundException(`Followup message tem not allowed`);
+            }
+
+            Object.assign(followupInvitationInstance, {
+              message: followupInvitation.message,
+              interval: followupInvitation.interval,
+              condition: followupInvitation.condition,
+            });
+
+            const _instance = await this.followupMessageTemplateRepository.save(followupInvitationInstance);
+
+            this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-SUCCESS]`);
+
+            return followupInvitations.push(_instance);
+          } catch (error) {
+            this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-ERROR] :: ${error}`);
           }
+        }));
+      }
 
-          Object.assign(followupInvitationInstance, {
-            message: followupInvitation.message,
-            interval: followupInvitation.interval,
-            condition: followupInvitation.condition,
-          });
+      if (payload.newFollowupInvitations && payload.newFollowupInvitations.length > 0) {
+        await Promise.all(payload.newFollowupInvitations.map(async (followupInvitation) => {
+          try {
+            this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-PROCESSING]`);
 
-          const _instance = await this.followupMessageTemplateRepository.save(followupInvitationInstance);
+            const newFollowupInstance = this.followupMessageTemplateRepository.create({
+              messageTemplate: instance,
+              message: followupInvitation.message,
+              interval: followupInvitation.interval,
+              condition: followupInvitation.condition,
+            });
 
-          this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-SUCCESS]`);
+            const _instance = await this.followupMessageTemplateRepository.save(newFollowupInstance);
 
-          return followupInvitations.push(_instance);
-        } catch (error) {
-          this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-ERROR] :: ${error}`);
-        }
-      }));
+            this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-SUCCESS]`);
 
-      await Promise.all(payload.newFollowupInvitations.map(async (followupInvitation) => {
-        try {
-          this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-PROCESSING]`);
-
-          const newFollowupInstance = this.followupMessageTemplateRepository.create({
-            messageTemplate: instance,
-            message: followupInvitation.message,
-            interval: followupInvitation.interval,
-            condition: followupInvitation.condition,
-          });
-
-          const _instance = await this.followupMessageTemplateRepository.save(newFollowupInstance);
-
-          this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-SUCCESS]`);
-
-          return followupInvitations.push(_instance);
-        } catch (error) {
-          this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-ERROR] :: ${error}`);
-        }
-      }));
+            return followupInvitations.push(_instance);
+          } catch (error) {
+            this.logger.log(`[UPDATE-EVENT-GUESTS-MANAGER-ERROR] :: ${error}`);
+          }
+        }));
+      }
 
       this.logger.log(`[UPDATE-EVENT-GUESTS-HANDLER-SUCCESS]`);
 

@@ -10,6 +10,7 @@ import {
   IsPhoneNumber,
   IsNumberString,
   IsArray,
+  ArrayMinSize,
   ValidateNested,
   IsDate,
   IsBoolean,
@@ -483,44 +484,58 @@ export class UpdateMessageTemplateDTO {
   @ApiProperty({
     isArray: true,
     type: UpdateInviteFollowupMessage,
-    description: 'Array of followup invitations',
+    description: 'Array of followup invitations (can be an empty array [])',
     required: false,
-    example: [
-      {
-        id: 22,
-        interval: FollowupIntervalEnum.ONE_DAY,
-        condition: FollowupConditionEnum.NO_RSVP,
-        message:
-          'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+    examples: {
+      empty: { summary: 'Empty array', value: [] },
+      withItems: {
+        summary: 'With followup items',
+        value: [
+          {
+            id: 22,
+            interval: FollowupIntervalEnum.ONE_DAY,
+            condition: FollowupConditionEnum.NO_RSVP,
+            message:
+              'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+          },
+        ],
       },
-    ],
+    },
   })
   @IsArray()
+  @ArrayMinSize(0)
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => UpdateInviteFollowupMessage)
-  @Transform(({ value: UpdateInviteFollowupMessage }) => UpdateInviteFollowupMessage || [])
+  @Transform(({ value }) => value ?? [])
   followupInvitations?: UpdateInviteFollowupMessage[];
 
   @ApiProperty({
     isArray: true,
     type: InviteFollowupMessage,
-    description: 'Array of followup invitations',
+    description: 'Array of new followup invitations (can be an empty array [])',
     required: false,
-    example: [
-      {
-        interval: FollowupIntervalEnum.ONE_DAY,
-        condition: FollowupConditionEnum.NO_RSVP,
-        message:
-          'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+    examples: {
+      empty: { summary: 'Empty array', value: [] },
+      withItems: {
+        summary: 'With followup items',
+        value: [
+          {
+            interval: FollowupIntervalEnum.ONE_DAY,
+            condition: FollowupConditionEnum.NO_RSVP,
+            message:
+              'Hi {guest_name}, this is a reminder about your upcoming event {event_name} which you have been invited to.',
+          },
+        ],
       },
-    ],
+    },
   })
   @IsArray()
+  @ArrayMinSize(0)
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => InviteFollowupMessage)
-  @Transform(({ value: InviteFollowupMessage }) => InviteFollowupMessage || [])
+  @Transform(({ value }) => value ?? [])
   newFollowupInvitations?: InviteFollowupMessage[];
 }
 

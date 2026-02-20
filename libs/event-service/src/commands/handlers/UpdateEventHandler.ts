@@ -96,15 +96,15 @@ export class UpdateEventHandler implements ICommandHandler<
       });
 
       const totalInvites = invitations.length;
-      const sentInvites = invitations.filter((invite) => invite.isSent).length;
+      const sentInvites = invitations.filter((invite) => invite.isEmailInviteSent).length;
       const acceptedInvites = invitations.filter(
         (invite) => invite.isRSVP === true,
       ).length;
       const pendingInvites = invitations.filter(
-        (invite) => invite.isSent === false,
+        (invite) => invite.isEmailInviteSent === false,
       ).length;
       const failedInvites = invitations.filter(
-        (invite) => invite.isDelivered === false,
+        (invite) => invite.isEmailInviteDelivered === false,
       ).length;
 
       this.logger.log(`[UPDATE-EVENT-HANDLER-SUCCESS]`);

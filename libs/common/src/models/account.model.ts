@@ -245,3 +245,23 @@ export class AccountInfo {
   @ApiProperty({ example: false })
   isBusinessProfileUpdated: boolean;
 }
+
+export class BusinessMemberInfo {
+  @ApiProperty({ example: '75' })
+  id: string;
+
+  @ApiProperty({ example: 'Ibrahim' })
+  name: string;
+
+  @ApiProperty({ example: '8054618649' })
+  phoneNumber: string;
+
+  @ApiProperty({ example: 'gibrahim@yopmail.com' })
+  email: string;
+
+  @ApiProperty({ example: 'MEMBER', enum: AccountRole })
+  role: AccountRole;
+
+  @ApiProperty({ example: false })
+  isInvitationAccepted: boolean;
+}

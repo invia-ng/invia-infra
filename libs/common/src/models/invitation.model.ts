@@ -81,7 +81,7 @@ export class Invitation {
     example: false,
     description: 'Guest invite sent',
   })
-  isSent: boolean;
+  isEmailInviteSent: boolean;
 
   @Column({
     nullable: true,
@@ -91,7 +91,27 @@ export class Invitation {
     example: false,
     description: 'Guest invite delivered',
   })
-  isDelivered: boolean;
+  isEmailInviteDelivered: boolean;
+
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Guest invite sent',
+  })
+  isWhatsAppInviteSent: boolean;
+
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Guest invite delivered',
+  })
+  isWhatsAppInviteDelivered: boolean;
 
   @Column({
     nullable: true,

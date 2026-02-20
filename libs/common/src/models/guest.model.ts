@@ -174,10 +174,16 @@ export class GuestInfo {
   phone: string;
 
   @ApiProperty({ example: false })
-  isInviteSent: boolean;
+  isEmailInviteSent: boolean;
 
   @ApiProperty({ example: false })
-  isInviteDelivered: boolean;
+  isEmailInviteDelivered: boolean;
+
+  @ApiProperty({ example: false })
+  isWhatsAppInviteSent: boolean;
+
+  @ApiProperty({ example: false })
+  isWhatsAppInviteDelivered: boolean;
 
   @ApiProperty({ example: false })
   isInviteRSVP: boolean;

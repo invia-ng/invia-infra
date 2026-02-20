@@ -38,12 +38,12 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   FetchBusinessInfoQuery,
-  FetchBusinessMemberInfoQuery,
+  FetchBusinessMembersInfoQuery,
   FetchBusinessMemberRolesQuery,
 } from '../queries/impl';
 import { AccountService } from '../services/account.service';
 import { SecureUserPayload } from '@app/common/src/interface';
-import { AccountInfo } from '@app/common/src/models/account.model';
+import { AccountInfo, BusinessMemberInfo } from '@app/common/src/models/account.model';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { BusinessInfo } from '@app/common/src/models/business.model';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
@@ -81,23 +81,23 @@ export class ManageBusinessController {
   }
 
   @Get('members')
-  @ApiOkResponse({ type: AccountInfo })
+  @ApiOkResponse({ type: BusinessMemberInfo, isArray: true })
   @ApiInternalServerErrorResponse()
   async getBusinessMembers(
     @SecureUser() secureUser: SecureUserPayload,
-  ): Promise<AccountInfo[]> {
+  ): Promise<BusinessMemberInfo[]> {
     return await this.queryBus.execute(
-      new FetchBusinessMemberInfoQuery(secureUser),
+      new FetchBusinessMembersInfoQuery(secureUser),
     );
   }
 
   @Post('members/invite')
-  @ApiOkResponse()
+  @ApiOkResponse({ type: BusinessMemberInfo })
   @ApiInternalServerErrorResponse()
   async inviteBusinessMember(
     @Body() body: InviteBusinessMemberDTO,
     @SecureUser() secureUser: SecureUserPayload,
-  ): Promise<void> {
+  ): Promise<BusinessMemberInfo> {
     return await this.command.execute(
       new InviteBusinessMemberCommand(body, secureUser),
     );

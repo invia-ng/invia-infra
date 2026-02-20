@@ -29,7 +29,7 @@ export class FetchEventsQueryHandler implements IQueryHandler<
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(Invitation)
     private readonly invitationRepository: Repository<Invitation>,
-  ) {}
+  ) { }
 
   async execute(query: FetchEventsQuery) {
     try {
@@ -118,16 +118,16 @@ export class FetchEventsQueryHandler implements IQueryHandler<
 
             const totalInvites = invitations.length;
             const sentInvites = invitations.filter(
-              (invite) => invite.isSent,
+              (invite) => invite.isEmailInviteSent || invite.isWhatsAppInviteSent,
             ).length;
             const acceptedInvites = invitations.filter(
               (invite) => invite.isRSVP === true,
             ).length;
             const pendingInvites = invitations.filter(
-              (invite) => invite.isSent === false,
+              (invite) => invite.isEmailInviteSent === false && invite.isWhatsAppInviteSent === false,
             ).length;
             const failedInvites = invitations.filter(
-              (invite) => invite.isDelivered === false,
+              (invite) => invite.isEmailInviteDelivered === false || invite.isWhatsAppInviteDelivered === false,
             ).length;
 
             events.push(

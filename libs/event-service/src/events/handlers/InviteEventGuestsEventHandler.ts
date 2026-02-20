@@ -73,8 +73,8 @@ export class InviteEventGuestsEventHandler implements IEventHandler<InviteEventG
 
               if (emailResponse) {
                 Object.assign(invitation, {
-                  isSent: true,
-                  isDelivered: true,
+                  isEmailInviteSent: true,
+                  isEmailInviteDelivered: true,
                 });
 
                 await this.invitationRepository.save(invitation);

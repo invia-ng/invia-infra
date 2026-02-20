@@ -1,5 +1,6 @@
 import {
   AccountRole,
+  AccountStatus,
   EventCategoryEnum,
   FollowupConditionEnum,
   FollowupIntervalEnum,
@@ -34,7 +35,7 @@ import {
   GuestTimeline,
   GuestTimelineInfo,
 } from '../models/guest.model';
-import { Account, AccountInfo } from '../models/account.model';
+import { Account, AccountInfo, BusinessMemberInfo } from '../models/account.model';
 import { Business, BusinessInfo } from '../models/business.model';
 import { Notification, NotificationInfo } from '../models/notification.model';
 import { BusinessMemberRoleInfo } from '@app/account-service/src/interface/schema';
@@ -48,6 +49,7 @@ import {
 } from '../models/subscription.model';
 import { ChargeResponse } from '@app/subscription-service/src/interface/schema';
 import { formatTo12HourTime, formatToCustomDate } from '../utils/date.utils';
+import { Invitation } from '../models/invitation.model';
 
 export function FormatNotification(
   notification: Notification,
@@ -79,6 +81,19 @@ export function FormatAccountInfo(account: Account): AccountInfo {
     isPasswordUpdated: account.isPasswordUpdated,
     isBusinessProfileUpdated: account.isBusinessProfileUpdated,
   } as unknown as AccountInfo;
+}
+
+export function FormatBusinessMemberInfo(account: Account): BusinessMemberInfo {
+  return {
+    id: account.id.toString(),
+    name: account.name,
+    phoneNumber: account.phoneNumber,
+    // businessName: account.businessName,
+    email: account.email,
+    role: account.role,
+    status: account.status,
+    isInvitationAccepted: account.status === AccountStatus.ACTIVE ? true : false,
+  } as unknown as BusinessMemberInfo;
 }
 
 export function FormatBusinessInfo(business: Business): BusinessInfo {
@@ -117,15 +132,17 @@ export function FormatEventInfo(
   } as unknown as EventInfo;
 }
 
-export function FormatGuestInfo(guest: Guest): GuestInfo {
+export function FormatGuestInfo(guest: Guest, invitation?: Invitation): GuestInfo {
   return {
     id: guest.id.toString(),
     name: guest.name,
     party: guest.party,
     email: guest.email,
     phone: guest.phone,
-    isInviteSent: guest.isInviteSent,
-    isInviteDelivered: guest.isInviteDelivered,
+    isEmailInviteSent: invitation ? invitation.isEmailInviteSent : false,
+    isEmailInviteDelivered: invitation ? invitation.isEmailInviteDelivered : false,
+    isWhatsAppInviteSent: invitation ? invitation.isWhatsAppInviteSent : false,
+    isWhatsAppInviteDelivered: invitation ? invitation.isWhatsAppInviteDelivered : false,
     isInviteRSVP: guest.isInviteRSVP,
   } as unknown as GuestInfo;
 }
@@ -558,6 +575,7 @@ export default {
   FormatEventGuestIdInfo,
   FormatGuestTimelineInfo,
   FormatEventCategoryInfo,
+  FormatBusinessMemberInfo,
   FormatMessageTemplateInfo,
   FormatSubscriptionPlanInfo,
   FormatPaystackChargeResponse,

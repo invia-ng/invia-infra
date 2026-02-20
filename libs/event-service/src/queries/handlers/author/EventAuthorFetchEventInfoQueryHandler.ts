@@ -73,15 +73,15 @@ export class EventAuthorFetchEventInfoQueryHandler implements IQueryHandler<
       });
 
       const totalInvites = invitations.length;
-      const sentInvites = invitations.filter((invite) => invite.isSent).length;
+      const sentInvites = invitations.filter((invite) => invite.isEmailInviteSent || invite.isWhatsAppInviteSent).length;
       const acceptedInvites = invitations.filter(
         (invite) => invite.isRSVP === true,
       ).length;
       const pendingInvites = invitations.filter(
-        (invite) => invite.isSent === false,
+        (invite) => invite.isEmailInviteSent === false || invite.isWhatsAppInviteSent === false,
       ).length;
       const failedInvites = invitations.filter(
-        (invite) => invite.isDelivered === false,
+        (invite) => invite.isEmailInviteDelivered === false || invite.isWhatsAppInviteDelivered === false,
       ).length;
 
       this.logger.log('[EVENT-AUTHOR-FETCH-EVENT-INFO-QUERY-SUCCESS]');
