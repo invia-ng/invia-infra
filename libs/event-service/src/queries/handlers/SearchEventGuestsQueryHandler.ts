@@ -6,6 +6,7 @@ import { Repository, ILike, FindOptionsWhere } from 'typeorm';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 @QueryHandler(SearchEventGuestsQuery)
 export class SearchEventGuestsQueryHandler implements IQueryHandler<
@@ -16,7 +17,7 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Guest)
     private readonly guestRepository: Repository<Guest>,
-  ) {}
+  ) { }
 
   async execute(query: SearchEventGuestsQuery): Promise<GuestsResponse> {
     try {
@@ -30,6 +31,7 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
         page,
         pageSize,
         searchQuery,
+        secureUser,
       } = query;
 
       const where: FindOptionsWhere<Guest> = {};
@@ -81,7 +83,7 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
         hasNextPage,
         totalPages,
         guestParties: [...new Set(guests.map((guest) => guest.party))],
-        guests: guests.map((guest) => modelsFormatter.FormatGuestInfo(guest)),
+        guests: guests.map((guest) => modelsFormatter.FormatGuestInfo(guest, null, secureUser.role === AccountRole.MEMBER)),
       };
     } catch (error) {
       this.logger.error('[SEARCH-EVENT-GUESTS-QUERY-ERROR]', error);

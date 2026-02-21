@@ -56,22 +56,22 @@ export class InviteEventGuestHandler implements ICommandHandler<InviteEventGuest
         return;
       }
 
-      const existingInvite = await this.invitationRepository.exists({
-        where: {
-          event: {
-            id: event.id,
-          },
-          guest: {
-            id: guest.id,
-          },
-        },
-      });
+      // const existingInvite = await this.invitationRepository.exists({
+      //   where: {
+      //     event: {
+      //       id: event.id,
+      //     },
+      //     guest: {
+      //       id: guest.id,
+      //     },
+      //   },
+      // });
 
-      if (existingInvite) {
-        throw new BadRequestException(
-          `Your guest ${guest.name} has already been invited!`,
-        );
-      }
+      // if (existingInvite) {
+      //   throw new BadRequestException(
+      //     `Your guest ${guest.name} has already been invited!`,
+      //   );
+      // }
 
       const hash = authUtils.generateEventInvitationHash({
         eventId: event.id,

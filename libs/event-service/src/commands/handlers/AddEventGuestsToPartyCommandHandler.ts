@@ -7,6 +7,7 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Guest, GuestInfo } from '@app/common/src/models/guest.model';
 import { Event, EventParty } from '@app/common/src/models/event.model';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 @CommandHandler(AddEventGuestsToPartyCommand)
 export class AddEventGuestsToPartyCommandHandler implements ICommandHandler<
@@ -21,7 +22,7 @@ export class AddEventGuestsToPartyCommandHandler implements ICommandHandler<
     private readonly guestRepository: Repository<Guest>,
     @InjectRepository(EventParty)
     private readonly eventPartyRepository: Repository<EventParty>,
-  ) {}
+  ) { }
 
   async execute(command: AddEventGuestsToPartyCommand) {
     try {
@@ -74,7 +75,7 @@ export class AddEventGuestsToPartyCommandHandler implements ICommandHandler<
 
             await this.guestRepository.save(guest);
 
-            updatedGuests.push(modelsFormatter.FormatGuestInfo(guest));
+            updatedGuests.push(modelsFormatter.FormatGuestInfo(guest, null, secureUser.role === AccountRole.MEMBER));
 
             this.logger.log(`[UPDATE-EVENT-GUEST-PARTY-MANAGER-SUCCESS]`);
           } catch (error) {

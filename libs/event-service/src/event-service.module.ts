@@ -21,6 +21,7 @@ import { AppLogger } from '../../common/src/logger/logger.service';
 import { Event, EventParty } from '@app/common/src/models/event.model';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
+import { Subscription } from '@app/common/src/models/subscription.model';
 import { Guest, GuestTimeline } from '@app/common/src/models/guest.model';
 import { EventAdminController } from './controllers/event.admin.controller';
 import { EventGuestController } from './controllers/event.guest.controller';
@@ -47,6 +48,7 @@ import { EventEmailNotificationService } from '@app/notification-service/src/ser
       EventParty,
       Invitation,
       Notification,
+      Subscription,
       GuestTimeline,
       MessageTemplate,
       FollowupInvitation,

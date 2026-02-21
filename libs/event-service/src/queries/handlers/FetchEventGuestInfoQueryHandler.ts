@@ -11,6 +11,7 @@ import {
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 @QueryHandler(FetchEventGuestInfoQuery)
 export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
@@ -23,7 +24,7 @@ export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
     private readonly guestRepository: Repository<Guest>,
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
-  ) {}
+  ) { }
 
   async execute(query: FetchEventGuestInfoQuery) {
     try {
@@ -56,7 +57,7 @@ export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
         modelsFormatter.FormatGuestTimelineInfo,
       );
 
-      const formattedGuest = modelsFormatter.FormatGuestInfo(guest);
+      const formattedGuest = modelsFormatter.FormatGuestInfo(guest, null, secureUser.role === AccountRole.MEMBER);
 
       this.logger.log('[FETCH-EVENT-GUEST-INFO-QUERY-SUCCESS]');
 

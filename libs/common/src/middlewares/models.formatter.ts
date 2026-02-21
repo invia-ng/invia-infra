@@ -50,6 +50,7 @@ import {
 import { ChargeResponse } from '@app/subscription-service/src/interface/schema';
 import { formatTo12HourTime, formatToCustomDate } from '../utils/date.utils';
 import { Invitation } from '../models/invitation.model';
+import { maskEmailAddress, maskPhoneNumber } from '../utils/string.utils';
 
 export function FormatNotification(
   notification: Notification,
@@ -132,13 +133,13 @@ export function FormatEventInfo(
   } as unknown as EventInfo;
 }
 
-export function FormatGuestInfo(guest: Guest, invitation?: Invitation): GuestInfo {
+export function FormatGuestInfo(guest: Guest, invitation?: Invitation, maskData: boolean = false): GuestInfo {
   return {
     id: guest.id.toString(),
     name: guest.name,
     party: guest.party,
-    email: guest.email,
-    phone: guest.phone,
+    email: maskData ? maskEmailAddress(guest.email) : guest.email,
+    phone: maskData ? maskPhoneNumber(guest.phone) : guest.phone,
     isEmailInviteSent: invitation ? invitation.isEmailInviteSent : false,
     isEmailInviteDelivered: invitation ? invitation.isEmailInviteDelivered : false,
     isWhatsAppInviteSent: invitation ? invitation.isWhatsAppInviteSent : false,

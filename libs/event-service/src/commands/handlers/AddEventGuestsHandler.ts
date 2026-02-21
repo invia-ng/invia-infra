@@ -11,8 +11,9 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
-import { AccountRole, GuestTimelineActionEnum } from '@app/common/src/constants/enums';
+import { AccountRole, GuestTimelineActionEnum, SubscriptionItemLimitEnum } from '@app/common/src/constants/enums';
 import { Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Subscription } from '@app/common/src/models/subscription.model';
 
 @CommandHandler(AddEventGuestsCommand)
 export class AddEventGuestsHandler implements ICommandHandler<
@@ -27,6 +28,8 @@ export class AddEventGuestsHandler implements ICommandHandler<
     private readonly guestRepository: Repository<Guest>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
   ) { }
@@ -62,6 +65,41 @@ export class AddEventGuestsHandler implements ICommandHandler<
 
       if (!business) {
         throw new NotFoundException(`Business record not found for user`);
+      }
+
+      const [subscription, guestsCount] = await Promise.all([
+        this.subscriptionRepository.findOne({
+          where: {
+            business: {
+              id: business.id,
+            },
+            isExpired: false,
+          },
+        }),
+        this.guestRepository.count({
+          where: {
+            event: {
+              id: eventId,
+            },
+          },
+        }),
+      ]);
+
+      const planName = subscription?.plan?.name ?? '';
+      const isStudio = planName.toLowerCase().includes('studio');
+      const isPro = planName.toLowerCase().includes('pro');
+      const isUnlimited = subscription?.guestLimitStatus === SubscriptionItemLimitEnum.UNLIMITED || isStudio;
+
+      if (!isUnlimited) {
+        const planLimit = isPro ? 300 : 50;
+        const effectiveLimit = subscription?.guestLimit > 0 ? subscription.guestLimit : planLimit;
+
+        if (guestsCount >= effectiveLimit) {
+          const planLabel = isPro ? 'Pro plan' : 'free tier';
+          throw new BadRequestException(
+            `You have reached the maximum number of guests allowed for your ${planLabel} (${effectiveLimit} guests per event).${!isPro ? ' Upgrade to a Pro or Studio plan for more.' : ''}`,
+          );
+        }
       }
 
       const eventInstance = await this.eventRepository.findOne({

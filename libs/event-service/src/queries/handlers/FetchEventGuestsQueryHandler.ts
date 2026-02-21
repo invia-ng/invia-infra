@@ -7,6 +7,7 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Invitation } from '@app/common/src/models/invitation.model';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Guest, GuestInfo, GuestsResponse } from '@app/common/src/models/guest.model';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 @QueryHandler(FetchEventGuestsQuery)
 export class FetchEventGuestsQueryHandler implements IQueryHandler<
@@ -60,7 +61,7 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
             },
           });
 
-          _guests.push(modelsFormatter.FormatGuestInfo(guest, invitation));
+          _guests.push(modelsFormatter.FormatGuestInfo(guest, invitation, secureUser.role === AccountRole.MEMBER));
 
           this.logger.error('[FETCH-EVENT-GUEST-INVITATION-MANAGER-SUCCESS]');
         } catch (error) {
