@@ -29,7 +29,7 @@ export const invite_event_guest_email_html_content = (payload: {
         }
 
         .wrapper {
-            background-color: #f5f0eb;
+            background-color: #ffffff;
             padding: 40px 0;
         }
 
