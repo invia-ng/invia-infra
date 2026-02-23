@@ -7,13 +7,13 @@ import {
 } from '@app/common/src/models/invitation.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Event } from '@app/common/src/models/event.model';
 import { Setting } from '@app/common/src/models/setting.model';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { AppLogger } from '../../../../common/src/logger/logger.service';
 import { EmailSenderService } from 'libs/helper-service/src/services/email-sender.service';
 import { invite_event_guest_email_html_content } from '../../templates/event/invite_event_guest_email_template';
 import { share_event_guest_form_email_html_content } from '../../templates/event/share_event_guest_form_email_template';
-import { Event } from '@app/common/src/models/event.model';
 import { event_guest_accept_reject_invitation_email_html_content } from '../../templates/event/event_guest_accept_reject_invitation_email_template';
 import { event_admin_guest_accept_reject_invitation_email_html_content } from '../../templates/event/event_admin_guest_accept_reject_invitation_email_template';
 
@@ -261,7 +261,7 @@ export class EventEmailNotificationService implements OnModuleInit {
           to: payload.invitation.guest.email,
           from: `"Invia" <no-reply@tryinvia.com>`,
         });
-        
+    
         await this.gmailMailerService.sendMail({
           html: adminHtmlContent,
           subject: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}`,
@@ -279,7 +279,7 @@ export class EventEmailNotificationService implements OnModuleInit {
           from_email: 'no-reply@tryinvia.com',
           from_name: 'Invia',
         });
-
+        
         await this.emailSenderService.sendEmailViaKibaAdmin({
           html: adminHtmlContent,
           sub: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}: ${payload.invitation.event.name}`,
