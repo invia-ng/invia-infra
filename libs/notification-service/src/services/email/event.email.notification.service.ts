@@ -14,6 +14,8 @@ import { EmailSenderService } from 'libs/helper-service/src/services/email-sende
 import { invite_event_guest_email_html_content } from '../../templates/event/invite_event_guest_email_template';
 import { share_event_guest_form_email_html_content } from '../../templates/event/share_event_guest_form_email_template';
 import { Event } from '@app/common/src/models/event.model';
+import { event_guest_accept_reject_invitation_email_html_content } from '../../templates/event/event_guest_accept_reject_invitation_email_template';
+import { event_admin_guest_accept_reject_invitation_email_html_content } from '../../templates/event/event_admin_guest_accept_reject_invitation_email_template';
 
 @Injectable()
 export class EventEmailNotificationService implements OnModuleInit {
@@ -212,6 +214,89 @@ export class EventEmailNotificationService implements OnModuleInit {
     } catch (error) {
       this.logger.log(
         `[FOLLOWUP-INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-ERROR]: ${error}`,
+      );
+
+      return false;
+    }
+  }
+
+  async eventGuestAcceptRejectInvitationEmailNotification(payload: {
+    isAccept: boolean,
+    invitation: Invitation,
+  }): Promise<boolean> {
+    try {
+      this.logger.log(
+        `[EVENT-GUEST-ACCEPT-REJECT-INVITATION-EMAIL-NOTIFICATION-PROCESSING]`,
+      );
+
+      const htmlContent = await event_guest_accept_reject_invitation_email_html_content({
+        hasCoverImage: payload.invitation.image.length > 0,
+        message: payload.invitation.message,
+        event: payload.invitation.event.name,
+        webappUrl: this.configService.get<string>('WEB_APP_URL'),
+        businessName: payload.invitation.event.business.name,
+        isAccept: payload.isAccept,
+        image:
+          payload.invitation.image.length > 0
+            ? payload.invitation.image
+            : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
+      });
+
+      const adminHtmlContent = await event_admin_guest_accept_reject_invitation_email_html_content({
+        guestName: payload.invitation.guest.name,
+        event: payload.invitation.event.name,
+        webappUrl: this.configService.get<string>('WEB_APP_URL'),
+        businessName: payload.invitation.event.business.name,
+        isAccept: payload.isAccept,
+        eventDashboardUrl: `${this.configService.get<string>('WEB_APP_URL')}/events/${payload.invitation.event.id}`,
+      });
+
+      if (
+        this.adminSettings.isSMTPEnabled === true &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.gmailMailerService.sendMail({
+          html: htmlContent,
+          subject: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}`,
+          to: payload.invitation.guest.email,
+          from: `"Invia" <no-reply@tryinvia.com>`,
+        });
+        
+        await this.gmailMailerService.sendMail({
+          html: adminHtmlContent,
+          subject: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}`,
+          to: payload.invitation.event.business.email,
+          from: `"Invia" <no-reply@tryinvia.com>`,
+        });
+      } else if (
+        this.adminSettings.isKibaMailEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false
+      ) {
+        await this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          sub: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}: ${payload.invitation.event.name}`,
+          to_email: payload.invitation.guest.email,
+          from_email: 'no-reply@tryinvia.com',
+          from_name: 'Invia',
+        });
+
+        await this.emailSenderService.sendEmailViaKibaAdmin({
+          html: adminHtmlContent,
+          sub: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}: ${payload.invitation.event.name}`,
+          to_email: payload.invitation.event.business.email,
+          from_email: 'no-reply@tryinvia.com',
+          from_name: 'Invia',
+        });
+      }
+
+      this.logger.log(
+        `[EVENT-GUEST-ACCEPT-REJECT-INVITATION-EMAIL-NOTIFICATION-SUCCESS]`,
+      );
+
+      return true;
+    } catch (error) {
+      this.logger.log(
+        `[EVENT-GUEST-ACCEPT-REJECT-INVITATION-EMAIL-NOTIFICATION-ERROR]: ${error}`,
       );
 
       return false;

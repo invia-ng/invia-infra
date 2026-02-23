@@ -50,7 +50,7 @@ export class InitializeBusinessProfileHandler implements ICommandHandler<
         name: payload.businessName,
         email: payload.businessEmail,
         phone: payload.businessPhone,
-        avatar: payload.businessAvatar,
+        avatar: payload?.businessAvatar,
         sendFromEmail: payload.sendFromEmail,
       });
 

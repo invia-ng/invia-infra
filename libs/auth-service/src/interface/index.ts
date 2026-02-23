@@ -175,8 +175,8 @@ export class InitializeBusinessProfileDTO {
     description: 'Avatar of the business.',
   })
   @IsString()
-  @IsNotEmpty()
-  businessAvatar: string;
+  @IsOptional()
+  businessAvatar?: string;
 
   @ApiProperty({
     example: 'Business Avatar',
