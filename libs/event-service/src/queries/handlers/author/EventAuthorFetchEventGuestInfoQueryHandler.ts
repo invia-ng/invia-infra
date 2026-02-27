@@ -27,7 +27,7 @@ export class EventAuthorFetchEventGuestInfoQueryHandler implements IQueryHandler
     private readonly guestRepository: Repository<Guest>,
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
-  ) {}
+  ) { }
 
   async execute(query: EventAuthorFetchEventGuestInfoQuery) {
     try {
@@ -63,6 +63,9 @@ export class EventAuthorFetchEventGuestInfoQueryHandler implements IQueryHandler
           guest: {
             id: guestId,
           },
+        },
+        order: {
+          createdAt: 'DESC',
         },
       });
 

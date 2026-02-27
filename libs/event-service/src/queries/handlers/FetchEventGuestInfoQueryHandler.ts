@@ -51,6 +51,9 @@ export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
             id: guestId,
           },
         },
+        order: {
+          createdAt: 'DESC',
+        },
       });
 
       const formattedGuestTimelines = guestTimelines.map(
