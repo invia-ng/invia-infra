@@ -16,9 +16,9 @@ import { AuthServiceCommandHandlers } from './commands/handlers';
 import { AppLogger } from '../../common/src/logger/logger.service';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
-import { Subscription } from '@app/common/src/models/subscription.model';
 import { AuthHelperController } from './controllers/auth.helper.controller';
 import { HelperServiceModule } from 'libs/helper-service/src/helper-service.module';
+import { Subscription, SubscriptionPlan } from '@app/common/src/models/subscription.model';
 import { FileUploadController } from '@app/helper-service/src/controllers/file-upload.controller';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
 
@@ -34,6 +34,7 @@ import { AuthEmailNotificationService } from '@app/notification-service/src/serv
       Business,
       Subscription,
       Notification,
+      SubscriptionPlan,
     ]),
   ],
   providers: [
