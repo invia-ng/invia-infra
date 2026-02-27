@@ -1,18 +1,18 @@
 import { Repository } from 'typeorm';
+import {
+  AccountStatus,
+  SubscriptionStatusEnum,
+  SubscriptionItemLimitEnum,
+} from '@app/common/src/constants/enums';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { InitializeBusinessProfileCommand } from '../impl';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  AccountStatus,
-  SubscriptionItemLimitEnum,
-  SubscriptionStatusEnum,
-} from '@app/common/src/constants/enums';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
-import { Subscription } from '@app/common/src/models/subscription.model';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
+import { Subscription, SubscriptionPlan } from '@app/common/src/models/subscription.model';
 
 @CommandHandler(InitializeBusinessProfileCommand)
 export class InitializeBusinessProfileHandler implements ICommandHandler<
@@ -27,6 +27,8 @@ export class InitializeBusinessProfileHandler implements ICommandHandler<
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(Subscription)
     private readonly subscriptionRepository: Repository<Subscription>,
+    @InjectRepository(SubscriptionPlan)
+    private readonly subscriptionPlanRepository: Repository<SubscriptionPlan>,
   ) { }
 
   async execute(command: InitializeBusinessProfileCommand) {
@@ -83,6 +85,11 @@ export class InitializeBusinessProfileHandler implements ICommandHandler<
         isExpired: false,
         isSmartInvitationEnabled: false,
         discountPercentage: 0,
+        plan: await this.subscriptionPlanRepository.findOne({
+          where: {
+            position: 1
+          },
+        }),
       });
 
       await this.subscriptionRepository.save(_instance);
