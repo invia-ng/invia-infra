@@ -123,6 +123,16 @@ export class InviteEventGuestsCommand {
   ) {}
 }
 
+export class InviteEventGuestsAfterPaymentCommand {
+  constructor(
+    public readonly eventId: number,
+    public readonly amountPaid: number,
+    public readonly paymentReference: string,
+    public readonly payload: InviteEventGuestsDTO,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
 export class EventAuthorInviteEventGuestsCommand {
   constructor(
     public readonly eventId: number,

@@ -1,0 +1,214 @@
+import { Repository } from 'typeorm';
+import {
+  Invitation,
+  InvitationPayment,
+  FollowupInvitation,
+} from '@app/common/src/models/invitation.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Event } from '@app/common/src/models/event.model';
+import { InviteEventGuestsEvent } from '../../events/impl';
+import { Guest } from '@app/common/src/models/guest.model';
+import authUtils from '@app/common/src/security/auth.utils';
+import { InviteEventGuestsAfterPaymentCommand } from '../impl';
+import { AppLogger } from 'libs/common/src/logger/logger.service';
+import { FollowupIntervalEnum } from '@app/common/src/constants/enums';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
+import { MessageTemplateParser } from '../../middlewares/messsage.template.parser';
+import { PaymentEmailNotificationService } from '@app/notification-service/src/services/email/payment.email.notification.service';
+
+@CommandHandler(InviteEventGuestsAfterPaymentCommand)
+export class InviteEventGuestsAfterPaymentHandler implements ICommandHandler<InviteEventGuestsAfterPaymentCommand> {
+  constructor(
+    private readonly eventBus: EventBus,
+    @Inject('Logger') private readonly logger: AppLogger,
+    @InjectRepository(Guest)
+    private readonly guestRepository: Repository<Guest>,
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Invitation)
+    private readonly invitationRepository: Repository<Invitation>,
+    @InjectRepository(InvitationPayment)
+    private readonly invitationPaymentRepository: Repository<InvitationPayment>,
+    @InjectRepository(FollowupInvitation)
+    private readonly followupInvitationRepository: Repository<FollowupInvitation>,
+    private readonly paymentEmailNotificationService: PaymentEmailNotificationService,
+  ) { }
+
+  async execute(command: InviteEventGuestsAfterPaymentCommand) {
+    try {
+      this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-PROCESSING]`);
+
+      const { eventId, amountPaid, paymentReference, payload, secureUser } = command;
+
+      const invitations: Invitation[] = [];
+
+      const event = await this.eventRepository.findOne({
+        where: {
+          id: eventId,
+        },
+      });
+
+      if (!event) {
+        throw new NotFoundException('Event not found.');
+      }
+
+      const paymentExists = await this.invitationPaymentRepository.findOne({
+        where: {
+          paymentReference: paymentReference,
+        },
+      });
+
+      if (paymentExists) {
+        throw new BadRequestException('Payment already exists.');
+      }
+
+      await Promise.all(
+        payload.guestIds.map(async (guestId) => {
+          try {
+            this.logger.log('[INVITE-EVENT-GUEST-HANDLER-PROCESSING]');
+
+            const guest = await this.guestRepository.findOne({
+              where: {
+                id: guestId,
+              },
+            });
+
+            if (!guest) {
+              return;
+            }
+
+            const hash = authUtils.generateEventInvitationHash({
+              eventId: event.id,
+              guestId: guest.id,
+              eventHash: event.hash,
+            });
+
+            const instance = this.invitationRepository.create({
+              event,
+              guest,
+              hash,
+              image: payload?.image,
+              sendEmailInvite: payload.sendEmailInvite,
+              sendWhatsAppInvite: payload.sendWhatsAppInvite,
+              message: MessageTemplateParser(payload.message, event, guest),
+            });
+
+            const invitation = await this.invitationRepository.save(instance);
+
+            await invitations.push(invitation);
+
+            if (
+              payload.followupInvitations &&
+              payload.followupInvitations.length > 0
+            ) {
+              await Promise.all(
+                payload.followupInvitations.map(async (followupInvitation) => {
+                  try {
+                    this.logger.log('[FOLLOWUP-INVITATION-HANDLER-PROCESSING]');
+
+                    const _instance = this.followupInvitationRepository.create({
+                      invitation,
+                      interval: followupInvitation.interval,
+                      condition: followupInvitation.condition,
+                      dateTime: this.calculateFollowupDate(
+                        followupInvitation.interval,
+                      ),
+                      message: MessageTemplateParser(
+                        followupInvitation.message,
+                        event,
+                        guest,
+                      ),
+                    });
+
+                    await this.followupInvitationRepository.save(_instance);
+
+                    this.logger.log('[FOLLOWUP-INVITATION-HANDLER-SUCCESS]');
+                  } catch (error) {
+                    this.logger.log(
+                      `[FOLLOWUP-INVITATION-HANDLER-ERROR] :: ${error}`,
+                    );
+                  }
+                }),
+              );
+            }
+
+            this.logger.log('[INVITE-EVENT-GUEST-HANDLER-SUCCESS]');
+          } catch (error) {
+            this.logger.log(`[INVITE-EVENT-GUEST-HANDLER-ERROR] :: ${error}`);
+
+            throw error;
+          }
+        }),
+      );
+
+      const payment = this.invitationPaymentRepository.create({
+        event,
+        amountPaid,
+        paymentReference,
+        business: event.business,
+      });
+
+      await this.invitationPaymentRepository.save(payment);
+
+      this.paymentEmailNotificationService.eventInvitationPaymentReceiptNotification({
+        amount: amountPaid.toString(),
+        eventName: event.name,
+        recipientEmail: event.business.email,
+        paymentReference: payment.paymentReference,
+      });
+
+      this.eventBus.publish(
+        new InviteEventGuestsEvent(invitations, secureUser),
+      );
+
+      this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-SUCCESS]`);
+      
+      return;
+    } catch (error) {
+      this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-ERROR] :: ${error}`);
+
+      throw error;
+    }
+  }
+
+  calculateFollowupDate = (interval: FollowupIntervalEnum) => {
+    const date = new Date();
+    switch (interval) {
+      case FollowupIntervalEnum.ONE_DAY:
+        date.setDate(date.getDate() + 1);
+        break;
+      case FollowupIntervalEnum.TWO_DAYS:
+        date.setDate(date.getDate() + 2);
+        break;
+      case FollowupIntervalEnum.THREE_DAYS:
+        date.setDate(date.getDate() + 3);
+        break;
+      case FollowupIntervalEnum.FOUR_DAYS:
+        date.setDate(date.getDate() + 4);
+        break;
+      case FollowupIntervalEnum.FIVE_DAYS:
+        date.setDate(date.getDate() + 5);
+        break;
+      case FollowupIntervalEnum.SIX_DAYS:
+        date.setDate(date.getDate() + 6);
+        break;
+      case FollowupIntervalEnum.SEVEN_DAYS:
+        date.setDate(date.getDate() + 7);
+        break;
+      case FollowupIntervalEnum.EIGHT_DAYS:
+        date.setDate(date.getDate() + 8);
+        break;
+      case FollowupIntervalEnum.NINE_DAYS:
+        date.setDate(date.getDate() + 9);
+        break;
+      case FollowupIntervalEnum.TEN_DAYS:
+        date.setDate(date.getDate() + 10);
+        break;
+      default:
+        date.setDate(date.getDate() + 1);
+        break;
+    }
+    return date;
+  };
+}

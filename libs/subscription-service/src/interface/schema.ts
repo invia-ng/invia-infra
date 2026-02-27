@@ -106,3 +106,41 @@ export class ChargeResponse {
   })
   data: ChargeResponseData;
 }
+
+export class InvitationChargeResponse {
+  @ApiProperty({
+    example: true,
+    description: 'Indicates if the request was successful',
+  })
+  status: boolean;
+
+  @ApiProperty({
+    example: 'Charge attempted',
+    description: 'Message describing the result of the operation',
+  })
+  message: string;
+  
+  @ApiProperty({
+    type: ChargeResponseData,
+    description: 'The charge attempt details',
+  })
+  data: ChargeResponseData;
+  
+  @ApiProperty({
+    example: 'Email Charge',
+    description: 'Email charge details',
+  })
+  emailCharge: number
+  
+  @ApiProperty({
+    example: 'Whatsapp Charge',
+    description: 'Whatsapp charge details',
+  })
+  whatsAppCharge: number
+  
+  @ApiProperty({
+    example: 1000,
+    description: 'Discount amount',
+  })
+  discount: number
+}

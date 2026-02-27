@@ -18,12 +18,8 @@ import { event_guest_accept_reject_invitation_email_html_content } from '../../t
 import { event_admin_guest_accept_reject_invitation_email_html_content } from '../../templates/event/event_admin_guest_accept_reject_invitation_email_template';
 
 @Injectable()
-export class EventEmailNotificationService implements OnModuleInit {
+export class EventEmailNotificationService {
   private adminSettings: Setting;
-
-  onModuleInit() {
-    this.initializeAdminSettings();
-  }
 
   constructor(
     public commandBus: CommandBus,
@@ -49,6 +45,8 @@ export class EventEmailNotificationService implements OnModuleInit {
   }): Promise<boolean> {
     try {
       this.logger.log(`[SEND-EVENT-SHARE-FORM-PASSCODE-EMAIL-NOTIFICATION-PROCESSING]`);
+
+      await this.initializeAdminSettings();
 
       const htmlContent = await share_event_guest_form_email_html_content({
         passcode: payload.event.passcode,
@@ -95,6 +93,8 @@ export class EventEmailNotificationService implements OnModuleInit {
   ): Promise<boolean> {
     try {
       this.logger.log(`[INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-PROCESSING]`);
+
+      await this.initializeAdminSettings();
 
       const htmlContent = await invite_event_guest_email_html_content({
         message: invitation.message,
@@ -160,6 +160,8 @@ export class EventEmailNotificationService implements OnModuleInit {
       this.logger.log(
         `[FOLLOWUP-INVITE-EVENT-GUEST-EMAIL-NOTIFICATION-PROCESSING]`,
       );
+
+      await this.initializeAdminSettings();
 
       const htmlContent = await invite_event_guest_email_html_content({
         hasCoverImage: followupInvitation.invitation.image.length > 0,
@@ -229,6 +231,8 @@ export class EventEmailNotificationService implements OnModuleInit {
         `[EVENT-GUEST-ACCEPT-REJECT-INVITATION-EMAIL-NOTIFICATION-PROCESSING]`,
       );
 
+      await this.initializeAdminSettings();
+
       const htmlContent = await event_guest_accept_reject_invitation_email_html_content({
         hasCoverImage: payload.invitation.image.length > 0,
         message: payload.invitation.message,
@@ -261,7 +265,7 @@ export class EventEmailNotificationService implements OnModuleInit {
           to: payload.invitation.guest.email,
           from: `"Invia" <no-reply@tryinvia.com>`,
         });
-    
+
         await this.gmailMailerService.sendMail({
           html: adminHtmlContent,
           subject: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}`,
@@ -279,7 +283,7 @@ export class EventEmailNotificationService implements OnModuleInit {
           from_email: 'no-reply@tryinvia.com',
           from_name: 'Invia',
         });
-        
+
         await this.emailSenderService.sendEmailViaKibaAdmin({
           html: adminHtmlContent,
           sub: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}: ${payload.invitation.event.name}`,

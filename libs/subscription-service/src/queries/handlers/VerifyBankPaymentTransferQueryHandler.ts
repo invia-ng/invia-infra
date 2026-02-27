@@ -16,14 +16,14 @@ export class VerifyBankPaymentTransferQueryHandler implements IQueryHandler<
     private readonly eventBus: EventBus,
     private readonly paymentService: PaymentService,
     @Inject('Logger') private readonly logger: AppLogger,
-  ) {}
+  ) { }
 
   async execute(query: VerifyBankPaymentTransferQuery) {
     try {
       const { paymentReference, secureUser } = query;
 
       this.logger.log(
-        `[VERIFY-PRODUCT-UPLOAD-TRANSFER-QUERY-HANDLER-PROCESSING]: ${JSON.stringify(query)}`,
+        `[VERIFY-PREMIUM-SUBSCRIPTION-PAYMENT-TRANSFER-QUERY-HANDLER-PROCESSING]: ${JSON.stringify(query)}`,
       );
 
       const { data } = await axios.get(
@@ -48,9 +48,14 @@ export class VerifyBankPaymentTransferQueryHandler implements IQueryHandler<
       ) {
         console.log('HANDLE-PREMIUM_SUBSCRIPTION-PAYMENT');
 
+        const planId = data.data?.metadata?.custom_fields.find(
+          (field) => field.variable_name === 'PLAN_ID',
+        ).value;
+
         this.eventBus.publish(
           new ProcessPremiumSubscriptionEvent(
-            false,
+            planId,
+            true,
             data?.data?.channel === 'bank_transfer',
             customerEmail,
             data.data?.amount,
@@ -59,7 +64,7 @@ export class VerifyBankPaymentTransferQueryHandler implements IQueryHandler<
         );
       }
 
-      this.logger.log(`[VERIFY-PRODUCT-UPLOAD-TRANSFER-QUERY-HANDLER-SUCCESS]`);
+      this.logger.log(`[VERIFY-PREMIUM-SUBSCRIPTION-PAYMENT-TRANSFER-QUERY-HANDLER-SUCCESS]`);
 
       return {
         status: true,
@@ -68,7 +73,7 @@ export class VerifyBankPaymentTransferQueryHandler implements IQueryHandler<
       } as VerifyPaymentSessionResponse;
     } catch (error) {
       this.logger.log(
-        `[VERIFY-PRODUCT-UPLOAD-TRANSFER-QUERY-HANDLER-ERROR]: ${error}`,
+        `[VERIFY-PREMIUM-SUBSCRIPTION-PAYMENT-TRANSFER-QUERY-HANDLER-ERROR]: ${error}`,
       );
 
       throw error;

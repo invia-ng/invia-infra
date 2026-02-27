@@ -99,6 +99,16 @@ export class Guest {
   })
   authorEmail: string;
 
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Guest smart invitation sent',
+  })
+  isSmartInvitationSent: boolean;
+
   @ManyToOne(() => Event, {
     onDelete: 'CASCADE',
     eager: true,

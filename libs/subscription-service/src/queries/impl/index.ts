@@ -14,3 +14,10 @@ export class VerifyBankPaymentTransferQuery {
     public readonly secureUser: SecureUserPayload,
   ) {}
 }
+
+export class VerifyInvitationPaymentTransferQuery {
+  constructor(
+    public readonly paymentReference: string,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}

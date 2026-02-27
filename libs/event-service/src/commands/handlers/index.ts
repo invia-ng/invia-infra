@@ -19,6 +19,7 @@ import { RemoveEventAuthorGuestHandler } from "./author/RemoveEventAuthorGuestHa
 import { GenerateShareFormPasscodeHandler } from "./admin/GenerateShareFormPasscodeHandler";
 import { AddEventGuestsToPartyCommandHandler } from "./AddEventGuestsToPartyCommandHandler";
 import { DeleteFollowupMessageTemplateHandler } from "./DeleteFollowupMessageTemplateHandler";
+import { InviteEventGuestsAfterPaymentHandler } from "./InviteEventGuestsAfterPaymentHandler";
 import { AcceptRejectEventInvitationHandler } from "./guest/AcceptRejectEventInvitationHandler";
 import { EventAuthorUpdateEventGuestHandler } from "./author/EventAuthorUpdateEventGuestHandler";
 import { EventAuthorInviteEventGuestHandler } from "./author/EventAuthorInviteEventGuestHandler";
@@ -53,6 +54,7 @@ export const EventServiceCommandHandlers = [
     AddEventGuestsToPartyCommandHandler,
     EventAuthorInviteEventGuestsHandler,
     DeleteFollowupMessageTemplateHandler,
+    InviteEventGuestsAfterPaymentHandler,
     AuthenticateShareFormPasscodeHandler,
     RemoveMultipleEventAuthorGuestsHandler,
     AuthenticateShareFormPasscodeWithEmailHandler,

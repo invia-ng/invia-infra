@@ -1,10 +1,9 @@
-import { Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 import { Inject } from '@nestjs/common';
 import {
-  PaymentGateway,
+  SubscriptionStatusEnum,
   SubscriptionIntervalEnum,
   SubscriptionItemLimitEnum,
-  SubscriptionStatusEnum,
 } from '@app/common/src/constants/enums';
 import {
   Subscription,
@@ -32,13 +31,14 @@ export class ProcessPremiumSubscriptionEventHandler implements IEventHandler<Pro
     @InjectRepository(SubscriptionPlan)
     private readonly subscriptionPlanRepository: Repository<SubscriptionPlan>,
     private subscriptionsEmailNotificationService: SubscriptionsEmailNotificationService,
-  ) {}
+  ) { }
 
   async handle(event: ProcessPremiumSubscriptionEvent) {
     try {
       this.logger.log(`[PROCESS-PREMIUM-SUBSCRIPTION-HANDLER-PROCESSING]`);
 
       const {
+        planId,
         amountPaid,
         customerEmail,
         isBankTransfer,
@@ -52,14 +52,9 @@ export class ProcessPremiumSubscriptionEventHandler implements IEventHandler<Pro
         },
       });
 
-      const premiumSubscriptionPlan =
-        await this.subscriptionPlanRepository.findOneBy({
-          position: 1,
-        });
-
-      if (!premiumSubscriptionPlan) {
-        throw new Error('Premium subscription plan not found.');
-      }
+      const subscriptionPlan = await this.subscriptionPlanRepository.findOneBy({
+        id: planId,
+      });
 
       const business = await this.businessRepository.findOne({
         where: {
@@ -69,66 +64,90 @@ export class ProcessPremiumSubscriptionEventHandler implements IEventHandler<Pro
         },
       });
 
+      const existingSubscriptionWithSameRef = await this.subscriptionRepository.findOne({
+        where: {
+          paymentReference,
+        },
+      });
+
+      if (existingSubscriptionWithSameRef) {
+        this.logger.log(
+          `[PROCESS-PREMIUM-SUBSCRIPTION-HANDLER-IGNORED] :: Subscription with payment reference ${paymentReference} already exists.`,
+        );
+        return;
+      }
+
       const subscriptionExists = await this.subscriptionRepository.findOne({
         where: {
           isExpired: false,
           business: {
             id: business.id,
           },
+          subscriptionDate: LessThan(new Date()),
         },
       });
 
       if (subscriptionExists) {
-        if (sendNotification) {
-          this.subscriptionsEmailNotificationService.premiumSubscriptionPaymentReceiptNotification(
-            {
-              recipientEmail: profile.email,
-              isBankTransfer: isBankTransfer,
-              paymentReference: paymentReference,
-              amount: premiumSubscriptionPlan.priceNGN.toString(),
-            },
-          );
-        }
-
-        throw new Error('Account already subscribed to premium.');
+        await this.subscriptionRepository.save({
+          isExpired: true,
+          ...subscriptionExists,
+        })
       }
 
       const duration =
-        premiumSubscriptionPlan.interval === SubscriptionIntervalEnum.MONTHLY
+        subscriptionPlan.interval === SubscriptionIntervalEnum.MONTHLY
           ? 30
           : 365;
 
       const expiration_date = calculateSubscriptionExpirationDate(duration, 0);
 
       await this.subscriptionRepository.save({
+        amountPaid: amountPaid / 100,
+        paymentReference,
         status: SubscriptionStatusEnum.ACTIVE,
         subscriptionDate: new Date(),
         expirationDate: expiration_date,
-        guestLimit: 300,
+        eventLimit: subscriptionPlan.name.includes('Pro') ? 3 : subscriptionPlan.name.includes('Studio') ? 5 : 3,
+        guestLimit: subscriptionPlan.name.includes('Pro') ? 500 : subscriptionPlan.name.includes('Studio') ? 1000 : 200,
         guestLimitStatus:
-        premiumSubscriptionPlan.interval === SubscriptionIntervalEnum.MONTHLY
-        ? SubscriptionItemLimitEnum.LIMITED
-        : SubscriptionItemLimitEnum.UNLIMITED,
-        eventLimit: 3,
-        eventLimitStatus: SubscriptionItemLimitEnum.UNLIMITED,
-        reusableMessageTemplates: true,
-        invitationCoverImage: true,
-        guestActivityTimeline: true,
-        advancedGuestActivityTimeline:
-          premiumSubscriptionPlan.interval === SubscriptionIntervalEnum.YEARLY
+          subscriptionPlan.name.includes('Pro')
+            ? SubscriptionItemLimitEnum.LIMITED : subscriptionPlan.name.includes('Studio')
+              ? SubscriptionItemLimitEnum.LIMITED
+              : SubscriptionItemLimitEnum.UNLIMITED,
+        eventLimitStatus: subscriptionPlan.name.includes('Pro')
+          ? SubscriptionItemLimitEnum.LIMITED : subscriptionPlan.name.includes('Studio')
+            ? SubscriptionItemLimitEnum.LIMITED
+            : SubscriptionItemLimitEnum.UNLIMITED,
+        reusableMessageTemplates: subscriptionPlan.name.includes('Pro')
+          ? true : subscriptionPlan.name.includes('Studio')
             ? true
             : false,
-        followupMessages: true,
+        invitationCoverImage: subscriptionPlan.name.includes('Pro')
+          ? true : subscriptionPlan.name.includes('Studio')
+            ? true
+            : false,
+        guestActivityTimeline: subscriptionPlan.name.includes('Pro')
+          ? true : subscriptionPlan.name.includes('Studio')
+            ? true
+            : false,
+        advancedGuestActivityTimeline:
+          subscriptionPlan.name.includes('Studio')
+            ? true
+            : false,
+        followupMessages: subscriptionPlan.name.includes('Pro')
+          ? true : subscriptionPlan.name.includes('Studio')
+            ? true
+            : false,
         manageTeamMembers:
-          premiumSubscriptionPlan.interval === SubscriptionIntervalEnum.YEARLY
+          subscriptionPlan.name.includes('Studio')
             ? true
             : false,
         secureGuestDataAccess:
-          premiumSubscriptionPlan.interval === SubscriptionIntervalEnum.YEARLY
+          subscriptionPlan.name.includes('Studio')
             ? true
             : false,
         flexibleDataExport:
-          premiumSubscriptionPlan.interval === SubscriptionIntervalEnum.YEARLY
+          subscriptionPlan.name.includes('Studio')
             ? true
             : false,
         isExpired: false,
@@ -143,7 +162,7 @@ export class ProcessPremiumSubscriptionEventHandler implements IEventHandler<Pro
             recipientEmail: profile.email,
             isBankTransfer: isBankTransfer,
             paymentReference: paymentReference,
-            amount: premiumSubscriptionPlan.priceNGN.toString(),
+            amount: subscriptionPlan.priceNGN.toString(),
           },
         );
       }

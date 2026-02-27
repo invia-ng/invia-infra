@@ -5,16 +5,17 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { createHash } from 'crypto';
-import { LessThanOrEqual, Repository } from 'typeorm';
 import { CreateEventCommand } from '../impl';
 import { InjectRepository } from '@nestjs/typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 import { CreateNewEventPartyEvent } from '../../events/impl';
+import { AccountRole, SubscriptionItemLimitEnum, SubscriptionStatusEnum } from '@app/common/src/constants/enums';
+import { Subscription } from '@app/common/src/models/subscription.model';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Event, EventInfo } from '@app/common/src/models/event.model';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
-import { AccountRole } from '@app/common/src/constants/enums';
 
 @CommandHandler(CreateEventCommand)
 export class CreateEventHandler implements ICommandHandler<
@@ -28,6 +29,8 @@ export class CreateEventHandler implements ICommandHandler<
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
   ) { }
 
   async execute(command: CreateEventCommand) {
@@ -69,8 +72,20 @@ export class CreateEventHandler implements ICommandHandler<
       });
 
       if (exists) {
-        throw new BadRequestException('An event with this namealready exists.');
+        throw new BadRequestException('An event with this name already exists.');
       }
+
+      const subscription = await this.subscriptionRepository.findOne({
+        where: {
+          business: { id: business.id },
+          status: SubscriptionStatusEnum.ACTIVE,
+          isExpired: false,
+        },
+      });
+
+      // Enforce active event limit based on subscription plan
+      // Both LIMITED and UNLIMITED statuses respect eventLimit — UNLIMITED plans simply have a higher limit value
+      const eventLimit = subscription?.eventLimit;
 
       const eventCount = await this.eventRepository.count({
         where: {
@@ -79,8 +94,10 @@ export class CreateEventHandler implements ICommandHandler<
         },
       });
 
-      if (eventCount >= 5) {
-        throw new BadRequestException('You can only have 5 active events at a time.');
+      if (eventCount >= eventLimit) {
+        throw new BadRequestException(
+          `Your current plan allows a maximum of ${eventLimit} active event(s). Please upgrade your subscription to create more events.`,
+        );
       }
 
       const hash = createHash('sha256')
@@ -104,6 +121,7 @@ export class CreateEventHandler implements ICommandHandler<
       this.logger.log(`[CREATE-EVENT-HANDLER-SUCCESS]`);
 
       return modelsFormatter.FormatEventInfo(event, 0, 0, 0, 0, 0, 0);
+
     } catch (error) {
       this.logger.log(`[CREATE-EVENT-HANDLER-ERROR] :: ${error}`);
 

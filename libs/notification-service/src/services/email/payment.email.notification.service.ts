@@ -7,10 +7,10 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Setting } from '@app/common/src/models/setting.model';
 import { AppLogger } from '@app/common/src/logger/logger.service';
 import { EmailSenderService } from 'libs/helper-service/src/services/email-sender.service';
-import { premium_subscription_payment_receipt_html_content } from '../../templates/subscription/premium_subscription_payment_receipt_email_template';
+import { event_invitation_payment_receipt_html_content } from '../../templates/payment/event_invitation_payment_receipt_email_template';
 
 @Injectable()
-export class SubscriptionsEmailNotificationService {
+export class PaymentEmailNotificationService {
   private adminSettings: Setting;
 
   constructor(
@@ -31,23 +31,23 @@ export class SubscriptionsEmailNotificationService {
     });
   }
 
-  async premiumSubscriptionPaymentReceiptNotification(payload: {
+  async eventInvitationPaymentReceiptNotification(payload: {
     amount: string;
+    eventName: string;
     recipientEmail: string;
-    isBankTransfer: boolean;
     paymentReference: string;
   }) {
     await this.initializeAdminSettings();
 
     try {
-      this.logger.log(`[PREMIUM-SUBSCRIPTION-PAYMENT-RECEIPT-NOTIFICATION-PROCESSING]`);
+      this.logger.log(`[EVENT-INVITATION-PAYMENT-RECEIPT-NOTIFICATION-PROCESSING]`);
 
-      const htmlContent = await premium_subscription_payment_receipt_html_content(
+      const htmlContent = await event_invitation_payment_receipt_html_content(
         {
           amount: payload.amount,
           paymentReference: payload.paymentReference,
           paymentDate: new Date().toString().slice(0, 10),
-          dashboardUrl: `${this.configService.get<string>('WEB_APP_URL')}/dashboard`,
+          eventName: payload.eventName,
         },
       );
 
@@ -58,7 +58,7 @@ export class SubscriptionsEmailNotificationService {
         return await this.gmailMailerService.sendMail({
           html: htmlContent,
           to: payload.recipientEmail,
-          subject: 'Payment Receipt',
+          subject: 'Event Invitation Payment Receipt',
           from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
         });
       } else if (
@@ -67,17 +67,17 @@ export class SubscriptionsEmailNotificationService {
       ) {
         return this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
-          sub: 'Payment Receipt',
+          sub: 'Event Invitation Payment Receipt',
           to_email: payload.recipientEmail,
         });
       }
 
-      this.logger.log(`[PREMIUM-SUBSCRIPTION-PAYMENT-RECEIPT-NOTIFICATION-SUCCESS]`);
+      this.logger.log(`[EVENT-INVITATION-PAYMENT-RECEIPT-NOTIFICATION-SUCCESS]`);
 
       return true;
     } catch (error) {
       this.logger.log(
-        `[PREMIUM-SUBSCRIPTION-PAYMENT-RECEIPT-NOTIFICATION-ERROR]: ${error}`,
+        `[EVENT-INVITATION-PAYMENT-RECEIPT-NOTIFICATION-ERROR]: ${error}`,
       );
 
       return false;

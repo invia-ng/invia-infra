@@ -14,6 +14,7 @@ import {
   FollowupConditionEnum,
   FollowupIntervalEnum,
 } from '../constants/enums';
+import { Business } from './business.model';
 
 @Entity()
 export class Invitation {
@@ -232,6 +233,64 @@ export class FollowupInvitation {
   })
   @JoinColumn({ name: 'invitation' })
   invitation: Invitation;
+
+  @CreateDateColumn({ nullable: true })
+  createdAt: Date;
+
+  @UpdateDateColumn({ nullable: true })
+  updatedAt: Date;
+}
+
+@Entity()
+export class InvitationPayment {
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+  })
+  id: number;
+
+  @Column({
+    default: 0,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Amount paid',
+    example: 10000,
+  })
+  amountPaid: number;
+
+  @Column({
+    default: '',
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    example: 'INV-1234567890',
+    description: 'Payment reference',
+  })
+  paymentReference: string;
+
+  @Column({
+    nullable: true,
+    type: 'timestamp',
+  })
+  @ApiPropertyOptional({
+    description: 'Followup date time',
+    example: '2025-12-30T21:55:28.000Z',
+  })
+  dateTime: Date;
+
+  @ManyToOne(() => Event, {
+    onDelete: 'SET NULL',
+    eager: true,
+  })
+  @JoinColumn({ name: 'event' })
+  event: Event;
+
+  @ManyToOne(() => Business, {
+    onDelete: 'SET NULL',
+    eager: true,
+  })
+  @JoinColumn({ name: 'business' })
+  business: Business;
 
   @CreateDateColumn({ nullable: true })
   createdAt: Date;

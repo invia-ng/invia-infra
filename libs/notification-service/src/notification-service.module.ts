@@ -18,6 +18,7 @@ import { AuthEmailNotificationService } from './services/email/auth.email.notifi
 import { AdminAlertEmailNotificationService } from './services/email/admin.alert.email.notification.service';
 import { SubscriptionsEmailNotificationService } from './services/email/subscriptions.email.notification.service';
 import { EventEmailNotificationService } from './services/email/event.email.notification.service';
+import { PaymentEmailNotificationService } from './services/email/payment.email.notification.service';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { EventEmailNotificationService } from './services/email/event.email.noti
     AccountNotificationService,
     AuthEmailNotificationService,
     EventEmailNotificationService,
+    PaymentEmailNotificationService,
     AdminAlertEmailNotificationService,
     SubscriptionsEmailNotificationService,
   ],

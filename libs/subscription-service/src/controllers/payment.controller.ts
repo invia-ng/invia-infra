@@ -8,15 +8,17 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ChargeResponse,
+  InvitationChargeResponse,
   VerifyPaymentSessionResponse,
 } from '../interface/schema';
 import { SecureUserPayload } from '@app/common/src/interface';
-import { Get, UseGuards, Controller, Query, Post } from '@nestjs/common';
+import { Get, UseGuards, Controller, Query, Post, Body } from '@nestjs/common';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
 import { SubscriptionService } from '../services/subscription.service';
-import { InitializePremiumSubscriptionPaymentCommand } from '../commands/impl';
-import { VerifyBankPaymentTransferQuery } from '../queries/impl';
+import { InitializePremiumSubscriptionPaymentCommand, ProcessInviteEventGuestsBillingCommand } from '../commands/impl';
+import { VerifyBankPaymentTransferQuery, VerifyInvitationPaymentTransferQuery } from '../queries/impl';
+import { ProcessInviteEventGuestsBillingDTO } from '../interface';
 
 @ApiTags('payment')
 @Controller({ path: 'payment' })
@@ -27,7 +29,7 @@ export class PaymentController {
     public queryBus: QueryBus,
     public commandBus: CommandBus,
     public readonly subscriptionService: SubscriptionService,
-  ) {}
+  ) { }
 
   @ApiTags('payment')
   @Get('verify-payment-transfer')
@@ -65,6 +67,48 @@ export class PaymentController {
   ): Promise<ChargeResponse[]> {
     return await this.commandBus.execute(
       new InitializePremiumSubscriptionPaymentCommand(planId, secureUser),
+    );
+  }
+
+
+  @ApiTags('payment')
+  @Get('verify-invitation-transfer')
+  @ApiOkResponse({
+    type: VerifyPaymentSessionResponse,
+  })
+  @ApiQuery({
+    type: String,
+    name: 'paymentReference',
+    example: 'INVIA_INVITE-25032903CE',
+  })
+  @ApiInternalServerErrorResponse()
+  @UseGuards(JwtAuthGuard)
+  async verifyInvitationPaymentTransfer(
+    @SecureUser() user: SecureUserPayload,
+    @Query('paymentReference') paymentReference: string,
+  ): Promise<VerifyPaymentSessionResponse> {
+    return await this.queryBus.execute(
+      new VerifyInvitationPaymentTransferQuery(paymentReference, user),
+    );
+  }
+
+  @Post('initialize-invitation-payment')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'eventId',
+    description: 'Event Primary ID',
+  })
+  @ApiOkResponse({ type: InvitationChargeResponse })
+  @ApiInternalServerErrorResponse()
+  async processInviteEventGuestsBilling(
+    @Query('eventId') eventId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+    @Body() body: ProcessInviteEventGuestsBillingDTO,
+  ): Promise<InvitationChargeResponse> {
+    return await this.commandBus.execute(
+      new ProcessInviteEventGuestsBillingCommand(eventId, secureUser, body),
     );
   }
 }

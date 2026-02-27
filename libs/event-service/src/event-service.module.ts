@@ -4,16 +4,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   Invitation,
   FollowupInvitation,
+  InvitationPayment,
 } from '@app/common/src/models/invitation.model';
 import { DocumentBuilder } from '@nestjs/swagger';
 import { EventServiceCronHandlers } from './jobs';
 import { EventService } from './services/event.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventServiceEventHandlers } from './events/handlers';
 import { Setting } from '@app/common/src/models/setting.model';
 import { Account } from 'libs/common/src/models/account.model';
-import { EventServiceEventHandlers } from './events/handlers';
-import { setupSwaggerDocument } from '../../common/src/swagger';
+import { Billing } from '@app/common/src/models/billing.model';
 import { EventServiceQueryHandlers } from './queries/handlers';
+import { setupSwaggerDocument } from '../../common/src/swagger';
 import { Business } from '@app/common/src/models/business.model';
 import { EventController } from './controllers/event.controller';
 import { EventServiceCommandHandlers } from './commands/handlers';
@@ -32,6 +34,7 @@ import { HelperServiceModule } from '@app/helper-service/src/helper-service.modu
 import { EmailSenderService } from '@app/helper-service/src/services/email-sender.service';
 import { FollowupMessageTemplate, MessageTemplate } from '@app/common/src/models/message.template.model';
 import { EventEmailNotificationService } from '@app/notification-service/src/services/email/event.email.notification.service';
+import { PaymentEmailNotificationService } from '@app/notification-service/src/services/email/payment.email.notification.service';
 
 @Module({
   imports: [
@@ -44,6 +47,7 @@ import { EventEmailNotificationService } from '@app/notification-service/src/ser
       Guest,
       Account,
       Setting,
+      Billing,
       Business,
       EventParty,
       Invitation,
@@ -51,6 +55,7 @@ import { EventEmailNotificationService } from '@app/notification-service/src/ser
       Subscription,
       GuestTimeline,
       MessageTemplate,
+      InvitationPayment,
       FollowupInvitation,
       FollowupMessageTemplate,
     ]),
@@ -71,6 +76,7 @@ import { EventEmailNotificationService } from '@app/notification-service/src/ser
     },
     EmailSenderService,
     EventEmailNotificationService,
+    PaymentEmailNotificationService,
     ...EventServiceCronHandlers,
     ...EventServiceQueryHandlers,
     ...EventServiceEventHandlers,

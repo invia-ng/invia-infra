@@ -47,7 +47,7 @@ import {
   SubscriptionPlanFeatureInfo,
   SubscriptionPlanInfo,
 } from '../models/subscription.model';
-import { ChargeResponse } from '@app/subscription-service/src/interface/schema';
+import { ChargeResponse, ChargeResponseData, InvitationChargeResponse } from '@app/subscription-service/src/interface/schema';
 import { formatTo12HourTime, formatToCustomDate } from '../utils/date.utils';
 import { Invitation } from '../models/invitation.model';
 import { maskEmailAddress, maskPhoneNumber } from '../utils/string.utils';
@@ -442,6 +442,36 @@ export function FormatPaystackChargeResponse(
   } as ChargeResponse;
 }
 
+export function FormatInvitationChargeResponse(
+  response: any,
+  amount: number,
+  emailCharge: number,
+  whatsAppCharge: number,
+  discount: number,
+): InvitationChargeResponse {
+  return {
+    status: response.status,
+    message: response.message,
+    data: {
+      reference: response.data.reference,
+      status: response.data.status,
+      amount: amount,
+      display_text: response.data.display_text,
+      account_name: response.data.account_name,
+      account_number: response.data.account_number,
+      bank: {
+        slug: response.data.bank.slug,
+        name: response.data.bank.name,
+        id: response.data.bank.id,
+      },
+      account_expires_at: response.data.account_expires_at,
+    } as ChargeResponseData,
+    emailCharge: emailCharge,
+    whatsAppCharge: whatsAppCharge,
+    discount: discount,
+  } as InvitationChargeResponse;
+}
+
 export function FormatSubscriptionInfo(
   subscription: Subscription,
 ): SubscriptionInfo {
@@ -582,6 +612,7 @@ export default {
   FormatPaystackChargeResponse,
   FormatBusinessMemberRoleInfo,
   FormatMessageTemplateEnumInfo,
+  FormatInvitationChargeResponse,
   FormatGuestTimelineActionEnumInfo,
   FormatMessageFollowupIntervalInfo,
   FormatMessageFollowupConditionInfo,

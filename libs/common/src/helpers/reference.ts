@@ -1,12 +1,17 @@
 type TransactionReferenceTypes =
-  | 'premium_subscription';
+  | 'premium_subscription' | 'invite_guests_billing';
 
 function makeTransactionReference(source: TransactionReferenceTypes): string {
   const PREMIUM_PREFIX = 'INVIA_PREM';
+  const INVITE_GUESTS_BILLING_PREFIX = 'INVIA_INVITE';
   const timestamp = getTimeStampID();
 
   if (source === 'premium_subscription') {
     return `${PREMIUM_PREFIX}-${timestamp}`;
+  }
+
+  if (source === 'invite_guests_billing') {
+    return `${INVITE_GUESTS_BILLING_PREFIX}-${timestamp}`;
   }
 
   return `${PREMIUM_PREFIX}-${timestamp}`; // default fallback
@@ -33,6 +38,10 @@ function parseTransactionReferenceType(
 ): TransactionReferenceTypes {
   if (reference.includes('INVIA_PREM')) {
     return 'premium_subscription';
+  }
+
+  if (reference.includes('INVIA_INVITE')) {
+    return 'invite_guests_billing';
   }
 
   return 'premium_subscription'; // default fallback

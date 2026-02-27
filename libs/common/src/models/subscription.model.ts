@@ -308,6 +308,42 @@ export class Subscription {
   })
   isExpired: boolean;
 
+  @Column({
+    default: false,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Smart Invitations Enabled',
+  })
+  isSmartInvitationEnabled: boolean;
+
+  @Column({
+    default: 0,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Discount Percentage',
+  })
+  discountPercentage: number;
+
+  @Column({
+    default: 0,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Amount Paid',
+  })
+  amountPaid: number;
+
+  @Column({
+    default: '',
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Payment Reference',
+  })
+  paymentReference: string;
+
   @ManyToOne(() => SubscriptionPlan, { eager: true })
   @JoinColumn({ name: 'planId' })
   plan: SubscriptionPlan;

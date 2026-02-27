@@ -10,9 +10,9 @@ import {
 } from '@app/common/src/constants/enums';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
+import { Subscription } from '@app/common/src/models/subscription.model';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
-import { Subscription } from '@app/common/src/models/subscription.model';
 
 @CommandHandler(InitializeBusinessProfileCommand)
 export class InitializeBusinessProfileHandler implements ICommandHandler<
@@ -27,7 +27,7 @@ export class InitializeBusinessProfileHandler implements ICommandHandler<
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(Subscription)
     private readonly subscriptionRepository: Repository<Subscription>,
-  ) {}
+  ) { }
 
   async execute(command: InitializeBusinessProfileCommand) {
     try {
@@ -68,8 +68,8 @@ export class InitializeBusinessProfileHandler implements ICommandHandler<
         status: SubscriptionStatusEnum.DEFAULT,
         subscriptionDate: new Date(),
         expirationDate: new Date(),
-        eventLimit: 2,
-        guestLimit: 50,
+        eventLimit: 3,
+        guestLimit: 200,
         guestLimitStatus: SubscriptionItemLimitEnum.LIMITED,
         eventLimitStatus: SubscriptionItemLimitEnum.LIMITED,
         reusableMessageTemplates: false,
@@ -81,6 +81,8 @@ export class InitializeBusinessProfileHandler implements ICommandHandler<
         secureGuestDataAccess: false,
         flexibleDataExport: false,
         isExpired: false,
+        isSmartInvitationEnabled: false,
+        discountPercentage: 0,
       });
 
       await this.subscriptionRepository.save(_instance);
