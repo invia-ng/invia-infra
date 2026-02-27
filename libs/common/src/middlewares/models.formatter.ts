@@ -448,6 +448,8 @@ export function FormatInvitationChargeResponse(
   emailCharge: number,
   whatsAppCharge: number,
   discount: number,
+  emailDiscount: number,
+  whatsAppDiscount: number,
 ): InvitationChargeResponse {
   return {
     status: response.status,
@@ -469,6 +471,8 @@ export function FormatInvitationChargeResponse(
     emailCharge: emailCharge,
     whatsAppCharge: whatsAppCharge,
     discount: discount,
+    emailDiscount,
+    whatsAppDiscount
   } as InvitationChargeResponse;
 }
 

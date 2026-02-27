@@ -82,10 +82,15 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
             let guestEmailCharge = 0;
             let guestWhatsappCharge = 0;
 
-            if (payload.sendEmailInvite) guestEmailCharge += Number(billing?.pricePerEmail || 0);
-            if (payload.sendWhatsAppInvite) guestWhatsappCharge += Number(billing?.pricePerWhatsappMessage || 0);
+            const emailDiscount = Number(billing?.emailDiscount || 0);
+            const whatsappDiscount = Number(billing?.whatsAppDiscount || 0);
+            const effectiveEmailPrice = Number(billing?.pricePerEmail || 0) * (1 - emailDiscount / 100);
+            const effectiveWhatsappPrice = Number(billing?.pricePerWhatsappMessage || 0) * (1 - whatsappDiscount / 100);
+
+            if (payload.sendEmailInvite) guestEmailCharge += effectiveEmailPrice;
+            if (payload.sendWhatsAppInvite) guestWhatsappCharge += effectiveWhatsappPrice;
             if (payload.followupInvitations && payload.followupInvitations.length > 0) {
-              guestEmailCharge += payload.followupInvitations.length * Number(billing?.pricePerEmail || 0);
+              guestEmailCharge += payload.followupInvitations.length * effectiveEmailPrice;
             }
 
             const guestCharge = guestEmailCharge + guestWhatsappCharge;
@@ -195,7 +200,7 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
           throw new Error('Failed to create payment session');
         }
 
-        return modelsFormatter.FormatInvitationChargeResponse(data, amountToCharge, totalEmailCharge, totalWhatsappCharge, 0);
+        return modelsFormatter.FormatInvitationChargeResponse(data, amountToCharge, totalEmailCharge, totalWhatsappCharge, 0, billing.emailDiscount, billing.whatsAppDiscount);
       }
 
       return {
@@ -208,6 +213,8 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         emailCharge: 0,
         whatsAppCharge: 0,
         discount: 0,
+        emailDiscount: 0,
+        whatsAppDiscount: 0,
       };
     } catch (error) {
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-ERROR] :: ${error}`);

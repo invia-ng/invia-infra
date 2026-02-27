@@ -143,4 +143,16 @@ export class InvitationChargeResponse {
     description: 'Discount amount',
   })
   discount: number
+
+  @ApiProperty({
+    example: 0,
+    description: 'Email Discount',
+  })
+  emailDiscount: number
+
+  @ApiProperty({
+    example: 0,
+    description: 'Whatsapp Discount',
+  })
+  whatsAppDiscount: number
 }

@@ -35,6 +35,26 @@ export class Billing {
   pricePerWhatsappMessage: number;
 
   @Column({
+    default: 0,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'Email Discount',
+  })
+  emailDiscount: number;
+
+  @Column({
+    default: 0,
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'Whatsapp Discount',
+  })
+  whatsAppDiscount: number;
+
+  @Column({
     default: false,
     nullable: true,
   })
