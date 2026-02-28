@@ -9,16 +9,16 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
+import { Subscription } from '@app/common/src/models/subscription.model';
 
 @CommandHandler(VerifyNewAccountEmailCommand)
 export class VerifyNewAccountEmailHandler
-  implements ICommandHandler<VerifyNewAccountEmailCommand, AccountInfo>
-{
+  implements ICommandHandler<VerifyNewAccountEmailCommand, AccountInfo> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
-  ) {}
+  ) { }
 
   async execute(command: VerifyNewAccountEmailCommand) {
     try {

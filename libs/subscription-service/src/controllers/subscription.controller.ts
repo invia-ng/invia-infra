@@ -33,7 +33,6 @@ import { SubscriptionService } from '../services/subscription.service';
 @ApiTags('subscription')
 @Controller({ path: '' })
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 export class SubscriptionController {
   constructor(
     public queryBus: QueryBus,
@@ -42,7 +41,7 @@ export class SubscriptionController {
   ) {}
 
   @Get('plans')
-  @ApiOkResponse({ type: SubscriptionInfo, isArray: true })
+  @ApiOkResponse({ type: SubscriptionPlanInfo, isArray: true })
   @ApiInternalServerErrorResponse()
   async fetchSubscriptionPlans(
     @SecureUser() secureUser: SecureUserPayload,
@@ -51,10 +50,11 @@ export class SubscriptionController {
       new FetchSubscriptionPlansQuery(secureUser),
     );
   }
-
+  
   @Get('plans/me')
   @ApiOkResponse({ type: SubscriptionInfo })
   @ApiInternalServerErrorResponse()
+  @UseGuards(JwtAuthGuard)
   async fetchBusinessSubscriptionInfo(
     @SecureUser() secureUser: SecureUserPayload,
   ): Promise<SubscriptionInfo[]> {

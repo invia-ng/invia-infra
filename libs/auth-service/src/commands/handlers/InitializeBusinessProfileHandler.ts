@@ -92,11 +92,11 @@ export class InitializeBusinessProfileHandler implements ICommandHandler<
         }),
       });
 
-      await this.subscriptionRepository.save(_instance);
+      const subscription = await this.subscriptionRepository.save(_instance);
 
       this.logger.log(`[INITIALIZE-ACCOUNT-HANDLER-SUCCESS]`);
 
-      return modelsFormatter.FormatAccountInfo(account);
+      return modelsFormatter.FormatAccountInfo(account, subscription);
     } catch (error) {
       this.logger.log(`[INITIALIZE-ACCOUNT-HANDLER-ERROR] :: ${error}`);
       console.log(error);

@@ -375,10 +375,10 @@ export class SubscriptionPlanFeatureInfo {
 
 export class SubscriptionPlanInfo {
   @ApiProperty({
-    example: '1',
+    example: 1,
     description: 'Plan ID',
   })
-  id: string;
+  id: number;
 
   @ApiProperty({
     example: 'Pro',
@@ -441,6 +441,18 @@ export class SubscriptionInfo {
     description: 'Subscription ID',
   })
   id: string;
+
+  @ApiProperty({
+    example: 'Pro',
+    description: 'Subscription plan name',
+  })
+  plan: string;
+
+  @ApiProperty({
+    example: 1,
+    description: 'Subscription plan ID',
+  })
+  planId: number;
 
   @ApiProperty({
     example: 'active',

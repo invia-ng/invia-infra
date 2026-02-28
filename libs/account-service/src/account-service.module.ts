@@ -19,6 +19,7 @@ import { AccountController } from './controllers/account.controller';
 import { Invitation } from '@app/common/src/models/invitation.model';
 import { GetSystemJWTModule } from 'libs/common/src/middlewares/config';
 import { Notification } from '@app/common/src/models/notification.model';
+import { Subscription } from '@app/common/src/models/subscription.model';
 import { AuthService } from '@app/auth-service/src/services/auth.service';
 import { MessageTemplate } from '@app/common/src/models/message.template.model';
 import { ManageMemberController } from './controllers/manage.member.controller';
@@ -27,10 +28,8 @@ import { ManageBusinessController } from './controllers/manage.business.controll
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
 import { SupportService } from '@app/notification-service/src/services/support.service';
 import { EmailSenderService } from '@app/helper-service/src/services/email-sender.service';
-import { SupportController } from '@app/notification-service/src/controllers/support.controller';
 import { FileUploadController } from '@app/helper-service/src/controllers/file-upload.controller';
 import { AccountNotificationService } from '@app/notification-service/src/services/account.notification.service';
-import { AccountNotificationController } from '@app/notification-service/src/controllers/account.notification.controller';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
 
 @Module({
@@ -39,7 +38,7 @@ import { AuthEmailNotificationService } from '@app/notification-service/src/serv
     ConfigModule,
     HelperServiceModule,
     GetSystemJWTModule(),
-    TypeOrmModule.forFeature([Account, Setting, Business, Notification, Event, Guest, Invitation, MessageTemplate]),
+    TypeOrmModule.forFeature([Account, Setting, Business, Notification, Event, Guest, Invitation, MessageTemplate, Subscription]),
   ],
   controllers: [
     AccountController,

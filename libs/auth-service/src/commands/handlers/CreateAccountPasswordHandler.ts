@@ -1,29 +1,26 @@
-import { NewAccountInfo } from '../../interface';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateAccountPasswordCommand } from '../impl';
-import { AuthService } from '../../services/auth.service';
 import { Inject, NotFoundException } from '@nestjs/common';
 import authUtils from '@app/common/src/security/auth.utils';
-import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { AccountStatus } from '@app/common/src/constants/enums';
+import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
-import { AccountStatus } from '@app/common/src/constants/enums';
 
 @CommandHandler(CreateAccountPasswordCommand)
 export class CreateAccountPasswordHandler
   implements
-    ICommandHandler<
-      CreateAccountPasswordCommand,
-      AccountInfo
-    >
-{
+  ICommandHandler<
+    CreateAccountPasswordCommand,
+    AccountInfo
+  > {
   constructor(
     @InjectRepository(Account)
     private readonly userRepository: Repository<Account>,
     @Inject('Logger') private readonly logger: AppLogger,
-  ) {}
+  ) { }
 
   async execute(command: CreateAccountPasswordCommand) {
     try {

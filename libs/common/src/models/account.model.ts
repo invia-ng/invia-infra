@@ -244,6 +244,9 @@ export class AccountInfo {
 
   @ApiProperty({ example: false })
   isBusinessProfileUpdated: boolean;
+
+  @ApiProperty({ example: 'Pro' })
+  subscriptionPlan: string;
 }
 
 export class BusinessMemberInfo {

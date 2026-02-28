@@ -67,7 +67,7 @@ export function FormatNotification(
   } as unknown as NotificationInfo;
 }
 
-export function FormatAccountInfo(account: Account): AccountInfo {
+export function FormatAccountInfo(account: Account, subscription?: Subscription | null): AccountInfo {
   return {
     id: account.id.toString(),
     name: account.name,
@@ -78,9 +78,9 @@ export function FormatAccountInfo(account: Account): AccountInfo {
     role: account.role,
     status: account.status,
     isAccountDisabled: account.isAccountDisabled,
-    // businessAvatar: account.businessAvatar,
     isPasswordUpdated: account.isPasswordUpdated,
     isBusinessProfileUpdated: account.isBusinessProfileUpdated,
+    subscriptionPlan: subscription ? subscription.plan.name : 'Pay As You Go',
   } as unknown as AccountInfo;
 }
 
@@ -403,7 +403,7 @@ export function FormatSubscriptionPlanInfo(
 ): SubscriptionPlanInfo {
   return {
     name: plan.name,
-    id: plan.id.toString(),
+    id: plan.id,
     position: plan.position,
     priceNGN: plan.priceNGN,
     priceUSD: plan.priceUSD,
@@ -481,6 +481,8 @@ export function FormatSubscriptionInfo(
 ): SubscriptionInfo {
   return {
     id: subscription.id.toString(),
+    plan: subscription.plan.name,
+    planId: subscription.plan.id,
     status: subscription.status,
     subscriptionDate: subscription.subscriptionDate,
     expirationDate: subscription.expirationDate,

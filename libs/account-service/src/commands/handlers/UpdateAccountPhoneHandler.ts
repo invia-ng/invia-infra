@@ -11,16 +11,18 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
+import { Subscription } from '@app/common/src/models/subscription.model';
 
 @CommandHandler(UpdateAccountPhoneCommand)
 export class UpdateAccountPhoneHandler
-  implements ICommandHandler<UpdateAccountPhoneCommand, AccountInfo>
-{
+  implements ICommandHandler<UpdateAccountPhoneCommand, AccountInfo> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
-  ) {}
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
+  ) { }
 
   async execute(command: UpdateAccountPhoneCommand) {
     try {
@@ -44,9 +46,20 @@ export class UpdateAccountPhoneHandler
 
       await this.accountRepository.save(account);
 
+      const subscription = await this.subscriptionRepository.findOne({
+        where: {
+          isExpired: false,
+          business: {
+            account: {
+              id: account.id
+            }
+          }
+        }
+      });
+
       this.logger.log(`[UPDATE-ACCOUNT-PHONE-HANDLER-SUCCESS]`);
 
-      return modelsFormatter.FormatAccountInfo(account);
+      return modelsFormatter.FormatAccountInfo(account, subscription);
     } catch (error) {
       this.logger.log(`[UPDATE-ACCOUNT-PHONE-HANDLER-ERROR] :: ${error}`);
 

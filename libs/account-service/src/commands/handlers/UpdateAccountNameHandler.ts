@@ -10,16 +10,18 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from 'libs/common/src/middlewares/models.formatter';
 import { Account, AccountInfo } from 'libs/common/src/models/account.model';
+import { Subscription } from '@app/common/src/models/subscription.model';
 
 @CommandHandler(UpdateAccountNameCommand)
 export class UpdateAccountNameHandler
-  implements ICommandHandler<UpdateAccountNameCommand, AccountInfo>
-{
+  implements ICommandHandler<UpdateAccountNameCommand, AccountInfo> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
-  ) {}
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
+  ) { }
 
   async execute(command: UpdateAccountNameCommand) {
     try {
@@ -43,9 +45,20 @@ export class UpdateAccountNameHandler
 
       await this.accountRepository.save(account);
 
+      const subscription = await this.subscriptionRepository.findOne({
+        where: {
+          isExpired: false,
+          business: {
+            account: {
+              id: account.id
+            }
+          }
+        }
+      });
+
       this.logger.log(`[UPDATE-ACCOUNT-NAME-HANDLER-SUCCESS]`);
 
-      return modelsFormatter.FormatAccountInfo(account);
+      return modelsFormatter.FormatAccountInfo(account, subscription);
     } catch (error) {
       this.logger.log(`[UPDATE-ACCOUNT-NAME-HANDLER-ERROR] :: ${error}`);
 
