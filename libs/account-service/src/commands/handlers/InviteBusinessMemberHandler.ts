@@ -3,13 +3,13 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InviteBusinessMemberCommand } from '../impl';
 import { ForbiddenException, Inject } from '@nestjs/common';
-import { Account, BusinessMemberInfo } from 'libs/common/src/models/account.model';
+import { AccountRole } from '@app/common/src/constants/enums';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
-import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
-import { AccountRole } from '@app/common/src/constants/enums';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
+import { Account, BusinessMemberInfo } from 'libs/common/src/models/account.model';
+import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
 
 @CommandHandler(InviteBusinessMemberCommand)
 export class InviteBusinessMemberHandler implements ICommandHandler<InviteBusinessMemberCommand, BusinessMemberInfo> {
@@ -72,7 +72,10 @@ export class InviteBusinessMemberHandler implements ICommandHandler<InviteBusine
       await this.accountRepository.save(account);
 
       this.AuthEmailNotificationService.inviteBusinessMemberEmailNotification(
-        account,
+        {
+          account,
+          business,
+        },
       );
 
       this.logger.log(`[INVITE-BUSINESS-MEMBER-HANDLER-SUCCESS]`);

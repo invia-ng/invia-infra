@@ -40,7 +40,7 @@ export class AuthEmailNotificationService {
     });
   }
 
-  async inviteBusinessMemberEmailNotification(account: Account) {
+  async inviteBusinessMemberEmailNotification(payload: { account: Account, business: Business }) {
     await this.initializeAdminSettings();
 
     try {
@@ -48,10 +48,10 @@ export class AuthEmailNotificationService {
 
 
       const htmlContent = await invite_business_member_email_html_content({
-        businessName: account.business.name,
+        businessName: payload.business.name,
         activationLink: this.configService
           .get<string>('WEB_APP_URL')
-          .concat(`/invitations?invitationHash=${account.invitationHash}`),
+          .concat(`/invitations?invitationHash=${payload.account.invitationHash}`),
       });
 
       if (
@@ -60,8 +60,8 @@ export class AuthEmailNotificationService {
       ) {
         return await this.gmailMailerService.sendMail({
           html: htmlContent,
-          to: account.email,
-          subject: `Invitation To Join ${account.business.name}`,
+          to: payload.account.email,
+          subject: `Invitation To Join ${payload.business.name}`,
           from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
         });
       } else if (
@@ -70,8 +70,8 @@ export class AuthEmailNotificationService {
       ) {
         return this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
-          to_email: account.email,
-          sub: `Invitation To Join ${account.business.name}`,
+          to_email: payload.account.email,
+          sub: `Invitation To Join ${payload.business.name}`,
         });
       }
 

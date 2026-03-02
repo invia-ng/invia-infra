@@ -348,7 +348,7 @@ export class Subscription {
   @JoinColumn({ name: 'planId' })
   plan: SubscriptionPlan;
 
-  @ManyToOne(() => Business, (business) => business, { eager: true })
+  @ManyToOne(() => Business, (business) => business, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'business' })
   business: Business;
 
