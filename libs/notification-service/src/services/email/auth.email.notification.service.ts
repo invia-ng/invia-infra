@@ -51,7 +51,7 @@ export class AuthEmailNotificationService {
         businessName: payload.business.name,
         activationLink: this.configService
           .get<string>('WEB_APP_URL')
-          .concat(`/invitations?invitationHash=${payload.account.invitationHash}`),
+          .concat(`/invitations?invitationHash=${payload.account.invitationHash}&email=${payload.account.email}&businessId=${payload.business.name}&businessLogo=${payload.business.avatar}`),
       });
 
       if (
