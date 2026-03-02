@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InviteBusinessMemberCommand } from '../impl';
-import { ForbiddenException, Inject } from '@nestjs/common';
+import { ForbiddenException, Inject, NotFoundException } from '@nestjs/common';
 import { AccountRole } from '@app/common/src/constants/enums';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
@@ -51,8 +51,15 @@ export class InviteBusinessMemberHandler implements ICommandHandler<InviteBusine
           members: {
             id: secureUser.id,
           },
+          account: {
+            id: secureUser.id,
+          }
         },
       });
+
+      if (!business) {
+        throw new NotFoundException('Business not found.');
+      }
 
       const _payload = {
         role: payload.role,
