@@ -47,14 +47,18 @@ export class InviteBusinessMemberHandler implements ICommandHandler<InviteBusine
       }
 
       const business = await this.businessRepository.findOne({
-        where: {
-          members: {
-            id: secureUser.id,
+        where: [
+          {
+            members: {
+              id: secureUser.id,
+            },
           },
-          account: {
-            id: secureUser.id,
-          }
-        },
+          {
+            account: {
+              id: secureUser.id,
+            },
+          },
+        ],
       });
 
       if (!business) {
