@@ -256,10 +256,10 @@ export class BusinessMemberInfo {
   @ApiProperty({ example: 'Ibrahim' })
   name: string;
 
-  @ApiProperty({ example: '8054618649' })
+  @ApiProperty({ example: '+2348054618649' })
   phoneNumber: string;
 
-  @ApiProperty({ example: 'gibrahim@yopmail.com' })
+  @ApiProperty({ example: 'gibrahim@gmail.com' })
   email: string;
 
   @ApiProperty({ example: 'MEMBER', enum: AccountRole })

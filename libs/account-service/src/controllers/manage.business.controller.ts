@@ -34,6 +34,7 @@ import {
   UpdateBusinessEmailCommand,
   VerifyNewBusinessEmailCommand,
   UpdateBusinessPhoneCommand,
+  UpdateBusinessMemberRoleCommand,
 } from '../commands/impl';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -48,6 +49,7 @@ import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { BusinessInfo } from '@app/common/src/models/business.model';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
 import { BusinessMemberRoleInfo } from '../interface/schema';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 @ApiTags('manage-business-info')
 @Controller({ path: 'manage-business' })
@@ -100,6 +102,33 @@ export class ManageBusinessController {
   ): Promise<BusinessMemberInfo> {
     return await this.command.execute(
       new InviteBusinessMemberCommand(body, secureUser),
+    );
+  }
+
+  @Patch('members/update-role')
+  @ApiQuery({
+    name: 'role',
+    required: true,
+    enum: AccountRole,
+    description: 'Account Role',
+    example: AccountRole.MEMBER,
+  })
+  @ApiQuery({
+    example: 5,
+    type: Number,
+    required: true,
+    name: 'memberId',
+    description: 'Business Member ID',
+  })
+  @ApiOkResponse({ type: BusinessMemberInfo })
+  @ApiInternalServerErrorResponse()
+  async updateBusinessMemberRole(
+    @Query('role') role: AccountRole,
+    @Query('memberId') accountId: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<BusinessMemberInfo> {
+    return await this.command.execute(
+      new UpdateBusinessMemberRoleCommand(accountId, role, secureUser),
     );
   }
 

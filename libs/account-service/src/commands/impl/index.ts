@@ -11,6 +11,7 @@ import {
   InviteBusinessMemberDTO,
   AcceptBusinessInvitationDTO,
 } from '../../interface';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 export class UpdateAccountFCMTokenCommand {
   constructor(
@@ -113,6 +114,14 @@ export class UpdateAccountPhoneCommand {
 export class InviteBusinessMemberCommand {
   constructor(
     public readonly payload: InviteBusinessMemberDTO,
+    public readonly secureUser: SecureUserPayload,
+  ) {}
+}
+
+export class UpdateBusinessMemberRoleCommand {
+  constructor(
+    public readonly member: number,
+    public readonly role: AccountRole,
     public readonly secureUser: SecureUserPayload,
   ) {}
 }

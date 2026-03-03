@@ -12,6 +12,7 @@ import { UpdateAccountPasswordHandler } from './UpdateAccountPasswordHandler';
 import { VerifyNewAccountEmailHandler } from './VerifyNewAccountEmailHandler';
 import { VerifyNewBusinessEmailHandler } from './VerifyNewBusinessEmailHandler';
 import { AcceptBusinessInvitationHandler } from './AcceptBusinessInvitationHandler';
+import { UpdateBusinessMemberRoleHandler } from './UpdateBusinessMemberRoleHandler';
 import { UpdateBusinessProfileImageHandler } from './UpdateBusinessProfileImageHandler';
 import { DeleteBusinessProfileImageHandler } from './DeleteBusinessProfileImageHandler';
 
@@ -29,6 +30,7 @@ export const AccountServiceCommandHandlers = [
   UpdateAccountPasswordHandler,
   VerifyNewAccountEmailHandler,
   VerifyNewBusinessEmailHandler,
+  UpdateBusinessMemberRoleHandler,
   AcceptBusinessInvitationHandler,
   DeleteBusinessProfileImageHandler,
   UpdateBusinessProfileImageHandler,
