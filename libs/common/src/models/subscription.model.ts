@@ -540,4 +540,10 @@ export class SubscriptionInfo {
     description: 'Flexible Data Export',
   })
   isExpired: boolean;
+
+  @ApiProperty({
+    example: 'Renew plan. Your plan has expired. Renew now to regain full access to your account and features.',
+    description: 'Renew plan. Your plan has expired. Renew now to regain full access to your account and features.',
+  })
+  expirationInfo: string;
 }

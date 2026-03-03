@@ -15,30 +15,11 @@ import {
   EventPartyInfo,
 } from '../models/event.model';
 import {
-  FollowupMessageTemplate,
-  FollowupMessageTemplateInfo,
-  MessageTemplate,
-  MessageTemplateInfo,
-} from '../models/message.template.model';
-import {
-  GuestPartyInfo,
-  EventCategoryInfo,
-  MessageTemplateEnumInfo,
-  MessageTemplateFollowupIntervalInfo,
-  MessageTemplateFollowupConditionInfo,
-  EventGuestIdInfo,
-  GuestTimelineActionEnumInfo,
-} from '@app/event-service/src/interface/schema';
-import {
   Guest,
   GuestInfo,
   GuestTimeline,
   GuestTimelineInfo,
 } from '../models/guest.model';
-import { Account, AccountInfo, BusinessMemberInfo } from '../models/account.model';
-import { Business, BusinessInfo } from '../models/business.model';
-import { Notification, NotificationInfo } from '../models/notification.model';
-import { BusinessMemberRoleInfo } from '@app/account-service/src/interface/schema';
 import {
   Subscription,
   SubscriptionInfo,
@@ -47,10 +28,30 @@ import {
   SubscriptionPlanFeatureInfo,
   SubscriptionPlanInfo,
 } from '../models/subscription.model';
-import { ChargeResponse, ChargeResponseData, InvitationChargeResponse } from '@app/subscription-service/src/interface/schema';
-import { formatTo12HourTime, formatToCustomDate } from '../utils/date.utils';
+import {
+  MessageTemplate,
+  MessageTemplateInfo,
+  FollowupMessageTemplate,
+  FollowupMessageTemplateInfo,
+} from '../models/message.template.model';
+import {
+  GuestPartyInfo,
+  EventGuestIdInfo,
+  EventCategoryInfo,
+  MessageTemplateEnumInfo,
+  GuestTimelineActionEnumInfo,
+  MessageTemplateFollowupIntervalInfo,
+  MessageTemplateFollowupConditionInfo,
+} from '@app/event-service/src/interface/schema';
 import { Invitation } from '../models/invitation.model';
+import { Business, BusinessInfo } from '../models/business.model';
 import { maskEmailAddress, maskPhoneNumber } from '../utils/string.utils';
+import { generateSubscriptionExpirationInfo } from '../helpers/subscriptions';
+import { formatTo12HourTime, formatToCustomDate } from '../utils/date.utils';
+import { Notification, NotificationInfo } from '../models/notification.model';
+import { Account, AccountInfo, BusinessMemberInfo } from '../models/account.model';
+import { BusinessMemberRoleInfo } from '@app/account-service/src/interface/schema';
+import { ChargeResponse, ChargeResponseData, InvitationChargeResponse } from '@app/subscription-service/src/interface/schema';
 
 export function FormatNotification(
   notification: Notification,
@@ -499,6 +500,7 @@ export function FormatSubscriptionInfo(
     secureGuestDataAccess: subscription.secureGuestDataAccess,
     flexibleDataExport: subscription.flexibleDataExport,
     isExpired: subscription.isExpired,
+    expirationInfo: generateSubscriptionExpirationInfo(subscription.expirationDate),
   } as unknown as SubscriptionInfo;
 }
 

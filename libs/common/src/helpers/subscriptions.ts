@@ -25,3 +25,24 @@ export function calculateExpirationDateByYear(fromDate: Date): Date {
 
   return expirationDate;
 }
+
+export function generateSubscriptionExpirationInfo(expirationDate: Date): string {
+  if (isDateExpired(expirationDate)) {
+    return 'Renew plan. Your plan has expired. Renew now to regain full access to your account and features.';
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const expDate = new Date(expirationDate);
+  expDate.setHours(0, 0, 0, 0);
+
+  const diffTime = expDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 14) {
+    return `Renew plan. Your plan expires in ${diffDays} day${diffDays === 1 ? '' : 's'}. Renew to avoid losing access.`;
+  }
+
+  return '';
+}
