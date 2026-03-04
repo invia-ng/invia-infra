@@ -1,11 +1,11 @@
 import { FetchSubscriptionPlansQueryHandler } from './FetchSubscriptionPlansQueryHandler';
-import { VerifyBankPaymentTransferQueryHandler } from './VerifyBankPaymentTransferQueryHandler';
 import { FetchBusinessSubscriptionInfoQueryHandler } from './FetchBusinessSubscriptionInfoQueryHandler';
 import { VerifyInvitationPaymentTransferQueryHandler } from './VerifyInvitationPaymentTransferQueryHandler';
+import { VerifyPremiumSubscriptionPaymentTransferQueryHandler } from './VerifyPremiumSubscriptionPaymentTransferQueryHandler';
 
 export const SubscriptionServiceQueryHandlers = [
   FetchSubscriptionPlansQueryHandler,
-  VerifyBankPaymentTransferQueryHandler,
   FetchBusinessSubscriptionInfoQueryHandler,
   VerifyInvitationPaymentTransferQueryHandler,
+  VerifyPremiumSubscriptionPaymentTransferQueryHandler,
 ];

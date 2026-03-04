@@ -5,20 +5,20 @@ import {
   ApiBearerAuth,
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ChargeResponse,
   InvitationChargeResponse,
   VerifyPaymentSessionResponse,
 } from '../interface/schema';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { SecureUserPayload } from '@app/common/src/interface';
-import { Get, UseGuards, Controller, Query, Post, Body } from '@nestjs/common';
+import { ProcessInviteEventGuestsBillingDTO } from '../interface';
 import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
 import { SubscriptionService } from '../services/subscription.service';
+import { Get, UseGuards, Controller, Query, Post, Body } from '@nestjs/common';
+import { VerifyPremiumSubscriptionPaymentTransferQuery, VerifyInvitationPaymentTransferQuery } from '../queries/impl';
 import { InitializePremiumSubscriptionPaymentCommand, ProcessInviteEventGuestsBillingCommand } from '../commands/impl';
-import { VerifyBankPaymentTransferQuery, VerifyInvitationPaymentTransferQuery } from '../queries/impl';
-import { ProcessInviteEventGuestsBillingDTO } from '../interface';
 
 @ApiTags('payment')
 @Controller({ path: 'payment' })
@@ -32,7 +32,7 @@ export class PaymentController {
   ) { }
 
   @ApiTags('payment')
-  @Get('verify-payment-transfer')
+  @Get('verify-premium-subscription-transfer')
   @ApiOkResponse({
     type: VerifyPaymentSessionResponse,
   })
@@ -48,7 +48,7 @@ export class PaymentController {
     @Query('paymentReference') paymentReference: string,
   ): Promise<VerifyPaymentSessionResponse> {
     return await this.queryBus.execute(
-      new VerifyBankPaymentTransferQuery(paymentReference, user),
+      new VerifyPremiumSubscriptionPaymentTransferQuery(paymentReference, user),
     );
   }
 

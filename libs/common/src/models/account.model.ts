@@ -94,10 +94,10 @@ export class Account {
   @Column({
     type: 'enum',
     enum: AccountRole,
-    default: AccountRole.ADMIN,
+    default: AccountRole.OWNER,
   })
   @ApiPropertyOptional({
-    example: AccountRole.ADMIN,
+    example: AccountRole.OWNER,
     description: 'User role',
   })
   role: AccountRole;

@@ -12,6 +12,7 @@ import { TransactionRefHelpers } from '@app/common/src/helpers/reference';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { SubscriptionPlan } from '@app/common/src/models/subscription.model';
 import { AdminAlertEmailNotificationService } from '@app/notification-service/src/services/email/admin.alert.email.notification.service';
+import { AccountRole } from '@app/common/src/constants/enums';
 
 @CommandHandler(InitializePremiumSubscriptionPaymentCommand)
 export class InitializePremiumSubscriptionPaymentHandler implements ICommandHandler<
@@ -24,7 +25,7 @@ export class InitializePremiumSubscriptionPaymentHandler implements ICommandHand
     @InjectRepository(SubscriptionPlan)
     private readonly subscriptionPlanRepository: Repository<SubscriptionPlan>,
     private readonly adminAlertEmailNotificationService: AdminAlertEmailNotificationService,
-  ) {}
+  ) { }
 
   async execute(command: InitializePremiumSubscriptionPaymentCommand) {
     const { planId, secureUser } = command;
@@ -33,6 +34,12 @@ export class InitializePremiumSubscriptionPaymentHandler implements ICommandHand
       this.logger.log(
         `[INITIALIZE-POST-PRODUCT-TRANSFER-SESSION-HANDLER-PROCESSING]`,
       );
+
+      if (secureUser.role !== AccountRole.OWNER) {
+        throw new UnauthorizedException(
+          'You do not have permission to initialize premium subscription payment.',
+        );
+      }
 
       const plan = await this.subscriptionPlanRepository.findOne({
         where: {
@@ -101,8 +108,8 @@ export class InitializePremiumSubscriptionPaymentHandler implements ICommandHand
       //     'PAYSTACK',
       //   );
 
-    //   throw error;
-    console.log('[ERROR]  ::  ', error);
+      //   throw error;
+      console.log('[ERROR]  ::  ', error);
     }
   }
 }

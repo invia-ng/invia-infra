@@ -11,13 +11,13 @@ export class FetchBusinessMemberRolesQueryHandler implements IQueryHandler<
   FetchBusinessMemberRolesQuery,
   BusinessMemberRoleInfo[]
 > {
-  constructor(@Inject('Logger') private readonly logger: AppLogger) {}
+  constructor(@Inject('Logger') private readonly logger: AppLogger) { }
 
   async execute(query: FetchBusinessMemberRolesQuery) {
     try {
       this.logger.log('[FETCH-BUSINESS-MEMBER-ROLES-PROCESSING]');
 
-      const roles = Object.values(AccountRole).filter((role) => role !== AccountRole.CUSTOMER);
+      const roles = Object.values(AccountRole).filter((role) => role !== AccountRole.CUSTOMER && role !== AccountRole.OWNER);
 
       this.logger.log('[FETCH-BUSINESS-MEMBER-ROLES-SUCCESS]');
 

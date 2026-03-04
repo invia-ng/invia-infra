@@ -65,6 +65,7 @@ export enum GuestPartyEnum {
 
 export enum AccountRole {
   ADMIN = 'ADMIN',
+  OWNER = 'OWNER',
   MEMBER = 'MEMBER',
   CUSTOMER = 'CUSTOMER',
 }

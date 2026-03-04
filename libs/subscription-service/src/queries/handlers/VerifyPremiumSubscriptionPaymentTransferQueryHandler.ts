@@ -1,15 +1,16 @@
 import axios from 'axios';
-import { VerifyBankPaymentTransferQuery } from '../impl';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { AccountRole } from '@app/common/src/constants/enums';
 import { PaymentService } from '../../services/payment.service';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { ProcessPremiumSubscriptionEvent } from '../../events/impl';
 import { QueryHandler, IQueryHandler, EventBus } from '@nestjs/cqrs';
 import { VerifyPaymentSessionResponse } from '../../interface/schema';
+import { VerifyPremiumSubscriptionPaymentTransferQuery } from '../impl';
+import { Inject, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
-@QueryHandler(VerifyBankPaymentTransferQuery)
-export class VerifyBankPaymentTransferQueryHandler implements IQueryHandler<
-  VerifyBankPaymentTransferQuery,
+@QueryHandler(VerifyPremiumSubscriptionPaymentTransferQuery)
+export class VerifyPremiumSubscriptionPaymentTransferQueryHandler implements IQueryHandler<
+  VerifyPremiumSubscriptionPaymentTransferQuery,
   VerifyPaymentSessionResponse
 > {
   constructor(
@@ -18,13 +19,19 @@ export class VerifyBankPaymentTransferQueryHandler implements IQueryHandler<
     @Inject('Logger') private readonly logger: AppLogger,
   ) { }
 
-  async execute(query: VerifyBankPaymentTransferQuery) {
+  async execute(query: VerifyPremiumSubscriptionPaymentTransferQuery) {
     try {
       const { paymentReference, secureUser } = query;
 
       this.logger.log(
         `[VERIFY-PREMIUM-SUBSCRIPTION-PAYMENT-TRANSFER-QUERY-HANDLER-PROCESSING]: ${JSON.stringify(query)}`,
       );
+
+      if (secureUser.role !== AccountRole.OWNER) {
+        throw new UnauthorizedException(
+          'You do not have permission to verify this payment.',
+        );
+      }
 
       const { data } = await axios.get(
         `https://api.paystack.co/charge/${paymentReference}`,

@@ -32,6 +32,10 @@ export class InviteBusinessMemberHandler implements ICommandHandler<InviteBusine
         throw new ForbiddenException(
           'You do not have permission to invite members.',
         );
+      } else if (secureUser.role === AccountRole.ADMIN && payload.role !== AccountRole.MEMBER) {
+        throw new ForbiddenException(
+          'You do not have permission to invite a user with an admin role.',
+        );
       }
 
       const accountExists = await this.accountRepository.findOne({

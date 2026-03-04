@@ -39,6 +39,18 @@ export class RemoveBusinessMemberHandler implements ICommandHandler<
         );
       }
 
+      const account = await this.accountRepository.findOne({
+        where: {
+          id: accountId,
+        },
+      });
+
+      if (secureUser.role === AccountRole.ADMIN && (account.role === AccountRole.OWNER || account.role === AccountRole.ADMIN)) {
+        throw new ForbiddenException(
+          'You do not have permission to remove the owner.',
+        );
+      }
+
       const business = await this.businessRepository.findOne({
         where: [
           {
