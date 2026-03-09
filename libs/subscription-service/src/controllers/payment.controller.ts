@@ -18,9 +18,9 @@ import { SecureUser } from '@app/common/src/decorator/user.decorator';
 import { SubscriptionService } from '../services/subscription.service';
 import { Get, UseGuards, Controller, Query, Post, Body } from '@nestjs/common';
 import { VerifyPremiumSubscriptionPaymentTransferQuery, VerifyInvitationPaymentTransferQuery } from '../queries/impl';
-import { InitializePremiumSubscriptionPaymentCommand, ProcessInviteEventGuestsBillingCommand } from '../commands/impl';
+import { InitializePremiumSubscriptionPaymentCommand, ProcessInviteEventGuestsBillingCommand, VerifyInvitationPaymentTransferCommand, VerifyPremiumSubscriptionPaymentTransferCommand } from '../commands/impl';
 
-@ApiTags('payment')
+@ApiTags('payment') 
 @Controller({ path: 'payment' })
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -32,7 +32,7 @@ export class PaymentController {
   ) { }
 
   @ApiTags('payment')
-  @Get('verify-premium-subscription-transfer')
+  @Post('verify-premium-subscription-transfer')
   @ApiOkResponse({
     type: VerifyPaymentSessionResponse,
   })
@@ -47,8 +47,8 @@ export class PaymentController {
     @SecureUser() user: SecureUserPayload,
     @Query('paymentReference') paymentReference: string,
   ): Promise<VerifyPaymentSessionResponse> {
-    return await this.queryBus.execute(
-      new VerifyPremiumSubscriptionPaymentTransferQuery(paymentReference, user),
+    return await this.commandBus.execute(
+      new VerifyPremiumSubscriptionPaymentTransferCommand(paymentReference, user),
     );
   }
 
@@ -72,7 +72,7 @@ export class PaymentController {
 
 
   @ApiTags('payment')
-  @Get('verify-invitation-transfer')
+  @Post('verify-invitation-transfer')
   @ApiOkResponse({
     type: VerifyPaymentSessionResponse,
   })
@@ -87,8 +87,8 @@ export class PaymentController {
     @SecureUser() user: SecureUserPayload,
     @Query('paymentReference') paymentReference: string,
   ): Promise<VerifyPaymentSessionResponse> {
-    return await this.queryBus.execute(
-      new VerifyInvitationPaymentTransferQuery(paymentReference, user),
+    return await this.commandBus.execute(
+      new VerifyInvitationPaymentTransferCommand(paymentReference, user),
     );
   }
 
