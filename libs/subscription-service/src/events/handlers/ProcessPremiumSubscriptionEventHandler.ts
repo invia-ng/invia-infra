@@ -89,8 +89,9 @@ export class ProcessPremiumSubscriptionEventHandler implements IEventHandler<Pro
 
       if (subscriptionExists) {
         await this.subscriptionRepository.save({
-          isExpired: true,
           ...subscriptionExists,
+          isExpired: true,
+          status: SubscriptionStatusEnum.EXPIRED,
         })
       }
 
@@ -107,6 +108,7 @@ export class ProcessPremiumSubscriptionEventHandler implements IEventHandler<Pro
         status: SubscriptionStatusEnum.ACTIVE,
         subscriptionDate: new Date(),
         expirationDate: expiration_date,
+        plan: subscriptionPlan,
         eventLimit: subscriptionPlan.name.includes('Pro') ? 3 : subscriptionPlan.name.includes('Studio') ? 5 : 3,
         guestLimit: subscriptionPlan.name.includes('Pro') ? 500 : subscriptionPlan.name.includes('Studio') ? 1000 : 200,
         guestLimitStatus:
