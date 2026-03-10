@@ -30,9 +30,14 @@ export class DeleteEventHandler implements ICommandHandler<
 
       const { eventId, secureUser } = command;
 
-      if (secureUser.role === AccountRole.MEMBER) {
-        throw new ForbiddenException(
-          'You do not have permission to delete events.',
+      // if (secureUser.role === AccountRole.MEMBER) {
+      //   throw new ForbiddenException(
+      //     'You do not have permission to delete events.',
+      //   );
+      // }
+      if (secureUser.role !== AccountRole.OWNER) {
+        throw new UnauthorizedException(
+          'Invalid request, you are not authorized to complete is action.',
         );
       }
 
@@ -44,12 +49,6 @@ export class DeleteEventHandler implements ICommandHandler<
 
       if (!event) {
         throw new NotFoundException('Event not found.');
-      }
-
-      if (secureUser.role !== AccountRole.ADMIN) {
-        throw new UnauthorizedException(
-          'Invalid request, you are not authorized to complete is action.',
-        );
       }
 
       await this.eventRepository.remove(event);

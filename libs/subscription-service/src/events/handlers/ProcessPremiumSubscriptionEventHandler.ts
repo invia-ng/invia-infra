@@ -83,7 +83,8 @@ export class ProcessPremiumSubscriptionEventHandler implements IEventHandler<Pro
           business: {
             id: business.id,
           },
-          subscriptionDate: LessThan(new Date()),
+          status: SubscriptionStatusEnum.ACTIVE,
+          // subscriptionDate: LessThan(new Date()),
         },
       });
 
