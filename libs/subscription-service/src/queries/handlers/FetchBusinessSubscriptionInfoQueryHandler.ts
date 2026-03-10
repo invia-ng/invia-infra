@@ -52,11 +52,12 @@ export class FetchBusinessSubscriptionInfoQueryHandler implements IQueryHandler<
 
       const subscription = await this.subscriptionRepository.findOne({
         where: {
-          status: Not(SubscriptionStatusEnum.DEFAULT),
+          isExpired: false,
+          status: SubscriptionStatusEnum.ACTIVE,
           business: {
             id: business.id,
           },
-          expirationDate: MoreThan(new Date()),
+          // expirationDate: MoreThan(new Date()),
         },
       });
 
