@@ -265,62 +265,65 @@ export class AuthEmailNotificationService {
     try {
       this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-PROCESSING]`);
 
-      switch (account.role) {
-        case AccountRole.ADMIN:
-          if (account.status === AccountStatus.ACTIVE) {
-            const htmlContent = await welcome_customer_email_html_content(
-              account.name,
-            );
+      if (account.status === AccountStatus.ACTIVE) {
+        const htmlContent = await welcome_customer_email_html_content(
+          account.name,
+        );
 
-            if (
-              this.adminSettings.isSMTPEnabled === true &&
-              this.adminSettings.isKibaMailEnabled === false
-            ) {
-              return await this.gmailMailerService.sendMail({
-                html: htmlContent,
-                to: account.email,
-                subject: 'Welcome to Invia!',
-                from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
-              });
-            } else if (
-              this.adminSettings.isKibaMailEnabled === true &&
-              this.adminSettings.isSMTPEnabled === false
-            ) {
-              return this.emailSenderService.sendEmailViaKibaAdmin({
-                html: htmlContent,
-                sub: 'Welcome to Invia!',
-                to_email: account.email,
-              });
-            }
-          } else if (account.status === AccountStatus.PENDING) {
-            const htmlContent = await email_verification_html_content(
-              account.name,
-              account.activationCode,
-            );
+        if (
+          this.adminSettings.isSMTPEnabled === true &&
+          this.adminSettings.isKibaMailEnabled === false
+        ) {
+          await this.gmailMailerService.sendMail({
+            html: htmlContent,
+            to: account.email,
+            subject: 'Welcome to Invia!',
+            from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+          });
 
-            if (
-              this.adminSettings.isSMTPEnabled === true &&
-              this.adminSettings.isKibaMailEnabled === false
-            ) {
-              return await this.gmailMailerService.sendMail({
-                html: htmlContent,
-                to: account.email,
-                subject: 'Email Verification',
-                from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
-              });
-            } else if (
-              this.adminSettings.isKibaMailEnabled === true &&
-              this.adminSettings.isSMTPEnabled === false
-            ) {
-              return this.emailSenderService.sendEmailViaKibaAdmin({
-                html: htmlContent,
-                sub: 'Email Verification',
-                to_email: account.email,
-              });
-            }
-          }
-        default:
-          return;
+          return this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-SUCCESS]`);
+        } else if (
+          this.adminSettings.isKibaMailEnabled === true &&
+          this.adminSettings.isSMTPEnabled === false
+        ) {
+          await this.emailSenderService.sendEmailViaKibaAdmin({
+            html: htmlContent,
+            sub: 'Welcome to Invia!',
+            to_email: account.email,
+          });
+
+          return this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-SUCCESS]`);
+        }
+      } else if (account.status === AccountStatus.PENDING) {
+        const htmlContent = await email_verification_html_content(
+          account.name,
+          account.activationCode,
+        );
+
+        if (
+          this.adminSettings.isSMTPEnabled === true &&
+          this.adminSettings.isKibaMailEnabled === false
+        ) {
+          await this.gmailMailerService.sendMail({
+            html: htmlContent,
+            to: account.email,
+            subject: 'Email Verification',
+            from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
+          });
+
+          return this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-SUCCESS]`);
+        } else if (
+          this.adminSettings.isKibaMailEnabled === true &&
+          this.adminSettings.isSMTPEnabled === false
+        ) {
+          await this.emailSenderService.sendEmailViaKibaAdmin({
+            html: htmlContent,
+            sub: 'Email Verification',
+            to_email: account.email,
+          });
+
+          return this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-SUCCESS]`);
+        }
       }
     } catch (error) {
       this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-ERROR]: ${error}`);
