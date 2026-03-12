@@ -129,3 +129,14 @@ export enum GuestTimelineActionEnum {
   GUEST_ADDED_BY_USER = 'GUEST_ADDED_BY_USER',
   GUEST_ADDED_VIA_FORM = 'GUEST_ADDED_VIA_FORM',
 }
+
+export enum InvitationStatusEnum {
+  SENT = 'SENT',
+  PENDING = 'PENDING',
+}
+
+export enum InvitationRSVPEnum {
+  AWAITING = 'AWAITING',
+  REJECTED = 'REJECTED',
+  CONFIRMED = 'CONFIRMED',
+}

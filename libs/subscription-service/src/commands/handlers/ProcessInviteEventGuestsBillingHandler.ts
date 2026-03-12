@@ -59,6 +59,9 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
       let amountToCharge = 0;
       let totalEmailCharge = 0;
       let totalWhatsappCharge = 0;
+      let emailCount = 0;
+      let whatsappCount = 0;
+      let hasPreviouslyInvitedGuests = false;
       const isPayAsYouGo = !subscription || subscription.plan?.name.includes('Pay as you go');
       const isProOrStudio = subscription && (subscription.plan?.name.includes('Pro') || subscription.plan?.name.includes('Studio'));
 
@@ -81,32 +84,48 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
 
             let guestEmailCharge = 0;
             let guestWhatsappCharge = 0;
+            let guestEmailCount = 0;
+            let guestWhatsappCount = 0;
 
             const emailDiscount = Number(billing?.emailDiscount || 0);
             const whatsappDiscount = Number(billing?.whatsAppDiscount || 0);
             const effectiveEmailPrice = Number(billing?.pricePerEmail || 0) * (1 - emailDiscount / 100);
             const effectiveWhatsappPrice = Number(billing?.pricePerWhatsappMessage || 0) * (1 - whatsappDiscount / 100);
 
-            if (payload.sendEmailInvite) guestEmailCharge += effectiveEmailPrice;
-            if (payload.sendWhatsAppInvite) guestWhatsappCharge += effectiveWhatsappPrice;
+            if (payload.sendEmailInvite) {
+              guestEmailCharge += effectiveEmailPrice;
+              guestEmailCount += 1;
+            }
+            if (payload.sendWhatsAppInvite) {
+              guestWhatsappCharge += effectiveWhatsappPrice;
+              guestWhatsappCount += 1;
+            }
             if (payload.followupInvitations && payload.followupInvitations.length > 0) {
               guestEmailCharge += payload.followupInvitations.length * effectiveEmailPrice;
+              guestEmailCount += payload.followupInvitations.length;
             }
 
             const guestCharge = guestEmailCharge + guestWhatsappCharge;
+
+            emailCount += guestEmailCount;
+            whatsappCount += guestWhatsappCount;
+
+            const hasBeenInvited = await this.invitationRepository.findOne({
+              where: {
+                event: { id: eventId },
+                guest: { id: guest.id },
+              },
+            });
+
+            if (hasBeenInvited) {
+              hasPreviouslyInvitedGuests = true;
+            }
 
             if (isPayAsYouGo) {
               amountToCharge += guestCharge;
               totalEmailCharge += guestEmailCharge;
               totalWhatsappCharge += guestWhatsappCharge;
             } else if (isProOrStudio) {
-              const hasBeenInvited = await this.invitationRepository.findOne({
-                where: {
-                  event: { id: eventId },
-                  guest: { id: guest.id },
-                },
-              });
-
               if (hasBeenInvited) {
                 amountToCharge += guestCharge;
                 totalEmailCharge += guestEmailCharge;
@@ -200,7 +219,18 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
           throw new Error('Failed to create payment session');
         }
 
-        return modelsFormatter.FormatInvitationChargeResponse(data, amountToCharge, totalEmailCharge, totalWhatsappCharge, 0, billing.emailDiscount, billing.whatsAppDiscount);
+        return modelsFormatter.FormatInvitationChargeResponse(
+          data, 
+          amountToCharge, 
+          totalEmailCharge, 
+          totalWhatsappCharge, 
+          0, 
+          billing.emailDiscount, 
+          billing.whatsAppDiscount,
+          emailCount,
+          whatsappCount,
+          hasPreviouslyInvitedGuests
+        );
       }
 
       return {
@@ -215,6 +245,9 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         discount: 0,
         emailDiscount: 0,
         whatsAppDiscount: 0,
+        emailCount,
+        whatsappCount,
+        hasPreviouslyInvitedGuests,
       };
     } catch (error) {
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-ERROR] :: ${error}`);

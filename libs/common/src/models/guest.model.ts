@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Event } from './event.model';
-import { GuestTimelineActionEnum } from '../constants/enums';
+import { GuestTimelineActionEnum, InvitationRSVPEnum, InvitationStatusEnum } from '../constants/enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 @Entity()
@@ -182,6 +182,12 @@ export class GuestInfo {
 
   @ApiProperty({ example: '+2348012345678' })
   phone: string;
+
+  @ApiProperty({ example: InvitationStatusEnum.PENDING })
+  invitationStatus: InvitationStatusEnum;
+
+  @ApiProperty({ example: InvitationRSVPEnum.AWAITING })
+  rsvpStatus: InvitationRSVPEnum;
 
   @ApiProperty({ example: false })
   isEmailInviteSent: boolean;

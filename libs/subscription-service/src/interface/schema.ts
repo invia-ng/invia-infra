@@ -119,25 +119,37 @@ export class InvitationChargeResponse {
     description: 'Message describing the result of the operation',
   })
   message: string;
-  
+
   @ApiProperty({
     type: ChargeResponseData,
     description: 'The charge attempt details',
   })
   data: ChargeResponseData;
-  
+
+  @ApiProperty({
+    example: 'Email Count',
+    description: 'Total count of emails to be sent!',
+  })
+  emailCount: number
+
   @ApiProperty({
     example: 'Email Charge',
     description: 'Email charge details',
   })
   emailCharge: number
-  
+
+  @ApiProperty({
+    example: 'Whatsapp Count',
+    description: 'Total count of whatsapp messages to be sent!',
+  })
+  whatsappCount: number
+
   @ApiProperty({
     example: 'Whatsapp Charge',
     description: 'Whatsapp charge details',
   })
   whatsAppCharge: number
-  
+
   @ApiProperty({
     example: 1000,
     description: 'Discount amount',
@@ -155,4 +167,10 @@ export class InvitationChargeResponse {
     description: 'Whatsapp Discount',
   })
   whatsAppDiscount: number
+
+  @ApiProperty({
+    example: false,
+    description: 'Has previously invited guests',
+  })
+  hasPreviouslyInvitedGuests: boolean
 }

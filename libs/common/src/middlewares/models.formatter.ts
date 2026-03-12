@@ -6,6 +6,8 @@ import {
   FollowupIntervalEnum,
   GuestPartyEnum,
   GuestTimelineActionEnum,
+  InvitationRSVPEnum,
+  InvitationStatusEnum,
   MessageTemplateEnum,
 } from '../constants/enums';
 import {
@@ -139,13 +141,15 @@ export function FormatGuestInfo(guest: Guest, invitation?: Invitation, maskData:
     id: guest.id.toString(),
     name: guest.name,
     party: guest.party,
-    email: maskData ? maskEmailAddress(guest.email) : guest.email,
-    phone: maskData ? maskPhoneNumber(guest.phone) : guest.phone,
-    isEmailInviteSent: invitation ? invitation.isEmailInviteSent : false,
-    isEmailInviteDelivered: invitation ? invitation.isEmailInviteDelivered : false,
-    isWhatsAppInviteSent: invitation ? invitation.isWhatsAppInviteSent : false,
-    isWhatsAppInviteDelivered: invitation ? invitation.isWhatsAppInviteDelivered : false,
     isInviteRSVP: guest.isInviteRSVP,
+    phone: maskData ? maskPhoneNumber(guest.phone) : guest.phone,
+    email: maskData ? maskEmailAddress(guest.email) : guest.email,
+    isEmailInviteSent: invitation ? invitation.isEmailInviteSent : false,
+    isWhatsAppInviteSent: invitation ? invitation.isWhatsAppInviteSent : false,
+    isEmailInviteDelivered: invitation ? invitation.isEmailInviteDelivered : false,
+    isWhatsAppInviteDelivered: invitation ? invitation.isWhatsAppInviteDelivered : false,
+    invitationStatus: invitation ? (invitation.isEmailInviteDelivered && invitation.isWhatsAppInviteDelivered) ? InvitationStatusEnum.SENT : InvitationStatusEnum.PENDING : InvitationStatusEnum.PENDING,
+    rsvpStatus: invitation ? invitation.isRSVP ? InvitationRSVPEnum.CONFIRMED : InvitationRSVPEnum.REJECTED : InvitationRSVPEnum.AWAITING,
   } as unknown as GuestInfo;
 }
 
@@ -451,6 +455,9 @@ export function FormatInvitationChargeResponse(
   discount: number,
   emailDiscount: number,
   whatsAppDiscount: number,
+  emailCount: number,
+  whatsappCount: number,
+  hasPreviouslyInvitedGuests: boolean,
 ): InvitationChargeResponse {
   return {
     status: response.status,
@@ -473,7 +480,10 @@ export function FormatInvitationChargeResponse(
     whatsAppCharge: whatsAppCharge,
     discount: discount,
     emailDiscount,
-    whatsAppDiscount
+    whatsAppDiscount,
+    emailCount,
+    whatsappCount,
+    hasPreviouslyInvitedGuests,
   } as InvitationChargeResponse;
 }
 
