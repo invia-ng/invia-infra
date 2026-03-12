@@ -148,7 +148,7 @@ export function FormatGuestInfo(guest: Guest, invitation?: Invitation, maskData:
     isWhatsAppInviteSent: invitation ? invitation.isWhatsAppInviteSent : false,
     isEmailInviteDelivered: invitation ? invitation.isEmailInviteDelivered : false,
     isWhatsAppInviteDelivered: invitation ? invitation.isWhatsAppInviteDelivered : false,
-    invitationStatus: invitation ? (invitation.isEmailInviteDelivered && invitation.isWhatsAppInviteDelivered) ? InvitationStatusEnum.SENT : InvitationStatusEnum.PENDING : InvitationStatusEnum.PENDING,
+    invitationStatus: invitation ? (invitation.isEmailInviteDelivered || invitation.isWhatsAppInviteDelivered) ? InvitationStatusEnum.SENT : InvitationStatusEnum.PENDING : InvitationStatusEnum.PENDING,
     rsvpStatus: invitation ? invitation.isRSVP ? InvitationRSVPEnum.CONFIRMED : InvitationRSVPEnum.REJECTED : InvitationRSVPEnum.AWAITING,
   } as unknown as GuestInfo;
 }
