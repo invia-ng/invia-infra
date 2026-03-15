@@ -183,11 +183,11 @@ export class GuestInfo {
   @ApiProperty({ example: '+2348012345678' })
   phone: string;
 
-  @ApiProperty({ example: InvitationStatusEnum.PENDING })
-  invitationStatus: InvitationStatusEnum;
+  @ApiProperty({ example: ''})
+  invitationStatus: InvitationStatusEnum | '';
 
-  @ApiProperty({ example: InvitationRSVPEnum.AWAITING })
-  rsvpStatus: InvitationRSVPEnum;
+  @ApiProperty({ example: ''})
+  rsvpStatus: InvitationRSVPEnum | '';
 
   @ApiProperty({ example: false })
   isEmailInviteSent: boolean;
