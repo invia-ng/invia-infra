@@ -120,10 +120,12 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
       const effectiveEmailPrice = Number(billing?.pricePerEmail || 0) * (1 - emailDiscount / 100);
       const effectiveWhatsappPrice = Number(billing?.pricePerWhatsappMessage || 0) * (1 - whatsappDiscount / 100);
 
-      const totalEmailCharge = effectiveEmailPrice * chargeableEmailCount;
-      const totalWhatsappCharge = effectiveWhatsappPrice * chargeableWhatsappCount;
-      const rawAmount = totalEmailCharge + totalWhatsappCharge;
-      const amountToCharge = rawAmount > 0 && rawAmount < 100 ? 100 : rawAmount;
+      const emailRaw = effectiveEmailPrice * chargeableEmailCount;
+      const whatsappRaw = effectiveWhatsappPrice * chargeableWhatsappCount;
+
+      const totalEmailCharge = emailRaw > 0 && emailRaw < 100 ? 100 : emailRaw;
+      const totalWhatsappCharge = whatsappRaw > 0 && whatsappRaw < 100 ? 100 : whatsappRaw;
+      const amountToCharge = totalEmailCharge + totalWhatsappCharge;
 
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-SUCCESS]`);
 
