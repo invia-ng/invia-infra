@@ -201,7 +201,7 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
               }
             ],
           },
-          amount: (amountToCharge * 100).toString(),
+          amount: Math.round(amountToCharge * 100),
         };
 
         const { data } = await axios.post(
