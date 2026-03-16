@@ -458,6 +458,8 @@ export function FormatInvitationChargeResponse(
   emailCount: number,
   whatsappCount: number,
   hasPreviouslyInvitedGuests: boolean,
+  chargeableEmailCount: number,
+  chargeableWhatsappCount: number,
 ): InvitationChargeResponse {
   return {
     status: response.status,

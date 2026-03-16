@@ -37,6 +37,8 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
 
       const { eventId, payload, secureUser } = command;
 
+      console.log('[INVITE-EVENT-GUESTS-HANDLER-PAYLOAD] :: ', payload);
+
       const guests: Guest[] = [];
 
       const billing = await this.billingRepository.findOne({
@@ -56,11 +58,10 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         },
       });
 
-      let amountToCharge = 0;
-      let totalEmailCharge = 0;
-      let totalWhatsappCharge = 0;
-      let emailCount = 0;
-      let whatsappCount = 0;
+      let emailCount = 0;             // total messages to send (display)
+      let whatsappCount = 0;          // total messages to send (display)
+      let chargeableEmailCount = 0;   // messages to charge for
+      let chargeableWhatsappCount = 0;
       let hasPreviouslyInvitedGuests = false;
       const isPayAsYouGo = !subscription || subscription.plan?.name.includes('Pay as you go');
       const isProOrStudio = subscription && (subscription.plan?.name.includes('Pro') || subscription.plan?.name.includes('Studio'));
@@ -71,41 +72,18 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
             this.logger.log('[FETCH-GUEST-MANAGER-PROCESSING]');
 
             const guest = await this.guestRepository.findOne({
-              where: {
-                id: guestId,
-              },
+              where: { id: guestId },
             });
 
-            if (!guest) {
-              return;
-            }
+            if (!guest) return;
 
             guests.push(guest);
 
-            let guestEmailCharge = 0;
-            let guestWhatsappCharge = 0;
-            let guestEmailCount = 0;
-            let guestWhatsappCount = 0;
-
-            const emailDiscount = Number(billing?.emailDiscount || 0);
-            const whatsappDiscount = Number(billing?.whatsAppDiscount || 0);
-            const effectiveEmailPrice = Number(billing?.pricePerEmail || 0) * (1 - emailDiscount / 100);
-            const effectiveWhatsappPrice = Number(billing?.pricePerWhatsappMessage || 0) * (1 - whatsappDiscount / 100);
-
-            if (payload.sendEmailInvite) {
-              guestEmailCharge += effectiveEmailPrice;
-              guestEmailCount += 1;
-            }
-            if (payload.sendWhatsAppInvite) {
-              guestWhatsappCharge += effectiveWhatsappPrice;
-              guestWhatsappCount += 1;
-            }
-            if (payload.followupInvitations && payload.followupInvitations.length > 0) {
-              guestEmailCharge += payload.followupInvitations.length * effectiveEmailPrice;
-              guestEmailCount += payload.followupInvitations.length;
-            }
-
-            const guestCharge = guestEmailCharge + guestWhatsappCharge;
+            // Count messages per guest
+            const guestEmailCount =
+              (payload.sendEmailInvite ? 1 : 0) +
+              (payload.followupInvitations?.length || 0);
+            const guestWhatsappCount = payload.sendWhatsAppInvite ? 1 : 0;
 
             emailCount += guestEmailCount;
             whatsappCount += guestWhatsappCount;
@@ -117,20 +95,16 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
               },
             });
 
-            if (hasBeenInvited) {
-              hasPreviouslyInvitedGuests = true;
-            }
+            if (hasBeenInvited) hasPreviouslyInvitedGuests = true;
 
+            // Only accrue chargeable counts based on plan
             if (isPayAsYouGo) {
-              amountToCharge += guestCharge;
-              totalEmailCharge += guestEmailCharge;
-              totalWhatsappCharge += guestWhatsappCharge;
-            } else if (isProOrStudio) {
-              if (hasBeenInvited) {
-                amountToCharge += guestCharge;
-                totalEmailCharge += guestEmailCharge;
-                totalWhatsappCharge += guestWhatsappCharge;
-              }
+              chargeableEmailCount += guestEmailCount;
+              chargeableWhatsappCount += guestWhatsappCount;
+            } else if (isProOrStudio && hasBeenInvited) {
+              // Pro/Studio: only charge for re-invited guests
+              chargeableEmailCount += guestEmailCount;
+              chargeableWhatsappCount += guestWhatsappCount;
             }
 
             this.logger.log('[FETCH-GUEST-MANAGER-SUCCESS]');
@@ -140,10 +114,32 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         }),
       );
 
+      // Calculate charges once after counting
+      const emailDiscount = Number(billing?.emailDiscount || 0);
+      const whatsappDiscount = Number(billing?.whatsAppDiscount || 0);
+      const effectiveEmailPrice = Number(billing?.pricePerEmail || 0) * (1 - emailDiscount / 100);
+      const effectiveWhatsappPrice = Number(billing?.pricePerWhatsappMessage || 0) * (1 - whatsappDiscount / 100);
+
+      const totalEmailCharge = effectiveEmailPrice * chargeableEmailCount;
+      const totalWhatsappCharge = effectiveWhatsappPrice * chargeableWhatsappCount;
+      const rawAmount = totalEmailCharge + totalWhatsappCharge;
+      const amountToCharge = rawAmount > 0 && rawAmount < 100 ? 100 : rawAmount;
+
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-SUCCESS]`);
+
+      console.log('[BILLING-AMOUNTS]', {
+        amountToCharge,
+        totalEmailCharge,
+        totalWhatsappCharge,
+        emailCount,
+        whatsappCount,
+        chargeableEmailCount,
+        chargeableWhatsappCount,
+      });
 
       if (amountToCharge > 0) {
         const reference = TransactionRefHelpers.makeTransactionReference('invite_guests_billing');
+
         const payloadData = {
           reference,
           email: secureUser.email!,
@@ -172,17 +168,17 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
               {
                 display_name: 'Send Email Invite',
                 variable_name: 'SEND_EMAIL_INVITE',
-                value: payload.sendEmailInvite,
+                value: String(payload.sendEmailInvite),
               },
               {
                 display_name: 'Send WhatsApp Invite',
                 variable_name: 'SEND_WHATSAPP_INVITE',
-                value: payload.sendWhatsAppInvite,
+                value: String(payload.sendWhatsAppInvite),
               },
               {
                 display_name: 'Followup Invitations',
                 variable_name: 'FOLLOWUP_INVITATIONS',
-                value: JSON.stringify(payload.followupInvitations),
+                value: JSON.stringify(payload.followupInvitations ?? []),
               },
               {
                 display_name: 'Image',
@@ -220,16 +216,18 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         }
 
         return modelsFormatter.FormatInvitationChargeResponse(
-          data, 
-          amountToCharge, 
-          totalEmailCharge, 
-          totalWhatsappCharge, 
-          0, 
-          billing.emailDiscount, 
+          data,
+          amountToCharge,
+          totalEmailCharge,
+          totalWhatsappCharge,
+          0,
+          billing.emailDiscount,
           billing.whatsAppDiscount,
           emailCount,
           whatsappCount,
-          hasPreviouslyInvitedGuests
+          hasPreviouslyInvitedGuests,
+          chargeableEmailCount,
+          chargeableWhatsappCount,
         );
       }
 
@@ -248,6 +246,8 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         emailCount,
         whatsappCount,
         hasPreviouslyInvitedGuests,
+        chargeableEmailCount,
+        chargeableWhatsappCount,
       };
     } catch (error) {
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-ERROR] :: ${error}`);

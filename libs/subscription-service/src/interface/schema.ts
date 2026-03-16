@@ -133,6 +133,12 @@ export class InvitationChargeResponse {
   emailCount: number
 
   @ApiProperty({
+    example: 'Chargeable Email Count',
+    description: 'Total count of emails to be charged for!',
+  })
+  chargeableEmailCount: number
+
+  @ApiProperty({
     example: 'Email Charge',
     description: 'Email charge details',
   })
@@ -143,6 +149,12 @@ export class InvitationChargeResponse {
     description: 'Total count of whatsapp messages to be sent!',
   })
   whatsappCount: number
+
+  @ApiProperty({
+    example: 'Chargeable Whatsapp Count',
+    description: 'Total count of whatsapp messages to be charged for!',
+  })
+  chargeableWhatsappCount: number
 
   @ApiProperty({
     example: 'Whatsapp Charge',
