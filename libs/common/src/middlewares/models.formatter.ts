@@ -44,6 +44,7 @@ import {
   GuestTimelineActionEnumInfo,
   MessageTemplateFollowupIntervalInfo,
   MessageTemplateFollowupConditionInfo,
+  GuestEventInvitationInfo,
 } from '@app/event-service/src/interface/schema';
 import { Invitation } from '../models/invitation.model';
 import { Business, BusinessInfo } from '../models/business.model';
@@ -148,8 +149,20 @@ export function FormatGuestInfo(guest: Guest, invitation?: Invitation, maskData:
     isWhatsAppInviteSent: invitation ? invitation.isWhatsAppInviteSent : false,
     isEmailInviteDelivered: invitation ? invitation.isEmailInviteDelivered : false,
     isWhatsAppInviteDelivered: invitation ? invitation.isWhatsAppInviteDelivered : false,
-    rsvpStatus: invitation ? invitation.isRSVP ? InvitationRSVPEnum.CONFIRMED : InvitationRSVPEnum.REJECTED : '',
-    invitationStatus: invitation ? (invitation.isEmailInviteDelivered || invitation.isWhatsAppInviteDelivered) ? InvitationStatusEnum.SENT : InvitationStatusEnum.PENDING : '',
+    rsvpStatus: invitation
+      ? invitation.isRSVP
+        ? InvitationRSVPEnum.CONFIRMED
+        : guest.isInviteRSVP
+          ? InvitationRSVPEnum.REJECTED
+          : InvitationRSVPEnum.AWAITING
+      : '',
+    invitationStatus: invitation
+      ? (invitation.isEmailInviteDelivered || invitation.isWhatsAppInviteDelivered)
+        ? InvitationStatusEnum.DELIVERED
+        : (invitation.isEmailInviteSent || invitation.isWhatsAppInviteSent)
+          ? InvitationStatusEnum.SENT
+          : InvitationStatusEnum.PENDING
+      : '',
   } as unknown as GuestInfo;
 }
 
@@ -610,8 +623,40 @@ export function FormatGuestTimelineActionEnumInfo(
           value: value,
           title: 'Guest added via form',
         };
+      case GuestTimelineActionEnum.EDIT_WHATSAPP_NUMBER:
+        return {
+          value: value,
+          title: 'Edit WhatsApp number',
+        };
+      case GuestTimelineActionEnum.GUEST_OPENED_MESSAGE_EMAIL:
+        return {
+          value: value,
+          title: 'Guest opened email message',
+        };
+      case GuestTimelineActionEnum.GUEST_OPENED_MESSAGE_WHATSAPP:
+        return {
+          value: value,
+          title: 'Guest opened WhatsApp message',
+        };
+      default:
+        return {
+          value: value,
+          title: value,
+        };
     }
   });
+}
+
+export function FormatGuestEventInvitationInfo(
+  invitation: Invitation): GuestEventInvitationInfo {
+  return {
+    eventName: invitation.event.name,
+    invitationImage: invitation.image,
+    guestEmail: invitation.guest.email,
+    invitationMessage: invitation.message,
+    businessName: invitation.event.business.name,
+    businessEmail: invitation.event.business.email,
+  } as unknown as GuestEventInvitationInfo;
 }
 
 export default {
@@ -633,6 +678,7 @@ export default {
   FormatBusinessMemberRoleInfo,
   FormatMessageTemplateEnumInfo,
   FormatInvitationChargeResponse,
+  FormatGuestEventInvitationInfo,
   FormatGuestTimelineActionEnumInfo,
   FormatMessageFollowupIntervalInfo,
   FormatMessageFollowupConditionInfo,

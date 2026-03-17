@@ -14,6 +14,7 @@ import { EventAuthorFetchEventInfoQueryHandler } from './author/EventAuthorFetch
 import { FetchMessageTemplateVariablesQueryHandler } from './FetchMessageTemplateVariablesQueryHandler';
 import { EventAuthorFetchEventPartiesQueryHandler } from './author/EventAuthorFetchEventPartiesQueryHandler';
 import { EventAuthorSearchEventGuestsQueryHandler } from './author/EventAuthorSearchEventGuestsQueryHandler';
+import { GuestFetchEventInvitationInfoQueryHandler } from './guest/GuestFetchEventInvitationInfoQueryHandler';
 import { EventAuthorFetchEventGuestIdsQueryHandler } from './author/EventAuthorFetchEventGuestIdsQueryHandler';
 import { EventAuthorFetchEventGuestInfoQueryHandler } from './author/EventAuthorFetchEventGuestInfoQueryHandler';
 import { FetchMessageTemplateFollowupIntervalsQueryHandler } from './FetchMessageTemplateFollowupIntervalsQueryHandler';
@@ -36,6 +37,7 @@ export const EventServiceQueryHandlers = [
   EventAuthorFetchEventInfoQueryHandler,
   EventAuthorFetchEventPartiesQueryHandler,
   EventAuthorSearchEventGuestsQueryHandler,
+  GuestFetchEventInvitationInfoQueryHandler,
   EventAuthorFetchEventGuestIdsQueryHandler,
   FetchMessageTemplateVariablesQueryHandler,
   EventAuthorFetchEventGuestInfoQueryHandler,

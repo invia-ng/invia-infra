@@ -127,7 +127,7 @@ export class FetchEventsQueryHandler implements IQueryHandler<
               (invite) => invite.isEmailInviteSent === false && invite.isWhatsAppInviteSent === false,
             ).length;
             const failedInvites = invitations.filter(
-              (invite) => invite.isEmailInviteDelivered === false || invite.isWhatsAppInviteDelivered === false,
+              (invite) => invite.isEmailInviteDelivered === false && invite.isWhatsAppInviteDelivered === false,
             ).length;
 
             events.push(

@@ -41,8 +41,8 @@ export class VerifyInvitationPaymentTransferHandler implements ICommandHandler<
         console.log('HANDLE-INVITE_GUESTS_BILLING-PAYMENT');
 
         const planId = data?.data?.metadata?.custom_fields.find(
-          (field) => field.variable_name === 'PLAN_ID',
-        ).value;
+          (field: any) => field.variable_name === 'PLAN_ID',
+        )?.value;
 
         const eventId = Number(data?.data?.metadata?.custom_fields.find(
           (field: any) => field.variable_name === 'EVENT_ID',

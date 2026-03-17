@@ -44,7 +44,7 @@ export class PaymentEmailNotificationService {
 
       const htmlContent = await event_invitation_payment_receipt_html_content(
         {
-          amount: payload.amount,
+          amount: String(Number(payload.amount) / 100),
           paymentReference: payload.paymentReference,
           paymentDate: new Date().toString().slice(0, 10),
           eventName: payload.eventName,

@@ -245,3 +245,10 @@ export class ExportGuestListCommand {
     public readonly secureUser: SecureUserPayload,
   ) {}
 }
+
+export class SendEventGuestInvitationRSVPCommand {
+  constructor(
+    public readonly guestEmail: string,
+    public readonly invitationHash: string,
+  ){}
+}

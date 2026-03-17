@@ -1,12 +1,9 @@
-export const invite_event_guest_email_html_content = (payload: {
-    image: string,
+export const invite_event_guest_followup_email_html_content = (payload: {
     event: string,
     message: string,
-    acceptLink: string,
-    rejectLink: string,
+    openLink: string,
     webappUrl: string,
     businessName: string,
-    hasCoverImage: boolean,
 }) => {
     return `
 <!DOCTYPE html>
@@ -30,7 +27,7 @@ export const invite_event_guest_email_html_content = (payload: {
 
         .wrapper {
             background-color: #ffffff;
-            padding: 32px 16px;
+            padding: 40px 24px;
         }
 
         .container {
@@ -40,71 +37,45 @@ export const invite_event_guest_email_html_content = (payload: {
             text-align: center;
         }
 
-        /* === HEADER === */
-        .heading {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0 0 24px 0;
-            text-decoration: underline;
-            text-underline-offset: 4px;
-        }
-
-        /* === COVER IMAGE === */
-        .hero-image {
-            width: 100%;
-            max-width: 480px;
-            max-height: 340px;
-            object-fit: cover;
-            display: block;
-            margin: 0 auto 24px;
-            border-radius: 16px;
-        }
-
-        /* === NO COVER IMAGE === */
-        .envelope-image {
-            width: 140px;
-            height: auto;
-            display: block;
-            margin: 0 auto 24px;
-        }
-
-        /* === SHARED CONTENT === */
+        /* === EVENT TITLE === */
         .event-title {
             font-family: 'Playfair Display', Georgia, serif;
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 700;
             color: #1a1a1a;
-            margin: 0 0 16px 0;
+            margin: 0 0 20px 0;
+            line-height: 1.25;
         }
 
+        /* === MESSAGE === */
         .message-text {
-            font-size: 15px;
+            font-size: 16px;
             color: #555555;
-            line-height: 1.7;
-            margin: 0 0 28px 0;
+            line-height: 1.75;
+            margin: 0 0 36px 0;
             text-align: center;
         }
 
+        /* === CTA BUTTON === */
         .btn-open {
             display: block;
             width: 100%;
             box-sizing: border-box;
-            padding: 16px 0;
+            padding: 18px 0;
             background-color: #1a1a1a;
             color: #ffffff !important;
             text-align: center;
-            border-radius: 12px;
+            border-radius: 14px;
             text-decoration: none;
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 32px;
+            font-weight: 600;
+            font-size: 17px;
+            margin-bottom: 40px;
+            letter-spacing: 0.01em;
         }
 
         /* === FOOTER === */
         .footer {
-            padding-top: 20px;
+            padding-top: 24px;
             border-top: 1px solid #e8e8e8;
         }
 
@@ -122,29 +93,20 @@ export const invite_event_guest_email_html_content = (payload: {
         }
 
         @media only screen and (max-width: 600px) {
-            .wrapper { padding: 0; }
-            .hero-image { border-radius: 0; max-width: 100%; }
+            .wrapper { padding: 24px 16px; }
+            .event-title { font-size: 26px; }
         }
     </style>
 </head>
 <body>
     <div class="wrapper">
         <div class="container">
-            <h1 class="heading">You're invited!</h1>
 
-            ${payload.hasCoverImage ? `
-            <!-- COVER IMAGE LAYOUT -->
-            <img src="${payload.image}" alt="${payload.event}" class="hero-image"/>
-            ` : `
-            <!-- DEFAULT (NO COVER IMAGE) LAYOUT -->
-            <img src="https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png"
-                 alt="Event Invitation" class="envelope-image"/>
-            `}
+            <h1 class="event-title">${payload.event}</h1>
 
-            <h2 class="event-title">${payload.event}</h2>
             <p class="message-text">${payload.message}</p>
 
-            <a href="${payload.acceptLink}" target="_blank" class="btn-open">Open invitation</a>
+            <a href="${payload.openLink}" target="_blank" class="btn-open">Open message</a>
 
             <div class="footer">
                 <p class="footer-name">${payload.businessName}</p>

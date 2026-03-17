@@ -113,4 +113,4 @@ export class FetchEventInfoQueryHandler implements IQueryHandler<
       throw error;
     }
   }
-}
+} 

@@ -131,8 +131,10 @@ export enum GuestTimelineActionEnum {
 }
 
 export enum InvitationStatusEnum {
+  SEEN = 'SEEN',
   SENT = 'SENT',
   PENDING = 'PENDING',
+  DELIVERED = 'DELIVERED',
 }
 
 export enum InvitationRSVPEnum {

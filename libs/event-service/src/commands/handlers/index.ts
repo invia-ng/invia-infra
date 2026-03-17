@@ -23,6 +23,7 @@ import { InviteEventGuestsAfterPaymentHandler } from "./InviteEventGuestsAfterPa
 import { AcceptRejectEventInvitationHandler } from "./guest/AcceptRejectEventInvitationHandler";
 import { EventAuthorUpdateEventGuestHandler } from "./author/EventAuthorUpdateEventGuestHandler";
 import { EventAuthorInviteEventGuestHandler } from "./author/EventAuthorInviteEventGuestHandler";
+import { SendGuestEventInvitationRSVPHandler } from "./guest/SendGuestEventInvitationRSVPHandler";
 import { EventAuthorInviteEventGuestsHandler } from "./author/EventAuthorInviteEventGuestsHandler";
 import { AuthenticateShareFormPasscodeHandler } from "./author/AuthenticateShareFormPasscodeHandler";
 import { RemoveMultipleEventAuthorGuestsHandler } from "./author/RemoveMultipleEventAuthorGuestsHandler";
@@ -51,6 +52,7 @@ export const EventServiceCommandHandlers = [
     EventAuthorUpdateEventGuestHandler,
     EventAuthorInviteEventGuestHandler,
     AcceptRejectEventInvitationHandler,
+    SendGuestEventInvitationRSVPHandler,
     AddEventGuestsToPartyCommandHandler,
     EventAuthorInviteEventGuestsHandler,
     DeleteFollowupMessageTemplateHandler,

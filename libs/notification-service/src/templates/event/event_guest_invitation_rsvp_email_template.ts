@@ -1,12 +1,14 @@
-export const invite_event_guest_email_html_content = (payload: {
+export const event_guest_invitation_rsvp_email_html_content = (payload: {
     image: string,
     event: string,
-    message: string,
-    acceptLink: string,
-    rejectLink: string,
+    date: string,
+    time: string,
+    location: string,
     webappUrl: string,
     businessName: string,
     hasCoverImage: boolean,
+    hostEmail?: string,
+    hostWhatsApp?: string,
 }) => {
     return `
 <!DOCTYPE html>
@@ -40,25 +42,14 @@ export const invite_event_guest_email_html_content = (payload: {
             text-align: center;
         }
 
-        /* === HEADER === */
-        .heading {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0 0 24px 0;
-            text-decoration: underline;
-            text-underline-offset: 4px;
-        }
-
         /* === COVER IMAGE === */
         .hero-image {
             width: 100%;
             max-width: 480px;
-            max-height: 340px;
+            height: 300px;
             object-fit: cover;
             display: block;
-            margin: 0 auto 24px;
+            margin: 0 auto 28px;
             border-radius: 16px;
         }
 
@@ -67,39 +58,70 @@ export const invite_event_guest_email_html_content = (payload: {
             width: 140px;
             height: auto;
             display: block;
-            margin: 0 auto 24px;
+            margin: 0 auto 28px;
         }
 
-        /* === SHARED CONTENT === */
+        /* === EVENT TITLE === */
         .event-title {
             font-family: 'Playfair Display', Georgia, serif;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             color: #1a1a1a;
-            margin: 0 0 16px 0;
-        }
-
-        .message-text {
-            font-size: 15px;
-            color: #555555;
-            line-height: 1.7;
-            margin: 0 0 28px 0;
+            margin: 0 0 24px 0;
             text-align: center;
         }
 
-        .btn-open {
-            display: block;
+        /* === DETAILS TABLE === */
+        .details-table {
             width: 100%;
-            box-sizing: border-box;
-            padding: 16px 0;
-            background-color: #1a1a1a;
-            color: #ffffff !important;
-            text-align: center;
-            border-radius: 12px;
+            border-collapse: collapse;
+            margin-bottom: 28px;
+            text-align: left;
+        }
+
+        .details-table td {
+            padding: 14px 16px;
+            border: 1px solid #e8e8e8;
+            font-size: 15px;
+            vertical-align: middle;
+        }
+
+        .details-table .label {
+            color: #999999;
+            font-weight: 400;
+            width: 30%;
+            white-space: nowrap;
+        }
+
+        .details-table .value {
+            color: #1a1a1a;
+            font-weight: 400;
+        }
+
+        /* === CONTACT ORGANIZER === */
+        .contact-section {
+            margin-bottom: 28px;
+            font-size: 15px;
+            color: #1a1a1a;
+        }
+
+        .contact-section span {
+            color: #999999;
+        }
+
+        .contact-links {
+            margin-top: 8px;
+            font-size: 15px;
+        }
+
+        .contact-links a {
+            color: #4f6ef7;
             text-decoration: none;
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 32px;
+        }
+
+        .contact-links .dot {
+            color: #999999;
+            margin: 0 8px;
         }
 
         /* === FOOTER === */
@@ -122,15 +144,15 @@ export const invite_event_guest_email_html_content = (payload: {
         }
 
         @media only screen and (max-width: 600px) {
-            .wrapper { padding: 0; }
+            .wrapper { padding: 16px; }
             .hero-image { border-radius: 0; max-width: 100%; }
+            .details-table .label { width: 35%; }
         }
     </style>
 </head>
 <body>
     <div class="wrapper">
         <div class="container">
-            <h1 class="heading">You're invited!</h1>
 
             ${payload.hasCoverImage ? `
             <!-- COVER IMAGE LAYOUT -->
@@ -142,9 +164,34 @@ export const invite_event_guest_email_html_content = (payload: {
             `}
 
             <h2 class="event-title">${payload.event}</h2>
-            <p class="message-text">${payload.message}</p>
 
-            <a href="${payload.acceptLink}" target="_blank" class="btn-open">Open invitation</a>
+            <!-- EVENT DETAILS TABLE -->
+            <table class="details-table" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td class="label">Date</td>
+                    <td class="value">${payload.date}</td>
+                </tr>
+                <tr>
+                    <td class="label">Time</td>
+                    <td class="value">${payload.time}</td>
+                </tr>
+                <tr>
+                    <td class="label">Location</td>
+                    <td class="value">${payload.location}</td>
+                </tr>
+            </table>
+
+            <!-- CONTACT ORGANIZER -->
+            ${(payload.hostEmail || payload.hostWhatsApp) ? `
+            <div class="contact-section">
+                <strong>Questions about this event?</strong> <span>contact the organizer</span>
+                <div class="contact-links">
+                    ${payload.hostEmail ? `<a href="mailto:${payload.hostEmail}">Email</a>` : ''}
+                    ${payload.hostEmail && payload.hostWhatsApp ? `<span class="dot">•</span>` : ''}
+                    ${payload.hostWhatsApp ? `<a href="https://wa.me/${payload.hostWhatsApp.replace(/\D/g, '')}">WhatsApp</a>` : ''}
+                </div>
+            </div>
+            ` : ''}
 
             <div class="footer">
                 <p class="footer-name">${payload.businessName}</p>

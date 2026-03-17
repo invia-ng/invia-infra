@@ -14,6 +14,8 @@ import { AppLogger } from '../../../../common/src/logger/logger.service';
 import { EmailSenderService } from 'libs/helper-service/src/services/email-sender.service';
 import { invite_event_guest_email_html_content } from '../../templates/event/invite_event_guest_email_template';
 import { share_event_guest_form_email_html_content } from '../../templates/event/share_event_guest_form_email_template';
+import { event_guest_invitation_rsvp_email_html_content } from '../../templates/event/event_guest_invitation_rsvp_email_template';
+import { invite_event_guest_followup_email_html_content } from '../../templates/event/invite_event_guest_followup_email_template';
 import { event_guest_accept_reject_invitation_email_html_content } from '../../templates/event/event_guest_accept_reject_invitation_email_template';
 import { event_admin_guest_accept_reject_invitation_email_html_content } from '../../templates/event/event_admin_guest_accept_reject_invitation_email_template';
 
@@ -88,6 +90,72 @@ export class EventEmailNotificationService {
     }
   }
 
+  async eventGuestInvitationRSVPEmailNotification(
+    invitation: Invitation,
+  ): Promise<boolean> {
+    try {
+      this.logger.log(`[EVENT-GUEST-INVITATION-RSVP-EMAIL-NOTIFICATION-PROCESSING]`);
+
+      await this.initializeAdminSettings();
+
+      const htmlContent = await event_guest_invitation_rsvp_email_html_content({
+        event: invitation.event.name,
+        hasCoverImage: invitation.image.length > 0,
+        businessName: invitation.event.business.name,
+        webappUrl: this.configService.get<string>('WEB_APP_URL'),
+        date: invitation.event.date
+          ? new Date(invitation.event.date).toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
+          : '',
+        time: invitation.event.time ?? '',
+        location: invitation.event.location ?? '',
+        hostEmail: invitation.event.business.email ?? '',
+        hostWhatsApp: invitation.event.business.phone ?? '',
+        image:
+          invitation.image.length > 0
+            ? invitation.image
+            : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
+      });
+
+      if (
+        this.adminSettings.isSMTPEnabled === true &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.gmailMailerService.sendMail({
+          html: htmlContent,
+          to: invitation.guest.email,
+          subject: `Event RSVP: ${invitation.event.name}`,
+          from: `"${invitation.event.business.name}" <${invitation.event.business.sendFromEmail}>`,
+        });
+      } else if (
+        this.adminSettings.isKibaMailEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false
+      ) {
+        this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          sub: `Event RSVP: ${invitation.event.name}`,
+          to_email: invitation.guest.email,
+          from_email: invitation.event.business.sendFromEmail,
+          from_name: invitation.event.business.name,
+        });
+      }
+
+      this.logger.log(`[EVENT-GUEST-INVITATION-RSVP-EMAIL-NOTIFICATION-SUCCESS]`);
+
+      return true;
+    } catch (error) {
+      this.logger.log(
+        `[EVENT-GUEST-INVITATION-RSVP-EMAIL-NOTIFICATION-ERROR]: ${error}`,
+      );
+
+      return false;
+    }
+  }
+
   async inviteEventGuestEmailNotification(
     invitation: Invitation,
   ): Promise<boolean> {
@@ -105,12 +173,12 @@ export class EventEmailNotificationService {
         acceptLink: this.configService
           .get<string>('WEB_APP_URL')
           .concat(
-            `/invitations?invitationHash=${invitation.hash}&acceptInvite=true`,
+            `/invitation?invitationHash=${invitation.hash}&acceptInvite=true`,
           ),
         rejectLink: this.configService
           .get<string>('WEB_APP_URL')
           .concat(
-            `/invitations?invitationHash=${invitation.hash}&acceptInvite=false`,
+            `/invitation?invitationHash=${invitation.hash}&acceptInvite=false`,
           ),
         image:
           invitation.image.length > 0
@@ -163,26 +231,16 @@ export class EventEmailNotificationService {
 
       await this.initializeAdminSettings();
 
-      const htmlContent = await invite_event_guest_email_html_content({
-        hasCoverImage: followupInvitation.invitation.image.length > 0,
+      const htmlContent = await invite_event_guest_followup_email_html_content({
         message: followupInvitation.message,
         event: followupInvitation.invitation.event.name,
         webappUrl: this.configService.get<string>('WEB_APP_URL'),
         businessName: followupInvitation.invitation.event.business.name,
-        acceptLink: this.configService
+        openLink: this.configService
           .get<string>('WEB_APP_URL')
           .concat(
-            `/invitations?invitationHash=${followupInvitation.invitation.hash}&acceptInvite=true`,
+            `/invitation/follow-up?invitationHash=${followupInvitation.invitation.hash}`,
           ),
-        rejectLink: this.configService
-          .get<string>('WEB_APP_URL')
-          .concat(
-            `/invitations?invitationHash=${followupInvitation.invitation.hash}&acceptInvite=false`,
-          ),
-        image:
-          followupInvitation.invitation.image.length > 0
-            ? followupInvitation.invitation.image
-            : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
       });
 
       if (
@@ -191,7 +249,7 @@ export class EventEmailNotificationService {
       ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
-          subject: `Event Invitation: ${followupInvitation.invitation.event.name}`,
+          subject: `Follow-up Event Invitation: ${followupInvitation.invitation.event.name}`,
           to: followupInvitation.invitation.guest.email,
           from: `"${followupInvitation.invitation.event.business.name}" <${followupInvitation.invitation.event.business.sendFromEmail}>`,
         });
@@ -201,7 +259,7 @@ export class EventEmailNotificationService {
       ) {
         this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
-          sub: `Event Invitation: ${followupInvitation.invitation.event.name}`,
+          sub: `Follow-up Event Invitation: ${followupInvitation.invitation.event.name}`,
           to_email: followupInvitation.invitation.guest.email,
           from_email: followupInvitation.invitation.event.business.sendFromEmail,
           from_name: followupInvitation.invitation.event.business.name,
