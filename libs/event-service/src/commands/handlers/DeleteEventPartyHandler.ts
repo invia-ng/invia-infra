@@ -24,7 +24,7 @@ export class DeleteEventPartyHandler implements ICommandHandler<
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(EventParty)
     private readonly eventPartyRepository: Repository<EventParty>,
-  ) {}
+  ) { }
 
   async execute(command: DeleteEventPartyCommand) {
     try {
@@ -32,7 +32,7 @@ export class DeleteEventPartyHandler implements ICommandHandler<
 
       const { eventId, partyId, newPartyId, secureUser } = command;
 
-      if (secureUser.role !== AccountRole.ADMIN) {
+      if (secureUser.role !== (AccountRole.OWNER || AccountRole.ADMIN)) {
         throw new UnauthorizedException(
           'Invalid request, you are not authorized to complete is action.',
         );
