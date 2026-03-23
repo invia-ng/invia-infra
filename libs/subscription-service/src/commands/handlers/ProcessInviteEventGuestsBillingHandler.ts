@@ -63,8 +63,8 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
       let chargeableEmailCount = 0;   // messages to charge for
       let chargeableWhatsappCount = 0;
       let hasPreviouslyInvitedGuests = false;
-      const isPayAsYouGo = !subscription || subscription.plan?.name.includes('Pay as you go');
-      const isProOrStudio = subscription && (subscription.plan?.name.includes('Pro') || subscription.plan?.name.includes('Studio'));
+      const isPayAsYouGo = !subscription || Boolean(subscription.plan?.name?.toLowerCase().includes('pay as you go'));
+      const isProOrStudio = Boolean(subscription && (subscription.plan?.name?.toLowerCase().includes('pro') || subscription.plan?.name?.toLowerCase().includes('studio')));
 
       await Promise.all(
         payload.guestIds.map(async (guestId) => {
@@ -101,10 +101,15 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
             if (isPayAsYouGo) {
               chargeableEmailCount += guestEmailCount;
               chargeableWhatsappCount += guestWhatsappCount;
-            } else if (isProOrStudio && hasBeenInvited) {
-              // Pro/Studio: only charge for re-invited guests
-              chargeableEmailCount += guestEmailCount;
-              chargeableWhatsappCount += guestWhatsappCount;
+            } else if (isProOrStudio) {
+              if (hasBeenInvited) {
+                // Pro/Studio: charge for re-invited guests
+                chargeableEmailCount += guestEmailCount;
+                chargeableWhatsappCount += guestWhatsappCount;
+              } else {
+                // Pro/Studio: first invite is free. Only charge for follow-up invitations
+                chargeableEmailCount += (payload.followupInvitations?.length || 0);
+              }
             }
 
             this.logger.log('[FETCH-GUEST-MANAGER-SUCCESS]');
