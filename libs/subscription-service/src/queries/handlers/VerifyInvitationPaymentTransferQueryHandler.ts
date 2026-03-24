@@ -101,7 +101,7 @@ export class VerifyInvitationPaymentTransferQueryHandler implements IQueryHandle
           (field: any) => field.variable_name === 'MESSAGE',
         )?.value;
 
-        this.commandBus.execute(
+        await this.commandBus.execute(
           new InviteEventGuestsAfterPaymentCommand(
             eventId,
             data?.data?.amount,
@@ -119,6 +119,10 @@ export class VerifyInvitationPaymentTransferQueryHandler implements IQueryHandle
         );
 
         this.logger.log(`[VERIFY-PREMIUM-SUBSCRIPTION-PAYMENT-TRANSFER-QUERY-HANDLER-SUCCESS]`);
+
+        // Generate random delay between 3,000 and 5,000 milliseconds (3-5 seconds)
+        const randomDelay = Math.floor(Math.random() * 2000) + 3000;
+        await new Promise((resolve) => setTimeout(resolve, randomDelay));
 
         return {
           status: true,
