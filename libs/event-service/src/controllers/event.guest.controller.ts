@@ -15,7 +15,7 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EventService } from '../services/event.service';
 import { AcceptRejectEventInvitationDTO } from '../interface';
-import { GuestFetchEventInvitationInfoQuery } from '../queries/impl';
+import { GuestFetchEventFollowupInvitationInfoQuery, GuestFetchEventInvitationInfoQuery } from '../queries/impl';
 import { AcceptRejectEventInvitationInfo, GuestEventInvitationInfo } from '../interface/schema';
 import { AcceptRejectEventInvitationCommand, SendEventGuestInvitationRSVPCommand } from '../commands/impl';
 
@@ -45,6 +45,26 @@ export class EventGuestController {
     return await this.queryBus.execute(
       new GuestFetchEventInvitationInfoQuery(
         invitationHash,
+      ),
+    );
+  }
+
+  @Get('fetch-followup-invitation-info')
+  @ApiQuery({
+    type: String,
+    required: true,
+    example: '315890',
+    name: 'followupInvitationHash',
+    description: 'Followup Invitation Hash',
+  })
+  @ApiOkResponse({ type: GuestEventInvitationInfo })
+  @ApiInternalServerErrorResponse()
+  async fetchFollowupInvitationInfo(
+    @Query('followupInvitationHash') followupInvitationHash: string,
+  ): Promise<GuestEventInvitationInfo> {
+    return await this.queryBus.execute(
+      new GuestFetchEventFollowupInvitationInfoQuery(
+        followupInvitationHash,
       ),
     );
   }

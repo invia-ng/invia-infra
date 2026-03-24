@@ -20,6 +20,7 @@ import { EventAuthorFetchEventGuestInfoQueryHandler } from './author/EventAuthor
 import { FetchMessageTemplateFollowupIntervalsQueryHandler } from './FetchMessageTemplateFollowupIntervalsQueryHandler';
 import { EventAuthorFetchGuestTimelineEnumsQueryHandler } from './author/EventAuthorFetchGuestTimelineEnumsQueryHandler';
 import { FetchMessageTemplateFollowupConditionsQueryHandler } from './FetchMessageTemplateFollowupConditionsQueryHandler';
+import { GuestFetchEventFollowupInvitationInfoQueryHandler } from './guest/GuestFetchEventFollowupInvitationInfoQueryHandler';
 
 export const EventServiceQueryHandlers = [
   FetchEventsQueryHandler,
@@ -42,6 +43,7 @@ export const EventServiceQueryHandlers = [
   FetchMessageTemplateVariablesQueryHandler,
   EventAuthorFetchEventGuestInfoQueryHandler,
   EventAuthorFetchGuestTimelineEnumsQueryHandler,
+  GuestFetchEventFollowupInvitationInfoQueryHandler,
   FetchMessageTemplateFollowupIntervalsQueryHandler,
   FetchMessageTemplateFollowupConditionsQueryHandler,
 ];

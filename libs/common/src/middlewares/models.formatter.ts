@@ -45,8 +45,9 @@ import {
   MessageTemplateFollowupIntervalInfo,
   MessageTemplateFollowupConditionInfo,
   GuestEventInvitationInfo,
+  GuestEventFollowupInvitationInfo,
 } from '@app/event-service/src/interface/schema';
-import { Invitation } from '../models/invitation.model';
+import { FollowupInvitation, Invitation } from '../models/invitation.model';
 import { Business, BusinessInfo } from '../models/business.model';
 import { maskEmailAddress, maskPhoneNumber } from '../utils/string.utils';
 import { generateSubscriptionExpirationInfo } from '../helpers/subscriptions';
@@ -659,6 +660,18 @@ export function FormatGuestEventInvitationInfo(
   } as unknown as GuestEventInvitationInfo;
 }
 
+export function FormatGuestEventFollowupInvitationInfo(
+  followupInvitation: FollowupInvitation): GuestEventFollowupInvitationInfo {
+  return {
+    eventName: followupInvitation.invitation.event.name,
+    invitationImage: followupInvitation.invitation.image,
+    guestEmail: followupInvitation.invitation.guest.email,
+    invitationMessage: followupInvitation.message,
+    businessName: followupInvitation.invitation.event.business.name,
+    businessEmail: followupInvitation.invitation.event.business.email,
+  } as unknown as GuestEventFollowupInvitationInfo;
+}
+
 export default {
   FormatGuestInfo,
   FormatEventInfo,
@@ -682,4 +695,5 @@ export default {
   FormatGuestTimelineActionEnumInfo,
   FormatMessageFollowupIntervalInfo,
   FormatMessageFollowupConditionInfo,
+  FormatGuestEventFollowupInvitationInfo,
 };

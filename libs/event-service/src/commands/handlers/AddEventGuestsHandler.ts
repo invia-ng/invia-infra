@@ -145,7 +145,7 @@ export class AddEventGuestsHandler implements ICommandHandler<
             await this.guestTimelineRepository.save({
               guest: instance,
               description:
-                secureUser.name === business.account.name
+                secureUser.id === business.account.id
                   ? `${guest.name} was added by you.`
                   : `${guest.name} was added by ${secureUser.name}.`,
               action: GuestTimelineActionEnum.GUEST_ADDED_BY_USER,

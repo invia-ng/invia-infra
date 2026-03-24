@@ -34,9 +34,15 @@ export class VerifyInvitationPaymentTransferQueryHandler implements IQueryHandle
       );
 
       if (data.data.status === 'failed') {
-        throw new NotFoundException(
-          'Payment is pending, please try again after making transaction.',
-        );
+        return {
+          status: false,
+          channel: data.data.channel,
+          paid_at: new Date().toString().slice(0, 10),
+        } as VerifyPaymentSessionResponse;
+
+        // throw new NotFoundException(
+        //   'Payment is pending, please try again after making transaction.',
+        // );
       }
 
       if (
@@ -46,9 +52,10 @@ export class VerifyInvitationPaymentTransferQueryHandler implements IQueryHandle
       ) {
         console.log('HANDLE-INVITE_GUESTS_BILLING-PAYMENT');
 
-        const planId = data?.data?.metadata?.custom_fields.find(
-          (field) => field.variable_name === 'PLAN_ID',
-        ).value;
+        //! REMOVED CAUSE PLAN_ID NOT INITIALIZED WITH PAYMENT
+        // const planId = data?.data?.metadata?.custom_fields.find(
+        //   (field) => field.variable_name === 'PLAN_ID',
+        // )?.value;
 
         const eventId = Number(data?.data?.metadata?.custom_fields.find(
           (field: any) => field.variable_name === 'EVENT_ID',
@@ -57,12 +64,16 @@ export class VerifyInvitationPaymentTransferQueryHandler implements IQueryHandle
         const guestIdsStr = data?.data?.metadata?.custom_fields.find(
           (field: any) => field.variable_name === 'GUEST_IDS',
         )?.value;
+
         const guestIds = guestIdsStr ? String(guestIdsStr).split(',').map((id: string) => Number(id)) : [];
+
 
         const sendEmailInviteValue = data?.data?.metadata?.custom_fields.find(
           (field: any) => field.variable_name === 'SEND_EMAIL_INVITE',
         )?.value;
+
         const sendEmailInvite = sendEmailInviteValue === true || String(sendEmailInviteValue) === 'true';
+
 
         const sendWhatsAppInviteValue = data?.data?.metadata?.custom_fields.find(
           (field: any) => field.variable_name === 'SEND_WHATSAPP_INVITE',
@@ -72,6 +83,7 @@ export class VerifyInvitationPaymentTransferQueryHandler implements IQueryHandle
         const followupInvitationsStr = data?.data?.metadata?.custom_fields.find(
           (field: any) => field.variable_name === 'FOLLOWUP_INVITATIONS',
         )?.value;
+
         let followupInvitations = undefined;
         if (followupInvitationsStr && followupInvitationsStr !== 'undefined') {
           try {
@@ -105,12 +117,20 @@ export class VerifyInvitationPaymentTransferQueryHandler implements IQueryHandle
             secureUser,
           ),
         );
+
+        this.logger.log(`[VERIFY-PREMIUM-SUBSCRIPTION-PAYMENT-TRANSFER-QUERY-HANDLER-SUCCESS]`);
+
+        return {
+          status: true,
+          channel: data.data.channel,
+          paid_at: new Date().toString().slice(0, 10),
+        } as VerifyPaymentSessionResponse;
       }
 
       this.logger.log(`[VERIFY-PREMIUM-SUBSCRIPTION-PAYMENT-TRANSFER-QUERY-HANDLER-SUCCESS]`);
 
       return {
-        status: true,
+        status: false,
         channel: data.data.channel,
         paid_at: new Date().toString().slice(0, 10),
       } as VerifyPaymentSessionResponse;

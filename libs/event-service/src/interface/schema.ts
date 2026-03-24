@@ -185,3 +185,41 @@ export class GuestEventInvitationInfo {
   })
   businessEmail: string;
 }
+
+export class GuestEventFollowupInvitationInfo {
+  @ApiProperty({
+    description: 'Event name',
+    example: 'Wedding',
+  })
+  eventName: string;
+
+  @ApiProperty({
+    description: 'Guest email',
+    example: 'bioduna12@gmail.com',
+  })
+  guestEmail: string;
+
+  @ApiProperty({
+    description: 'Invitation image',
+    example: 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
+  })
+  invitationImage: string;
+
+  @ApiProperty({
+    description: 'Message',
+    example: 'You are invited to our wedding',
+  })
+  invitationMessage: string;
+
+  @ApiProperty({
+    description: 'Business name',
+    example: 'ABC Events & Planning',
+  })
+  businessName: string;
+
+  @ApiProperty({
+    description: 'Business email',
+    example: 'iuoer@gmail.com',
+  })
+  businessEmail: string;
+}

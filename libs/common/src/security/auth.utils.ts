@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { AccessTokenPayload, EventInvitationHashPayload } from '../interface';
+import { AccessTokenPayload, EventInvitationHashPayload, EventFollowupInvitationHashPayload } from '../interface';
 
 const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, parseInt(process.env.AUTH_SALT_ROUNDS));
@@ -56,6 +56,17 @@ function generateEventInvitationHash(payload: EventInvitationHashPayload): strin
   return Buffer.from(JSON.stringify(payload)).toString('base64');
 }
 
+function generateEventFollowupInvitationHash(payload: EventFollowupInvitationHashPayload): string {
+  return Buffer.from(JSON.stringify(payload)).toString('base64');
+}
+
+function decodeEventFollowupInvitationHash(code: string): EventFollowupInvitationHashPayload {
+  const { jti, iat, ...payload } = JSON.parse(
+    Buffer.from(code, 'base64').toString('utf8'),
+  );
+  return payload;
+}
+
 function decodeEventInvitationHash(code: string): EventInvitationHashPayload {
   const { jti, iat, ...payload } = JSON.parse(
     Buffer.from(code, 'base64').toString('utf8'),
@@ -93,4 +104,6 @@ export default {
   isDatePastThreeMonths,
   decodeEventInvitationHash,
   generateEventInvitationHash,
+  decodeEventFollowupInvitationHash,
+  generateEventFollowupInvitationHash,
 };

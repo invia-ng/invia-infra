@@ -77,6 +77,12 @@ export class GuestFetchEventInvitationInfoQuery {
   ) { }
 }
 
+export class GuestFetchEventFollowupInvitationInfoQuery {
+  constructor(
+    public readonly followupInvitationHash: string,
+  ) { }
+}
+
 export class EventAuthorFetchEventInfoQuery {
   constructor(
     public readonly eventId: number,

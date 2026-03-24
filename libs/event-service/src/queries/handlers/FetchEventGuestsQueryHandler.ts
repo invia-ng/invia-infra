@@ -59,6 +59,9 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
                 id: eventId,
               },
             },
+            order: {
+              createdAt: 'DESC',
+            },
           });
 
           _guests.push(modelsFormatter.FormatGuestInfo(guest, invitation, secureUser.role === AccountRole.MEMBER));

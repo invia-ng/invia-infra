@@ -65,7 +65,7 @@ export class InviteEventGuestsEventHandler implements IEventHandler<InviteEventG
               await this.guestTimelineRepository.save({
                 guest: invitation.guest,
                 description:
-                   secureUser.name === business.account.name
+                   secureUser.id === business.account.id
                     ? `You sent an invite message.`
                     : `${secureUser.name} sent an invite message.`,
                 action: GuestTimelineActionEnum.SENT_INVITE_MESSAGE,

@@ -104,7 +104,7 @@ export class UpdateEventHandler implements ICommandHandler<
         (invite) => invite.isEmailInviteSent === false,
       ).length;
       const failedInvites = invitations.filter(
-        (invite) => invite.isEmailInviteDelivered === false,
+        (invite) => invite.isEmailInviteDelivered === false && invite.isWhatsAppInviteDelivered === false,
       ).length;
 
       this.logger.log(`[UPDATE-EVENT-HANDLER-SUCCESS]`);

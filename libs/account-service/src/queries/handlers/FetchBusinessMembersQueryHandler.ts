@@ -47,7 +47,7 @@ export class FetchBusinessMembersQueryHandler implements IQueryHandler<
 
       this.logger.log('[FETCH-BUSINESS-MEMBERS-SUCCESS]');
 
-      return business.members.map((member) =>
+      return business.members.filter((member) => member.id !== secureUser.id).map((member) =>
         modelsFormatter.FormatBusinessMemberInfo(member),
       );
     } catch (error) {

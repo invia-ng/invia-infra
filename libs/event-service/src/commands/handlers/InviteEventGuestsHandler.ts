@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,7 +29,7 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
     private readonly invitationRepository: Repository<Invitation>,
     @InjectRepository(FollowupInvitation)
     private readonly followupInvitationRepository: Repository<FollowupInvitation>,
-  ) {}
+  ) { }
 
   async execute(command: InviteEventGuestsCommand) {
     try {
@@ -109,7 +110,18 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
                   try {
                     this.logger.log('[FOLLOWUP-INVITATION-HANDLER-PROCESSING]');
 
+                    const followupId = randomUUID();
+                    const hash = authUtils.generateEventFollowupInvitationHash({
+                      followupId,
+                      eventId: event.id,
+                      guestId: guest.id,
+                      eventHash: event.hash,
+                      interval: followupInvitation.interval,
+                      date: this.calculateFollowupDate(followupInvitation.interval),
+                    });
+
                     const _instance = this.followupInvitationRepository.create({
+                      hash,
                       invitation,
                       interval: followupInvitation.interval,
                       condition: followupInvitation.condition,

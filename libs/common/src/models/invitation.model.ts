@@ -175,6 +175,16 @@ export class FollowupInvitation {
 
   @Column({
     nullable: true,
+    default: '',
+  })
+  @ApiPropertyOptional({
+    example: 'dk2025-12-30T21:43:45.300Zks',
+    description: 'Followup invitation hash',
+  })
+  hash: string;
+
+  @Column({
+    nullable: true,
     default: false,
   })
   @ApiPropertyOptional({

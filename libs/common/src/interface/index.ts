@@ -1,4 +1,4 @@
-import { AccountRole, AccountStatus } from "../constants/enums";
+import { AccountRole, AccountStatus, FollowupIntervalEnum } from "../constants/enums";
 
 export interface AccessTokenPayload {
   eventHash: string;
@@ -11,6 +11,15 @@ export interface EventInvitationHashPayload {
   eventHash: string;
   eventId: number;
   guestId: number;
+}
+
+export interface EventFollowupInvitationHashPayload {
+  eventHash: string;
+  eventId: number;
+  guestId: number;
+  followupId: string;
+  date: Date;
+  interval: FollowupIntervalEnum;
 }
 
 export interface SecureUserPayload {

@@ -12,6 +12,7 @@ import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { AccountRole } from '@app/common/src/constants/enums';
+import { Invitation } from '@app/common/src/models/invitation.model';
 
 @QueryHandler(FetchEventGuestInfoQuery)
 export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
@@ -22,6 +23,8 @@ export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Guest)
     private readonly guestRepository: Repository<Guest>,
+    @InjectRepository(Invitation)
+    private readonly invitationRepository: Repository<Invitation>,
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
   ) { }
@@ -56,11 +59,25 @@ export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
         },
       });
 
+      const invitation = await this.invitationRepository.findOne({
+        where: {
+          guest: {
+            id: guest.id,
+          },
+          event: {
+            id: eventId,
+          },
+        },
+        order: {
+          createdAt: 'DESC',
+        },
+      });
+      
       const formattedGuestTimelines = guestTimelines.map(
         modelsFormatter.FormatGuestTimelineInfo,
       );
-
-      const formattedGuest = modelsFormatter.FormatGuestInfo(guest, null, secureUser.role === AccountRole.MEMBER);
+      
+      const formattedGuest = modelsFormatter.FormatGuestInfo(guest, invitation ?? null, secureUser.role === AccountRole.MEMBER);
 
       this.logger.log('[FETCH-EVENT-GUEST-INFO-QUERY-SUCCESS]');
 
