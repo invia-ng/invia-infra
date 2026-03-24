@@ -8,6 +8,7 @@ import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import authUtils from '@app/common/src/security/auth.utils';
 import { Event } from '@app/common/src/models/event.model';
+import { Invitation } from '@app/common/src/models/invitation.model';
 
 @QueryHandler(FetchEventAuthorGuestsQuery)
 export class FetchEventAuthorGuestsQueryHandler implements IQueryHandler<
@@ -20,6 +21,8 @@ export class FetchEventAuthorGuestsQueryHandler implements IQueryHandler<
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Guest)
     private readonly guestRepository: Repository<Guest>,
+    @InjectRepository(Invitation)
+    private readonly invitationRepository: Repository<Invitation>,
   ) {}
 
   async execute(query: FetchEventAuthorGuestsQuery) {
@@ -68,6 +71,16 @@ export class FetchEventAuthorGuestsQueryHandler implements IQueryHandler<
       const totalPages = Math.ceil(totalCount / pageSize);
       const hasNext = page < totalPages;
 
+      const _guests = await Promise.all(
+        guests.map(async (guest) => {
+          const invitation = await this.invitationRepository.findOne({
+            where: { guest: { id: guest.id }, event: { id: decodedToken.eventId } },
+            order: { createdAt: 'DESC' },
+          });
+          return modelsFormatter.FormatGuestInfo(guest, invitation);
+        })
+      );
+
 			this.logger.log('[FETCH-EVENT-GUESTS-QUERY-SUCCESS]');
 
 			return {
@@ -75,7 +88,7 @@ export class FetchEventAuthorGuestsQueryHandler implements IQueryHandler<
 				totalPages,
 				totalInvites: totalCount,
 				guestParties: guests.map((guest) => guest.party),
-				guests: guests.map((guest) => modelsFormatter.FormatGuestInfo(guest)),
+				guests: _guests,
 			} as unknown as GuestsResponse;
     } catch(error) {
 			this.logger.error('[FETCH-EVENT-GUESTS-QUERY-ERROR]', error);

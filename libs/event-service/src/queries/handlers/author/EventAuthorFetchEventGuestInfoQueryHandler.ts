@@ -15,6 +15,7 @@ import authUtils from '@app/common/src/security/auth.utils';
 import { EventAuthorFetchEventGuestInfoQuery } from '../../impl';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
+import { Invitation } from '@app/common/src/models/invitation.model';
 
 @QueryHandler(EventAuthorFetchEventGuestInfoQuery)
 export class EventAuthorFetchEventGuestInfoQueryHandler implements IQueryHandler<
@@ -27,6 +28,8 @@ export class EventAuthorFetchEventGuestInfoQueryHandler implements IQueryHandler
     private readonly guestRepository: Repository<Guest>,
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
+    @InjectRepository(Invitation)
+    private readonly invitationRepository: Repository<Invitation>,
   ) { }
 
   async execute(query: EventAuthorFetchEventGuestInfoQuery) {
@@ -73,7 +76,12 @@ export class EventAuthorFetchEventGuestInfoQueryHandler implements IQueryHandler
         modelsFormatter.FormatGuestTimelineInfo,
       );
 
-      const formattedGuest = modelsFormatter.FormatGuestInfo(guest);
+      const invitation = await this.invitationRepository.findOne({
+        where: { guest: { id: guest.id }, event: { id: eventId } },
+        order: { createdAt: 'DESC' },
+      });
+
+      const formattedGuest = modelsFormatter.FormatGuestInfo(guest, invitation);
 
       this.logger.log('[FETCH-EVENT-GUEST-INFO-QUERY-SUCCESS]');
 
