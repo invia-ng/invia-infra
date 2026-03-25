@@ -61,9 +61,7 @@ export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
         where.party = guestParty;
       }
 
-      const shouldFilterInMemory =
-        (inviteStatus !== undefined && inviteStatus !== null) ||
-        (rsvpStatus !== undefined && rsvpStatus !== null);
+      const shouldFilterInMemory = !!inviteStatus || !!rsvpStatus;
 
       let whereConditions: FindOptionsWhere<Guest> | FindOptionsWhere<Guest>[] =
         where;
@@ -120,13 +118,13 @@ export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
           return modelsFormatter.FormatGuestInfo(guest, inv);
         });
 
-        if (inviteStatus !== undefined && inviteStatus !== null) {
+        if (inviteStatus) {
           formattedGuests = formattedGuests.filter(
             (g) => g.invitationStatus === inviteStatus
           );
         }
 
-        if (rsvpStatus !== undefined && rsvpStatus !== null) {
+        if (rsvpStatus) {
           formattedGuests = formattedGuests.filter(
             (g) => g.rsvpStatus === rsvpStatus
           );
