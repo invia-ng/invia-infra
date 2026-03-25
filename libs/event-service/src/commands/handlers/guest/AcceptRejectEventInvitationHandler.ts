@@ -6,7 +6,7 @@ import authUtils from '@app/common/src/security/auth.utils';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AcceptRejectEventInvitationCommand } from '../../impl';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
-import { GuestTimeline } from '@app/common/src/models/guest.model';
+import { Guest, GuestTimeline } from '@app/common/src/models/guest.model';
 import { Invitation } from '@app/common/src/models/invitation.model';
 import { GuestTimelineActionEnum } from '@app/common/src/constants/enums';
 import { AcceptRejectEventInvitationInfo } from '@app/event-service/src/interface/schema';
@@ -19,6 +19,8 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
 > {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
+    @InjectRepository(Guest)
+    private readonly guestRepository: Repository<Guest>,
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Invitation)
@@ -56,6 +58,9 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
             id: decodedEventInvitationHash.eventId,
           },
         },
+        order: {
+          createdAt: 'DESC',
+        },
       });
 
       if (!invitation) {
@@ -68,6 +73,12 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
       });
 
       await this.invitationRepository.save(invitation);
+
+      Object.assign(invitation.guest, {
+        isInviteRSVP: acceptInvite,
+      });
+
+      await this.guestRepository.save(invitation.guest);
 
       await this.guestTimelineRepository.save({
         guest: invitation.guest,

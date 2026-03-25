@@ -2,7 +2,7 @@ import { Inject, UnauthorizedException } from '@nestjs/common';
 import { EventAuthorSearchEventGuestsQuery } from '../../impl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { Repository, ILike, FindOptionsWhere } from 'typeorm';
+import { Repository, ILike, FindOptionsWhere, In } from 'typeorm';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
@@ -31,7 +31,7 @@ export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
       const {
         eventId,
         guestParty,
-        invited,
+        inviteStatus,
         rsvpStatus,
         page,
         pageSize,
@@ -61,13 +61,9 @@ export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
         where.party = guestParty;
       }
 
-      if (invited !== undefined && invited !== null) {
-        where.isInviteSent = invited;
-      }
-
-      if (rsvpStatus !== undefined && rsvpStatus !== null) {
-        where.isInviteRSVP = rsvpStatus;
-      }
+      const shouldFilterInMemory =
+        (inviteStatus !== undefined && inviteStatus !== null) ||
+        (rsvpStatus !== undefined && rsvpStatus !== null);
 
       let whereConditions: FindOptionsWhere<Guest> | FindOptionsWhere<Guest>[] =
         where;
@@ -80,38 +76,104 @@ export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
         ];
       }
 
-      const [guests, totalCount] = await this.guestRepository.findAndCount({
-        where: whereConditions,
-        order: {
-          createdAt: 'DESC',
-        },
-        take: pageSize,
-        skip: (page - 1) * pageSize,
-      });
+      let _guests: any[] = [];
+      let totalCount = 0;
+      let totalPages = 0;
+      let hasNextPage = false;
+      let guestParties: string[] = [];
 
-      const totalPages = Math.ceil(totalCount / pageSize);
-      const hasNextPage = page < totalPages;
+      if (shouldFilterInMemory) {
+        const allGuests = await this.guestRepository.find({
+          where: whereConditions,
+          order: {
+            createdAt: 'DESC',
+          },
+        });
 
-      const _guests = await Promise.all(
-        guests.map(async (guest) => {
-          const inviteWhere = eventId 
-            ? { guest: { id: guest.id }, event: { id: eventId } }
-            : { guest: { id: guest.id } };
+        const guestIds = allGuests.map((g) => g.id);
+        const latestInvitations: Record<string, Invitation> = {};
 
-          const invitation = await this.invitationRepository.findOne({
-            where: inviteWhere,
-            order: { createdAt: 'DESC' },
-          });
-          return modelsFormatter.FormatGuestInfo(guest, invitation);
-        })
-      );
+        if (guestIds.length > 0) {
+          const chunkSize = 1000;
+          for (let i = 0; i < guestIds.length; i += chunkSize) {
+            const chunk = guestIds.slice(i, i + chunkSize);
+            const invitations = await this.invitationRepository.find({
+              where: {
+                guest: { id: In(chunk) },
+                event: eventId ? { id: eventId } : undefined,
+              },
+              order: {
+                createdAt: 'DESC',
+              },
+            });
+
+            for (const inv of invitations) {
+              if (!latestInvitations[inv.guest.id]) {
+                latestInvitations[inv.guest.id] = inv;
+              }
+            }
+          }
+        }
+
+        let formattedGuests = allGuests.map((guest) => {
+          const inv = latestInvitations[guest.id];
+          return modelsFormatter.FormatGuestInfo(guest, inv);
+        });
+
+        if (inviteStatus !== undefined && inviteStatus !== null) {
+          formattedGuests = formattedGuests.filter(
+            (g) => g.invitationStatus === inviteStatus
+          );
+        }
+
+        if (rsvpStatus !== undefined && rsvpStatus !== null) {
+          formattedGuests = formattedGuests.filter(
+            (g) => g.rsvpStatus === rsvpStatus
+          );
+        }
+
+        totalCount = formattedGuests.length;
+        totalPages = Math.ceil(totalCount / pageSize);
+        hasNextPage = page < totalPages;
+
+        _guests = formattedGuests.slice((page - 1) * pageSize, page * pageSize);
+        guestParties = [...new Set(formattedGuests.map((guest) => guest.party))];
+      } else {
+        const [guests, count] = await this.guestRepository.findAndCount({
+          where: whereConditions,
+          order: {
+            createdAt: 'DESC',
+          },
+          take: pageSize,
+          skip: (page - 1) * pageSize,
+        });
+
+        totalCount = count;
+        totalPages = Math.ceil(totalCount / pageSize);
+        hasNextPage = page < totalPages;
+        guestParties = [...new Set(guests.map((guest) => guest.party))];
+
+        _guests = await Promise.all(
+          guests.map(async (guest) => {
+            const inviteWhere = eventId 
+              ? { guest: { id: guest.id }, event: { id: eventId } }
+              : { guest: { id: guest.id } };
+
+            const invitation = await this.invitationRepository.findOne({
+              where: inviteWhere,
+              order: { createdAt: 'DESC' },
+            });
+            return modelsFormatter.FormatGuestInfo(guest, invitation);
+          })
+        );
+      }
 
       this.logger.log('[SEARCH-EVENT-GUESTS-QUERY-SUCCESS]');
 
       return {
         hasNextPage,
         totalPages,
-        guestParties: [...new Set(guests.map((guest) => guest.party))],
+        guestParties,
         guests: _guests,
       };
     } catch (error) {

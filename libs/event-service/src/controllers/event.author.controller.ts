@@ -39,6 +39,7 @@ import {
   EventGuestIdInfo,
   GuestTimelineActionEnumInfo,
 } from '../interface/schema';
+import { InvitationRSVPEnum, InvitationStatusEnum } from '@app/common/src/constants/enums';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EventService } from '../services/event.service';
 import {
@@ -290,17 +291,17 @@ export class EventAuthorController {
     description: "Guest party e.g Groom's family",
   })
   @ApiQuery({
-    type: Boolean,
+    type: String,
     required: false,
-    example: true,
+    example: InvitationRSVPEnum.AWAITING || '',
     name: 'rsvpStatus',
     description: 'RSVP Status',
   })
   @ApiQuery({
-    type: Boolean,
+    type: String,
     required: false,
-    example: true,
-    name: 'invited',
+    example: InvitationStatusEnum.PENDING || '',
+    name: 'inviteStatus',
     description: 'Invited',
   })
   @ApiOkResponse({ type: GuestsResponse })
@@ -311,8 +312,8 @@ export class EventAuthorController {
     @Query('eventId') eventId: number,
     @Headers('AccessToken') accessToken: string,
     @Query('guestParty') guestParty?: string,
-    @Query('invited') invited?: boolean,
-    @Query('rsvpStatus') rsvpStatus?: boolean,
+    @Query('inviteStatus') inviteStatus?: string,
+    @Query('rsvpStatus') rsvpStatus?: string,
     @Query('searchQuery') searchQuery?: string,
   ): Promise<GuestsResponse> {
     return await this.queryBus.execute(
@@ -320,8 +321,8 @@ export class EventAuthorController {
         eventId,
         guestParty ? guestParty : null,
         searchQuery ? searchQuery : null,
-        invited ? invited : null,
-        rsvpStatus ? rsvpStatus : null,
+        inviteStatus,
+        rsvpStatus,
         page,
         pageSize,
         accessToken,

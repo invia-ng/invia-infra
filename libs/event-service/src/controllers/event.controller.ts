@@ -67,6 +67,7 @@ import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
 import { DeleteDataInstanceInfo, EventGuestIdInfo } from '../interface/schema';
 import { InvitationChargeResponse } from '@app/subscription-service/src/interface/schema';
+import { InvitationRSVPEnum, InvitationStatusEnum } from '@app/common/src/constants/enums';
 
 @ApiTags('event')
 @Controller({ path: '' })
@@ -378,18 +379,18 @@ export class EventController {
     description: "Guest party e.g Groom's family",
   })
   @ApiQuery({
-    type: Boolean,
+    type: String,
     required: false,
-    example: true,
+    example: InvitationRSVPEnum.AWAITING || '',
     name: 'rsvpStatus',
     description: 'RSVP Status',
   })
   @ApiQuery({
-    type: Boolean,
+    type: String,
     required: false,
-    example: true,
-    name: 'invited',
-    description: 'Invited',
+    example: InvitationStatusEnum.PENDING || '',
+    name: 'inviteStatus',
+    description: 'inviteStatus',
   })
   @ApiOkResponse({ type: GuestsResponse })
   @ApiInternalServerErrorResponse()
@@ -398,8 +399,8 @@ export class EventController {
     @Query('pageSize') pageSize: number = 10,
     @Query('eventId') eventId: number,
     @Query('guestParty') guestParty?: string,
-    @Query('invited') invited?: boolean,
-    @Query('rsvpStatus') rsvpStatus?: boolean,
+    @Query('inviteStatus') inviteStatus?: string,
+    @Query('rsvpStatus') rsvpStatus?: string,
     @Query('searchQuery') searchQuery?: string,
     @SecureUser() secureUser?: SecureUserPayload,
   ): Promise<GuestsResponse> {
@@ -408,8 +409,8 @@ export class EventController {
         eventId,
         guestParty ? guestParty : null,
         searchQuery ? searchQuery : null,
-        invited ? invited : null,
-        rsvpStatus ? rsvpStatus : null,
+        inviteStatus,
+        rsvpStatus,
         page,
         pageSize,
         secureUser,

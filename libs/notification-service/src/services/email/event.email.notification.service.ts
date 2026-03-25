@@ -165,7 +165,7 @@ export class EventEmailNotificationService {
       await this.initializeAdminSettings();
 
       const htmlContent = await invite_event_guest_email_html_content({
-        message: invitation.message,
+        message: `Hi ${invitation.guest.name}, you've received an invitation to ${invitation.event.name}. Check the details and let us know if you'll be joining us.`,
         event: invitation.event.name,
         hasCoverImage: invitation.image.length > 0,
         businessName: invitation.event.business.name,
@@ -193,7 +193,7 @@ export class EventEmailNotificationService {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
           to: invitation.guest.email,
-          subject: `Event Invitation: ${invitation.event.name}`,
+          subject: `You're invited to ${invitation.event.name}. Will you be there?`,
           from: `"${invitation.event.business.name}" <${invitation.event.business.sendFromEmail}>`,
         });
       } else if (
@@ -202,7 +202,7 @@ export class EventEmailNotificationService {
       ) {
         this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
-          sub: `Event Invitation: ${invitation.event.name}`,
+          sub: `You're invited to ${invitation.event.name}. Will you be there?`,
           to_email: invitation.guest.email,
           from_email: invitation.event.business.sendFromEmail,
           from_name: invitation.event.business.name,
@@ -232,7 +232,7 @@ export class EventEmailNotificationService {
       await this.initializeAdminSettings();
 
       const htmlContent = await invite_event_guest_followup_email_html_content({
-        message: followupInvitation.message,
+        message: `Hi ${followupInvitation.invitation.guest.name}, you’ve received a new message.`,
         event: followupInvitation.invitation.event.name,
         webappUrl: this.configService.get<string>('WEB_APP_URL'),
         businessName: followupInvitation.invitation.event.business.name,
@@ -249,7 +249,8 @@ export class EventEmailNotificationService {
       ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
-          subject: `Follow-up Event Invitation: ${followupInvitation.invitation.event.name}`,
+          subject: `New message for ${followupInvitation.invitation.event.name}`,
+
           to: followupInvitation.invitation.guest.email,
           from: `"${followupInvitation.invitation.event.business.name}" <${followupInvitation.invitation.event.business.sendFromEmail}>`,
         });
@@ -259,7 +260,8 @@ export class EventEmailNotificationService {
       ) {
         this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
-          sub: `Follow-up Event Invitation: ${followupInvitation.invitation.event.name}`,
+          sub: `New message for ${followupInvitation.invitation.event.name}`,
+
           to_email: followupInvitation.invitation.guest.email,
           from_email: followupInvitation.invitation.event.business.sendFromEmail,
           from_name: followupInvitation.invitation.event.business.name,
