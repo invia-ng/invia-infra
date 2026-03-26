@@ -8,6 +8,7 @@ import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
 import authUtils from '@app/common/src/security/auth.utils';
 import { Invitation } from '@app/common/src/models/invitation.model';
+import { InvitationStatusEnum, InvitationRSVPEnum } from '@app/common/src/constants/enums';
 
 @QueryHandler(EventAuthorSearchEventGuestsQuery)
 export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
@@ -119,15 +120,17 @@ export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
         });
 
         if (inviteStatus) {
-          formattedGuests = formattedGuests.filter(
-            (g) => g.invitationStatus === inviteStatus
-          );
+          formattedGuests = formattedGuests.filter((g) => {
+            const status = g.invitationStatus || InvitationStatusEnum.PENDING;
+            return status === inviteStatus;
+          });
         }
 
         if (rsvpStatus) {
-          formattedGuests = formattedGuests.filter(
-            (g) => g.rsvpStatus === rsvpStatus
-          );
+          formattedGuests = formattedGuests.filter((g) => {
+            const status = g.rsvpStatus || InvitationRSVPEnum.AWAITING;
+            return status === rsvpStatus;
+          });
         }
 
         totalCount = formattedGuests.length;

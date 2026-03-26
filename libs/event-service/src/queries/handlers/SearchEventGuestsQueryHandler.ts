@@ -6,7 +6,7 @@ import { Repository, ILike, FindOptionsWhere, In } from 'typeorm';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
-import { AccountRole } from '@app/common/src/constants/enums';
+import { AccountRole, InvitationStatusEnum, InvitationRSVPEnum } from '@app/common/src/constants/enums';
 import { Invitation } from '@app/common/src/models/invitation.model';
 
 @QueryHandler(SearchEventGuestsQuery)
@@ -111,9 +111,10 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
         });
 
         if (inviteStatus) {
-          formattedGuests = formattedGuests.filter(
-            (g) => g.invitationStatus === inviteStatus
-          );
+          formattedGuests = formattedGuests.filter((g) => {
+            const status = g.invitationStatus || InvitationStatusEnum.PENDING;
+            return status === inviteStatus;
+          });
         }
 
         if (rsvpStatus) {
