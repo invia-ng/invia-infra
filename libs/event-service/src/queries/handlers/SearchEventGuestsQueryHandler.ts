@@ -111,9 +111,17 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
         });
 
         if (inviteStatus) {
-          formattedGuests = formattedGuests.filter(
-            (g) => g.invitationStatus === inviteStatus
-          );
+          formattedGuests = formattedGuests.filter((g) => {
+            const inv = latestInvitations[g.id];
+            const derivedStatus = inv
+              ? (inv.isEmailInviteDelivered || inv.isWhatsAppInviteDelivered)
+                ? InvitationStatusEnum.DELIVERED
+                : (inv.isEmailInviteSent || inv.isWhatsAppInviteSent)
+                  ? InvitationStatusEnum.SENT
+                  : InvitationStatusEnum.PENDING
+              : InvitationStatusEnum.PENDING;
+            return derivedStatus === inviteStatus;
+          });
         }
 
         if (rsvpStatus) {
