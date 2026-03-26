@@ -156,14 +156,14 @@ export function FormatGuestInfo(guest: Guest, invitation?: Invitation, maskData:
         : guest.isInviteRSVP
           ? InvitationRSVPEnum.REJECTED
           : InvitationRSVPEnum.AWAITING
-      : '',
+      : InvitationRSVPEnum.AWAITING,
     invitationStatus: invitation
       ? (invitation.isEmailInviteDelivered || invitation.isWhatsAppInviteDelivered)
         ? InvitationStatusEnum.DELIVERED
         : (invitation.isEmailInviteSent || invitation.isWhatsAppInviteSent)
           ? InvitationStatusEnum.SENT
           : InvitationStatusEnum.PENDING
-      : '',
+      : InvitationStatusEnum.PENDING,
   } as unknown as GuestInfo;
 }
 

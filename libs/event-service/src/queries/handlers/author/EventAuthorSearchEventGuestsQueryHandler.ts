@@ -8,7 +8,6 @@ import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
 import authUtils from '@app/common/src/security/auth.utils';
 import { Invitation } from '@app/common/src/models/invitation.model';
-import { InvitationStatusEnum, InvitationRSVPEnum } from '@app/common/src/constants/enums';
 
 @QueryHandler(EventAuthorSearchEventGuestsQuery)
 export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
@@ -21,7 +20,7 @@ export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
     private readonly guestRepository: Repository<Guest>,
     @InjectRepository(Invitation)
     private readonly invitationRepository: Repository<Invitation>,
-  ) {}
+  ) { }
 
   async execute(
     query: EventAuthorSearchEventGuestsQuery,
@@ -120,17 +119,15 @@ export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
         });
 
         if (inviteStatus) {
-          formattedGuests = formattedGuests.filter((g) => {
-            const status = g.invitationStatus || InvitationStatusEnum.PENDING;
-            return status === inviteStatus;
-          });
+          formattedGuests = formattedGuests.filter(
+            (g) => g.invitationStatus === inviteStatus
+          );
         }
 
         if (rsvpStatus) {
-          formattedGuests = formattedGuests.filter((g) => {
-            const status = g.rsvpStatus || InvitationRSVPEnum.AWAITING;
-            return status === rsvpStatus;
-          });
+          formattedGuests = formattedGuests.filter(
+            (g) => g.rsvpStatus === rsvpStatus
+          );
         }
 
         totalCount = formattedGuests.length;
@@ -156,7 +153,7 @@ export class EventAuthorSearchEventGuestsQueryHandler implements IQueryHandler<
 
         _guests = await Promise.all(
           guests.map(async (guest) => {
-            const inviteWhere = eventId 
+            const inviteWhere = eventId
               ? { guest: { id: guest.id }, event: { id: eventId } }
               : { guest: { id: guest.id } };
 
