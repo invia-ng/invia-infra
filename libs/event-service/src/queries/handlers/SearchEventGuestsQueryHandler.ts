@@ -4,10 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Repository, ILike, FindOptionsWhere, In } from 'typeorm';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
+import { Invitation } from '@app/common/src/models/invitation.model';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
 import { AccountRole, InvitationStatusEnum } from '@app/common/src/constants/enums';
-import { Invitation } from '@app/common/src/models/invitation.model';
 
 @QueryHandler(SearchEventGuestsQuery)
 export class SearchEventGuestsQueryHandler implements IQueryHandler<
@@ -112,15 +112,8 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
 
         if (inviteStatus) {
           formattedGuests = formattedGuests.filter((g) => {
-            const inv = latestInvitations[g.id];
-            const derivedStatus = inv
-              ? (inv.isEmailInviteDelivered || inv.isWhatsAppInviteDelivered)
-                ? InvitationStatusEnum.DELIVERED
-                : (inv.isEmailInviteSent || inv.isWhatsAppInviteSent)
-                  ? InvitationStatusEnum.SENT
-                  : InvitationStatusEnum.PENDING
-              : InvitationStatusEnum.PENDING;
-            return derivedStatus === inviteStatus;
+            const status = g.invitationStatus || InvitationStatusEnum.PENDING;
+            return status === inviteStatus;
           });
         }
 

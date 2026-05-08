@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MailerModule } from '@nestjs-modules/mailer';
 import { NotificationServiceCronHandlers } from './jobs';
 import { SupportService } from './services/support.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -10,15 +9,20 @@ import { Account } from 'libs/common/src/models/account.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { SupportController } from './controllers/support.controller';
 import { Notification } from 'libs/common/src/models/notification.model';
+import { NotificationServiceCommandHandlers } from './commands/handlers';
+import { NotificationController } from './controllers/notification.controller';
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
 import { AccountNotificationService } from './services/account.notification.service';
 import { EmailSenderService } from 'libs/helper-service/src/services/email-sender.service';
 import { AccountNotificationController } from './controllers/account.notification.controller';
 import { AuthEmailNotificationService } from './services/email/auth.email.notification.service';
-import { AdminAlertEmailNotificationService } from './services/email/admin.alert.email.notification.service';
-import { SubscriptionsEmailNotificationService } from './services/email/subscriptions.email.notification.service';
 import { EventEmailNotificationService } from './services/email/event.email.notification.service';
 import { PaymentEmailNotificationService } from './services/email/payment.email.notification.service';
+import { EventWhatsAppNotificationService } from './services/email/event.whatsapp.notification.service';
+import { AdminAlertEmailNotificationService } from './services/email/admin.alert.email.notification.service';
+import { SubscriptionsEmailNotificationService } from './services/email/subscriptions.email.notification.service';
+import { setupSwaggerDocument } from '@app/common/src/swagger';
+import { DocumentBuilder } from '@nestjs/swagger';
 
 @Module({
   imports: [
@@ -36,23 +40,40 @@ import { PaymentEmailNotificationService } from './services/email/payment.email.
       provide: 'Logger',
       useClass: AppLogger,
     },
-    ...NotificationServiceCronHandlers,
     SupportService,
     EmailSenderService,
     AccountNotificationService,
     AuthEmailNotificationService,
     EventEmailNotificationService,
     PaymentEmailNotificationService,
+    EventWhatsAppNotificationService,
     AdminAlertEmailNotificationService,
     SubscriptionsEmailNotificationService,
+    // Cron-Jobs
+    ...NotificationServiceCronHandlers,
+    // Commands
+    ...NotificationServiceCommandHandlers,
   ],
   exports: [
     SupportService,
     AuthEmailNotificationService,
+    EventWhatsAppNotificationService,
     AdminAlertEmailNotificationService,
-    // AccountNotificationController,
     SubscriptionsEmailNotificationService,
   ],
-  controllers: [SupportController, AccountNotificationController],
+  controllers: [NotificationController, SupportController, AccountNotificationController],
 })
-export class NotificationServiceModule {}
+export class NotificationServiceModule {
+  constructor(private configService: ConfigService) {
+    setupSwaggerDocument(
+      'notification-service',
+      new DocumentBuilder()
+        .addBearerAuth()
+        .addServer(this.configService.get<string>('API_HOST'))
+        .setTitle('Notification Docs')
+        .setDescription('Notification service endpoints...')
+        .setVersion('1.0')
+        .build(),
+    )(NotificationServiceModule);
+  }
+}

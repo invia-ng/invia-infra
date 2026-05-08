@@ -35,6 +35,8 @@ import { EmailSenderService } from '@app/helper-service/src/services/email-sende
 import { FollowupMessageTemplate, MessageTemplate } from '@app/common/src/models/message.template.model';
 import { EventEmailNotificationService } from '@app/notification-service/src/services/email/event.email.notification.service';
 import { PaymentEmailNotificationService } from '@app/notification-service/src/services/email/payment.email.notification.service';
+import { EventWhatsAppNotificationService } from '@app/notification-service/src/services/email/event.whatsapp.notification.service';
+import { MetaApiService } from '@app/helper-service/src/services/meta-api.service';
 
 @Module({
   imports: [
@@ -74,9 +76,11 @@ import { PaymentEmailNotificationService } from '@app/notification-service/src/s
       provide: 'Logger',
       useClass: AppLogger,
     },
+    MetaApiService,
     EmailSenderService,
     EventEmailNotificationService,
     PaymentEmailNotificationService,
+    EventWhatsAppNotificationService,
     ...EventServiceCronHandlers,
     ...EventServiceQueryHandlers,
     ...EventServiceEventHandlers,

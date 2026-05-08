@@ -76,6 +76,10 @@ import { NotificationServiceModule } from '@app/notification-service/src/notific
         module: EventServiceModule,
       },
       {
+        path: 'v1/notification',
+        module: NotificationServiceModule,
+      },
+      {
         path: 'v1/subscription',
         module: SubscriptionServiceModule,
       },
