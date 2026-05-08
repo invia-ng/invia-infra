@@ -1,14 +1,13 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import authUtils from 'libs/common/src/security/auth.utils';
-import { ProcessMetaWhatsappWebhookCommand } from '../impl';
+import { ProcessMetaWhatsappWebhookQuery } from '../impl';
 import { Inject, UnauthorizedException } from '@nestjs/common';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { EventBus, ICommandHandler, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-@CommandHandler(ProcessMetaWhatsappWebhookCommand)
-export class ProcessMetaWhatsappWebhookHandler implements ICommandHandler<
-	ProcessMetaWhatsappWebhookCommand,
+@QueryHandler(ProcessMetaWhatsappWebhookQuery)
+export class ProcessMetaWhatsappWebhookQueryHandler implements IQueryHandler<
+	ProcessMetaWhatsappWebhookQuery,
 	void
 > {
 	constructor(
@@ -16,11 +15,11 @@ export class ProcessMetaWhatsappWebhookHandler implements ICommandHandler<
 		@Inject('Logger') private readonly logger: AppLogger,
 	) { }
 
-	async execute(command: ProcessMetaWhatsappWebhookCommand) {
+	async execute(query: ProcessMetaWhatsappWebhookQuery): Promise<void> {
 		try {
 			this.logger.log(`[PROCESS-META-WHATSAPP-WEBHOOK-HANDLER-PROCESSING]`);
 
-			const { payload } = command;
+			const { payload } = query;
 
 			console.log('[PROCESS-META-WHATSAPP-WEBHOOK-PAYLOAD] :: ', payload);
 

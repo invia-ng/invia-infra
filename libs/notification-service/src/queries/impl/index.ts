@@ -1,4 +1,4 @@
-export class ProcessMetaWhatsappWebhookCommand {
+export class ProcessMetaWhatsappWebhookQuery {
     constructor(
         public readonly payload: any,
     ) { }
