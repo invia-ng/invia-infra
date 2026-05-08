@@ -10,6 +10,7 @@ import { GuestTimeline } from '@app/common/src/models/guest.model';
 import { Invitation } from '@app/common/src/models/invitation.model';
 import { GuestTimelineActionEnum } from '@app/common/src/constants/enums';
 import { EventEmailNotificationService } from '@app/notification-service/src/services/email/event.email.notification.service';
+import { EventWhatsAppNotificationService } from '@app/notification-service/src/services/email/event.whatsapp.notification.service';
 
 @EventsHandler(EventAuthorInviteEventGuestEvent)
 export class EventAuthorInviteEventGuestEventHandler implements IEventHandler<EventAuthorInviteEventGuestEvent> {
@@ -22,7 +23,8 @@ export class EventAuthorInviteEventGuestEventHandler implements IEventHandler<Ev
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
     private readonly eventEmailNotificationService: EventEmailNotificationService,
-  ) {}
+    private readonly eventWhatsappNotificationService: EventWhatsAppNotificationService,
+  ) { }
 
   async handle(event: EventAuthorInviteEventGuestEvent) {
     try {
@@ -79,6 +81,37 @@ export class EventAuthorInviteEventGuestEventHandler implements IEventHandler<Ev
 
       if (invitation.sendWhatsAppInvite) {
         //! SEND WHATSAPP INVITATION
+        const whatsappResponse =
+          await this.eventWhatsappNotificationService.inviteEventGuestWhatsappNotification(
+            invitation,
+          );
+
+        await this.guestTimelineRepository.save({
+          guest: invitation.guest,
+          description: 'Event author sent an invite whatsapp message.',
+          action: GuestTimelineActionEnum.SENT_INVITE_MESSAGE,
+        });
+
+        if (whatsappResponse) {
+          Object.assign(invitation, {
+            isWhatsappInviteSent: true,
+            isWhatsappInviteDelivered: true,
+          });
+
+          await this.invitationRepository.save(invitation);
+
+          await this.guestTimelineRepository.save({
+            guest: invitation.guest,
+            description: 'Whatsapp message was delivered.',
+            action: GuestTimelineActionEnum.WHATSAPP_DELIVERED,
+          });
+        } else {
+          await this.guestTimelineRepository.save({
+            guest: invitation.guest,
+            description: 'Whatsapp message failed to deliver.',
+            action: GuestTimelineActionEnum.WHATSAPP_DELIVERY_FAILED,
+          });
+        }
       }
 
       this.logger.log(`[INVITE-EVENT-GUEST-EVENT-SUCCESS]`);

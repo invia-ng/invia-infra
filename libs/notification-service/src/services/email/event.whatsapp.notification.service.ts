@@ -39,9 +39,11 @@ export class EventWhatsAppNotificationService {
       this.logger.log(`[INVITE-EVENT-GUEST-WHATSAPP-NOTIFICATION-PROCESSING]`);
 
       await this.metaApiService.sendWhatsAppMessage({
+        message: invitation.message,
         to_phone: invitation.guest.phone,
         guest_name: invitation.guest.name,
         event_name: invitation.event.name,
+        open_link: `/invitation?invitationHash=${invitation.hash}`,
         image_url: invitation.image.length > 0 ? invitation.image : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
       });
 

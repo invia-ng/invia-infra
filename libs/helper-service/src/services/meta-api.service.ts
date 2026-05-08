@@ -19,6 +19,8 @@ export class MetaApiService {
     guest_name: string;
     event_name: string;
     image_url: string;
+    message?: string;
+    open_link?: string;
   }): Promise<void> {
     try {
       this.logger.log('[SEND-WHATSAPP-MESSAGE-PROCESSING]');
@@ -29,6 +31,10 @@ export class MetaApiService {
           messaging_product: 'whatsapp',
           to: params.to_phone,
           type: 'template',
+          // text: {
+          //   body: params.message,
+          // },
+          // type: params.message ? 'text' : 'template',
           template: {
             name: 'invitation',
             language: { code: 'en' },
@@ -56,6 +62,17 @@ export class MetaApiService {
                     type: 'text',
                     parameter_name: 'event_name',
                     text: params.event_name,
+                  },
+                ],
+              },
+              {
+                type: 'button',
+                sub_type: 'url',
+                index: '0',
+                parameters: [
+                  {
+                    type: 'text',
+                    text: params?.open_link,
                   },
                 ],
               },

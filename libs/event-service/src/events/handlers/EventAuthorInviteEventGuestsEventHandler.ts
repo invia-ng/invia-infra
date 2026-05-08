@@ -1,19 +1,20 @@
-import { Repository } from 'typeorm';
-import { EventAuthorInviteEventGuestsEvent } from '../impl';
-import { InjectRepository } from '@nestjs/typeorm';
 import {
   Inject,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EventAuthorInviteEventGuestsEvent } from '../impl';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+import authUtils from '@app/common/src/security/auth.utils';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { GuestTimeline } from '@app/common/src/models/guest.model';
 import { Invitation } from '@app/common/src/models/invitation.model';
 import { GuestTimelineActionEnum } from '@app/common/src/constants/enums';
 import { EventEmailNotificationService } from '@app/notification-service/src/services/email/event.email.notification.service';
-import authUtils from '@app/common/src/security/auth.utils';
+import { EventWhatsAppNotificationService } from '@app/notification-service/src/services/email/event.whatsapp.notification.service';
 
 @EventsHandler(EventAuthorInviteEventGuestsEvent)
 export class EventAuthorInviteEventGuestsEventHandler implements IEventHandler<EventAuthorInviteEventGuestsEvent> {
@@ -26,7 +27,8 @@ export class EventAuthorInviteEventGuestsEventHandler implements IEventHandler<E
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
     private readonly eventEmailNotificationService: EventEmailNotificationService,
-  ) {}
+    private readonly eventWhatsappNotificationService: EventWhatsAppNotificationService,
+  ) { }
 
   async handle(event: EventAuthorInviteEventGuestsEvent) {
     try {
@@ -88,6 +90,37 @@ export class EventAuthorInviteEventGuestsEventHandler implements IEventHandler<E
 
             if (invitation.sendWhatsAppInvite) {
               //! SEND WHATSAPP INVITATION
+              const whatsappResponse =
+                await this.eventWhatsappNotificationService.inviteEventGuestWhatsappNotification(
+                  invitation,
+                );
+
+              await this.guestTimelineRepository.save({
+                guest: invitation.guest,
+                description: `Event author sent an invite whatsapp message.`,
+                action: GuestTimelineActionEnum.SENT_INVITE_MESSAGE,
+              });
+
+              if (whatsappResponse) {
+                Object.assign(invitation, {
+                  isWhatsappInviteSent: true,
+                  isWhatsappInviteDelivered: true,
+                });
+
+                await this.invitationRepository.save(invitation);
+
+                await this.guestTimelineRepository.save({
+                  guest: invitation.guest,
+                  description: 'Whatsapp message was delivered.',
+                  action: GuestTimelineActionEnum.WHATSAPP_DELIVERED,
+                });
+              } else {
+                await this.guestTimelineRepository.save({
+                  guest: invitation.guest,
+                  description: 'Whatsapp message failed to deliver.',
+                  action: GuestTimelineActionEnum.WHATSAPP_DELIVERY_FAILED,
+                });
+              }
             }
 
             this.logger.log('[INVITE-EVENT-GUEST-EVENT-MANAGER-SUCCESS]');
