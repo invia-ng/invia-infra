@@ -1,20 +1,20 @@
 import { randomUUID } from 'crypto';
-import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import {
+  Invitation,
+  FollowupInvitation,
+} from '@app/common/src/models/invitation.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InviteEventGuestsCommand } from '../impl';
 import { Event } from '@app/common/src/models/event.model';
 import { InviteEventGuestsEvent } from '../../events/impl';
 import { Guest } from '@app/common/src/models/guest.model';
+import { Inject, NotFoundException } from '@nestjs/common';
 import authUtils from '@app/common/src/security/auth.utils';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { FollowupIntervalEnum } from '@app/common/src/constants/enums';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { MessageTemplateParser } from '../../middlewares/messsage.template.parser';
-import {
-  FollowupInvitation,
-  Invitation,
-} from '@app/common/src/models/invitation.model';
 
 @CommandHandler(InviteEventGuestsCommand)
 export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGuestsCommand> {
@@ -92,6 +92,8 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
               guest,
               hash,
               image: payload?.image,
+              isEmailInviteDelivered: true,
+              isWhatsAppInviteDelivered: true,
               sendEmailInvite: payload.sendEmailInvite,
               sendWhatsAppInvite: payload.sendWhatsAppInvite,
               message: MessageTemplateParser(payload.message, event, guest),
@@ -158,7 +160,7 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
 
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-SUCCESS]`);
 
-      this.eventBus.publish(
+      await this.eventBus.publish(
         new InviteEventGuestsEvent(invitations, secureUser),
       );
 

@@ -87,11 +87,17 @@ export class InviteEventGuestsEventHandler implements IEventHandler<InviteEventG
                   action: GuestTimelineActionEnum.EMAIL_DELIVERED,
                 });
               } else {
-                await this.guestTimelineRepository.save({
-                  guest: invitation.guest,
-                  description: 'Email failed to deliver.',
-                  action: GuestTimelineActionEnum.EMAIL_DELIVERED,
-                });
+                await Promise.all([
+                  this.invitationRepository.update(invitation.id, {
+                    isEmailInviteSent: false,
+                    isEmailInviteDelivered: false,
+                  }),
+                  this.guestTimelineRepository.save({
+                    guest: invitation.guest,
+                    description: 'Email failed to deliver.',
+                    action: GuestTimelineActionEnum.EMAIL_DELIVERED,
+                  }),
+                ]);
               }
             }
 
@@ -125,11 +131,17 @@ export class InviteEventGuestsEventHandler implements IEventHandler<InviteEventG
                   action: GuestTimelineActionEnum.WHATSAPP_DELIVERED,
                 });
               } else {
-                await this.guestTimelineRepository.save({
-                  guest: invitation.guest,
-                  description: 'Whatsapp message failed to deliver.',
-                  action: GuestTimelineActionEnum.WHATSAPP_DELIVERY_FAILED,
-                });
+                await Promise.all([
+                  this.invitationRepository.update(invitation.id, {
+                    isWhatsAppInviteSent: false,
+                    isWhatsAppInviteDelivered: false,
+                  }),
+                  this.guestTimelineRepository.save({
+                    guest: invitation.guest,
+                    description: 'Whatsapp message failed to deliver.',
+                    action: GuestTimelineActionEnum.WHATSAPP_DELIVERY_FAILED,
+                  }),
+                ]);
               }
             }
 

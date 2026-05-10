@@ -28,7 +28,7 @@ export class InviteEventGuestHandler implements ICommandHandler<InviteEventGuest
     private readonly invitationRepository: Repository<Invitation>,
     @InjectRepository(FollowupInvitation)
     private readonly followupInvitationRepository: Repository<FollowupInvitation>,
-  ) {}
+  ) { }
 
   async execute(command: InviteEventGuestCommand) {
     try {
@@ -84,6 +84,8 @@ export class InviteEventGuestHandler implements ICommandHandler<InviteEventGuest
         guest,
         hash,
         image: payload?.image,
+        isEmailInviteDelivered: true,
+        isWhatsAppInviteDelivered: true,
         sendEmailInvite: payload.sendEmailInvite,
         sendWhatsAppInvite: payload.sendWhatsAppInvite,
         message: MessageTemplateParser(payload.message, event, guest),

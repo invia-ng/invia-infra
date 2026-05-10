@@ -89,6 +89,8 @@ export class InviteEventGuestsAfterPaymentHandler implements ICommandHandler<Inv
               guest,
               hash,
               image: payload?.image,
+              isEmailInviteDelivered: true,
+              isWhatsAppInviteDelivered: true,
               sendEmailInvite: payload.sendEmailInvite,
               sendWhatsAppInvite: payload.sendWhatsAppInvite,
               message: MessageTemplateParser(payload.message, event, guest),
