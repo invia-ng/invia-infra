@@ -33,7 +33,7 @@ export class FetchEventInfoQueryHandler implements IQueryHandler<
 
   async execute(query: FetchEventInfoQuery) {
     try {
-      this.logger.log('[FETCH-EVENT=INFO-QUERY-PROCESSING]');
+      this.logger.log('[FETCH-EVENT-INFO-QUERY-PROCESSING]');
 
       const { eventId, secureUser } = query;
 
@@ -96,7 +96,7 @@ export class FetchEventInfoQueryHandler implements IQueryHandler<
         (invite) => invite.isEmailInviteDelivered === false && invite.isWhatsAppInviteDelivered === false,
       ).length;
 
-      this.logger.log('[FETCH-EVENT=INFO-QUERY-SUCCESS]');
+      this.logger.log('[FETCH-EVENT-INFO-QUERY-SUCCESS]');
 
       return modelsFormatter.FormatEventInfo(
         event,
@@ -108,7 +108,7 @@ export class FetchEventInfoQueryHandler implements IQueryHandler<
         failedInvites,
       );
     } catch (error) {
-      this.logger.error('[FETCH-EVENT=INFO-QUERY-ERROR]', error);
+      this.logger.error('[FETCH-EVENT-INFO-QUERY-ERROR]', error);
 
       throw error;
     }

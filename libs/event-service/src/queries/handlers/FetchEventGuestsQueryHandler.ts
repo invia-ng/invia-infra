@@ -48,7 +48,7 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
 
       await Promise.all(guests.map(async (guest) => {
         try {
-          this.logger.error('[FETCH-EVENT-GUEST-INVITATION-MANAGER-PROCESSING]');
+          this.logger.log('[FETCH-EVENT-GUEST-INVITATION-MANAGER-PROCESSING]');
 
           const invitation = await this.invitationRepository.findOne({
             where: {
@@ -66,7 +66,7 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
 
           _guests.push(modelsFormatter.FormatGuestInfo(guest, invitation, secureUser.role === AccountRole.MEMBER));
 
-          this.logger.error('[FETCH-EVENT-GUEST-INVITATION-MANAGER-SUCCESS]');
+          this.logger.log('[FETCH-EVENT-GUEST-INVITATION-MANAGER-SUCCESS]');
         } catch (error) {
           this.logger.error('[FETCH-EVENT-GUEST-INVITATION-MANAGER-ERROR]', error);
         }

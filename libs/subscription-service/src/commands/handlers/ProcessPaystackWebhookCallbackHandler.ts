@@ -53,10 +53,6 @@ export class ProcessPaystackWebhookCallbackHandler implements ICommandHandler<Pa
         ) {
           console.log('HANDLE-INVITE_GUESTS_BILLING-PAYMENT');
 
-          const planId = payload?.metadata?.custom_fields.find(
-            (field) => field.variable_name === 'PLAN_ID',
-          ).value;
-
           const eventId = Number(payload?.metadata?.custom_fields.find(
             (field: any) => field.variable_name === 'EVENT_ID',
           )?.value);
