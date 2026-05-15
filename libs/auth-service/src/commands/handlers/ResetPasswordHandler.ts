@@ -10,14 +10,13 @@ import { AuthEmailNotificationService } from '@app/notification-service/src/serv
 
 @CommandHandler(ResetPasswordCommand)
 export class ResetPasswordHandler
-  implements ICommandHandler<ResetPasswordCommand>
-{
+  implements ICommandHandler<ResetPasswordCommand> {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
     private readonly AuthEmailNotificationService: AuthEmailNotificationService,
-  ) {}
+  ) { }
 
   async execute(command: ResetPasswordCommand) {
     try {
@@ -38,11 +37,13 @@ export class ResetPasswordHandler
         );
       }
 
+      const newPassword = await authUtils.hashPassword(payload.newPassword);
+
       Object.assign(account, {
         passwordResetCode: null,
         passwordResetToken: null,
         passwordResetCodeExpires: null,
-        password: await authUtils.hashPassword(payload.newPassword),
+        password: newPassword,
       });
 
       await this.accountRepository.save(account);

@@ -1,15 +1,15 @@
 import { Repository } from 'typeorm';
-import { BadRequestException, Inject } from '@nestjs/common';
 import { ForgotPasswordCommand } from '../impl';
 import { createHash, randomUUID } from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Account } from 'libs/common/src/models/account.model';
 import authUtils from 'libs/common/src/security/auth.utils';
+import { BadRequestException, Inject } from '@nestjs/common';
+import { Account } from 'libs/common/src/models/account.model';
+import { AccountStatus } from '@app/common/src/constants/enums';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UserNotFoundException } from 'libs/common/src/constants/exceptions';
 import { AuthEmailNotificationService } from '@app/notification-service/src/services/email/auth.email.notification.service';
-import { AccountStatus } from '@app/common/src/constants/enums';
 
 @CommandHandler(ForgotPasswordCommand)
 export class ForgotPasswordHandler implements ICommandHandler<ForgotPasswordCommand> {
