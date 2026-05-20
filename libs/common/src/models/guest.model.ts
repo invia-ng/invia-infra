@@ -151,6 +151,16 @@ export class GuestTimeline {
   })
   description: string;
 
+  @Column({
+    default: '',
+    nullable: true,
+  })
+  @ApiPropertyOptional({
+    description: 'Timeline notes',
+    example: 'Note about the action',
+  })
+  note: string;
+
   @ManyToOne(() => Guest, {
     eager: true,
     onDelete: 'CASCADE',
@@ -257,6 +267,12 @@ export class GuestTimelineInfo {
     example: '2023-01-01T00:00:00.000Z',
   })
   date: string;
+
+  @ApiProperty({
+    description: 'Timeline note',
+    example: 'Note about the action',
+  })
+  note: string;
 }
 
 export class GuestProfileInfo {

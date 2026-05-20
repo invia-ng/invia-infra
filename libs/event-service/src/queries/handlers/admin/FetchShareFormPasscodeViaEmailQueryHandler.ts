@@ -54,7 +54,7 @@ export class FetchShareFormPasscodeQueryHandler
       const diffInMilliseconds = Math.abs(passcodeExpires.getTime() - new Date().getTime());
       const diffInHours = Math.ceil(diffInMilliseconds / (1000 * 60 * 60));
 
-      this.eventEmailNotificationService.sendEventShareFormPasscodeEmailNotification({
+      await this.eventEmailNotificationService.sendEventShareFormPasscodeEmailNotification({
         event,
         guestEmail,
       });

@@ -1,18 +1,18 @@
 import { Repository } from 'typeorm';
-import { Inject, NotFoundException } from '@nestjs/common';
-import { FetchEventGuestInfoQuery } from '../impl';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EventGuestIdInfo } from '../../interface/schema';
 import {
   Guest,
   GuestProfileInfo,
   GuestTimeline,
 } from '@app/common/src/models/guest.model';
+import { FetchEventGuestInfoQuery } from '../impl';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EventGuestIdInfo } from '../../interface/schema';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { AppLogger } from 'libs/common/src/logger/logger.service';
-import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { AccountRole } from '@app/common/src/constants/enums';
+import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Invitation } from '@app/common/src/models/invitation.model';
+import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 
 @QueryHandler(FetchEventGuestInfoQuery)
 export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
@@ -27,7 +27,7 @@ export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
     private readonly invitationRepository: Repository<Invitation>,
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
-  ) { }
+  ) {}
 
   async execute(query: FetchEventGuestInfoQuery) {
     try {
@@ -72,12 +72,16 @@ export class FetchEventGuestInfoQueryHandler implements IQueryHandler<
           createdAt: 'DESC',
         },
       });
-      
+
       const formattedGuestTimelines = guestTimelines.map(
         modelsFormatter.FormatGuestTimelineInfo,
       );
-      
-      const formattedGuest = modelsFormatter.FormatGuestInfo(guest, invitation ?? null, secureUser.role === AccountRole.MEMBER);
+
+      const formattedGuest = modelsFormatter.FormatGuestInfo(
+        guest,
+        invitation ?? null,
+        secureUser.role === AccountRole.MEMBER,
+      );
 
       this.logger.log('[FETCH-EVENT-GUEST-INFO-QUERY-SUCCESS]');
 

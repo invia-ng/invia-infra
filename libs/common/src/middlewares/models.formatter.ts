@@ -53,9 +53,17 @@ import { maskEmailAddress, maskPhoneNumber } from '../utils/string.utils';
 import { generateSubscriptionExpirationInfo } from '../helpers/subscriptions';
 import { formatTo12HourTime, formatToCustomDate } from '../utils/date.utils';
 import { Notification, NotificationInfo } from '../models/notification.model';
-import { Account, AccountInfo, BusinessMemberInfo } from '../models/account.model';
+import {
+  Account,
+  AccountInfo,
+  BusinessMemberInfo,
+} from '../models/account.model';
 import { BusinessMemberRoleInfo } from '@app/account-service/src/interface/schema';
-import { ChargeResponse, ChargeResponseData, InvitationChargeResponse } from '@app/subscription-service/src/interface/schema';
+import {
+  ChargeResponse,
+  ChargeResponseData,
+  InvitationChargeResponse,
+} from '@app/subscription-service/src/interface/schema';
 
 export function FormatNotification(
   notification: Notification,
@@ -72,7 +80,10 @@ export function FormatNotification(
   } as unknown as NotificationInfo;
 }
 
-export function FormatAccountInfo(account: Account, subscription?: Subscription | null): AccountInfo {
+export function FormatAccountInfo(
+  account: Account,
+  subscription?: Subscription | null,
+): AccountInfo {
   return {
     id: account.id.toString(),
     name: account.name,
@@ -98,7 +109,8 @@ export function FormatBusinessMemberInfo(account: Account): BusinessMemberInfo {
     email: account.email,
     role: account.role,
     status: account.status,
-    isInvitationAccepted: account.status === AccountStatus.ACTIVE ? true : false,
+    isInvitationAccepted:
+      account.status === AccountStatus.ACTIVE ? true : false,
   } as unknown as BusinessMemberInfo;
 }
 
@@ -138,7 +150,11 @@ export function FormatEventInfo(
   } as unknown as EventInfo;
 }
 
-export function FormatGuestInfo(guest: Guest, invitation?: Invitation, maskData: boolean = false): GuestInfo {
+export function FormatGuestInfo(
+  guest: Guest,
+  invitation?: Invitation,
+  maskData: boolean = false,
+): GuestInfo {
   return {
     id: guest.id.toString(),
     name: guest.name,
@@ -148,19 +164,22 @@ export function FormatGuestInfo(guest: Guest, invitation?: Invitation, maskData:
     email: maskData ? maskEmailAddress(guest.email) : guest.email,
     isEmailInviteSent: invitation ? invitation.isEmailInviteSent : false,
     isWhatsAppInviteSent: invitation ? invitation.isWhatsAppInviteSent : false,
-    isEmailInviteDelivered: invitation ? invitation.isEmailInviteDelivered : false,
-    isWhatsAppInviteDelivered: invitation ? invitation.isWhatsAppInviteDelivered : false,
+    isEmailInviteDelivered: invitation
+      ? invitation.isEmailInviteDelivered
+      : false,
+    isWhatsAppInviteDelivered: invitation
+      ? invitation.isWhatsAppInviteDelivered
+      : false,
     rsvpStatus: invitation
       ? invitation.isRSVP
         ? InvitationRSVPEnum.CONFIRMED
-        : guest.isInviteRSVP
-          ? InvitationRSVPEnum.REJECTED
-          : InvitationRSVPEnum.AWAITING
+        : InvitationRSVPEnum.REJECTED
       : '',
     invitationStatus: invitation
-      ? (invitation.isEmailInviteDelivered || invitation.isWhatsAppInviteDelivered)
+      ? invitation.isEmailInviteDelivered ||
+        invitation.isWhatsAppInviteDelivered
         ? InvitationStatusEnum.DELIVERED
-        : (invitation.isEmailInviteSent || invitation.isWhatsAppInviteSent)
+        : invitation.isEmailInviteSent || invitation.isWhatsAppInviteSent
           ? InvitationStatusEnum.SENT
           : InvitationStatusEnum.PENDING
       : '',
@@ -526,7 +545,9 @@ export function FormatSubscriptionInfo(
     secureGuestDataAccess: subscription.secureGuestDataAccess,
     flexibleDataExport: subscription.flexibleDataExport,
     isExpired: subscription.isExpired,
-    expirationInfo: generateSubscriptionExpirationInfo(subscription.expirationDate),
+    expirationInfo: generateSubscriptionExpirationInfo(
+      subscription.expirationDate,
+    ),
   } as unknown as SubscriptionInfo;
 }
 
@@ -534,8 +555,9 @@ export function FormatGuestTimelineInfo(
   timeline: GuestTimeline,
 ): GuestTimelineInfo {
   return {
-    id: timeline.id.toString(),
+    note: timeline.note,
     action: timeline.action,
+    id: timeline.id.toString(),
     description: timeline.description,
     time: formatTo12HourTime(timeline.createdAt),
     date: formatToCustomDate(timeline.createdAt),
@@ -649,7 +671,8 @@ export function FormatGuestTimelineActionEnumInfo(
 }
 
 export function FormatGuestEventInvitationInfo(
-  invitation: Invitation): GuestEventInvitationInfo {
+  invitation: Invitation,
+): GuestEventInvitationInfo {
   return {
     eventName: invitation.event.name,
     invitationImage: invitation.image,
@@ -661,7 +684,8 @@ export function FormatGuestEventInvitationInfo(
 }
 
 export function FormatGuestEventFollowupInvitationInfo(
-  followupInvitation: FollowupInvitation): GuestEventFollowupInvitationInfo {
+  followupInvitation: FollowupInvitation,
+): GuestEventFollowupInvitationInfo {
   return {
     eventName: followupInvitation.invitation.event.name,
     invitationImage: followupInvitation.invitation.image,

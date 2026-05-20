@@ -28,7 +28,7 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
     @InjectRepository(GuestTimeline)
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
     private readonly eventEmailNotificationService: EventEmailNotificationService,
-  ) { }
+  ) {}
 
   async execute(command: AcceptRejectEventInvitationCommand) {
     try {
@@ -75,7 +75,7 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
       await this.invitationRepository.save(invitation);
 
       Object.assign(invitation.guest, {
-        isInviteRSVP: acceptInvite,
+        isInviteRSVP: true,
       });
 
       await this.guestRepository.save(invitation.guest);
@@ -85,15 +85,18 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
         description: acceptInvite
           ? 'Guest accepts the invitation.'
           : 'Guest rejects the invitation.',
+        note: acceptInvite ? '' : payload?.rejectionNote,
         action: acceptInvite
           ? GuestTimelineActionEnum.GUEST_ACCEPTED_INVITE
           : GuestTimelineActionEnum.GUEST_REJECTED_INVITE,
       });
 
-      this.eventEmailNotificationService.eventGuestAcceptRejectInvitationEmailNotification({
-        invitation,
-        isAccept: acceptInvite,
-      });
+      this.eventEmailNotificationService.eventGuestAcceptRejectInvitationEmailNotification(
+        {
+          invitation,
+          isAccept: acceptInvite,
+        },
+      );
 
       this.logger.log(`[ACCEPT-REJECT-EVENT-INVITATION-HANDLER-SUCCESS]`);
 
