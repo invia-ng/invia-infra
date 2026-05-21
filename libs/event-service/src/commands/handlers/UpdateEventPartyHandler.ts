@@ -34,7 +34,7 @@ export class UpdateEventPartyHandler implements ICommandHandler<
 
       const { eventId, partyId, payload, secureUser } = command;
 
-      if (secureUser.role !== AccountRole.ADMIN) {
+      if (secureUser.role !== AccountRole.OWNER || secureUser.role !== AccountRole.ADMIN) {
         throw new UnauthorizedException(
           'Invalid request, you are not authorized to complete is action.',
         );
