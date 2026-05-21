@@ -51,6 +51,7 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
 
       const invitation = await this.invitationRepository.findOne({
         where: {
+          hash: invitationHash,
           guest: {
             id: decodedEventInvitationHash.guestId,
           },
