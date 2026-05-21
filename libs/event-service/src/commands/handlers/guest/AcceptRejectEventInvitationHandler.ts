@@ -68,12 +68,16 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
         throw new NotFoundException('Invitation not found.');
       }
 
+      console.log('[INVITATION-INFO] :: ', invitation);
+      
       Object.assign(invitation, {
         isRSVP: acceptInvite,
         rejectionNote: acceptInvite ? '' : payload?.rejectionNote,
       });
-
+      
       await this.invitationRepository.save(invitation);
+      
+      console.log('[UPDATED-INVITATION-INFO] :: ', invitation);
 
       Object.assign(invitation.guest, {
         isInviteRSVP: true,
