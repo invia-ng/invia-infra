@@ -171,9 +171,11 @@ export function FormatGuestInfo(
       ? invitation.isWhatsAppInviteDelivered
       : false,
     rsvpStatus: invitation
-      ? invitation.isRSVP
+      ? invitation.isRSVP && invitation.isInvitationAccessed
         ? InvitationRSVPEnum.CONFIRMED
-        : InvitationRSVPEnum.REJECTED
+        : !invitation.isInvitationAccessed
+          ? InvitationRSVPEnum.AWAITING
+          : InvitationRSVPEnum.REJECTED
       : '',
     invitationStatus: invitation
       ? invitation.isEmailInviteDelivered ||

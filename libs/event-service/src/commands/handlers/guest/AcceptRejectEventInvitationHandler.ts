@@ -72,6 +72,7 @@ export class AcceptRejectEventInvitationHandler implements ICommandHandler<
       
       Object.assign(invitation, {
         isRSVP: acceptInvite,
+        isInvitationAccessed: true,
         rejectionNote: acceptInvite ? '' : payload?.rejectionNote,
       });
       

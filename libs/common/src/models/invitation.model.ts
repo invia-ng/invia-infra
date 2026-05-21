@@ -125,6 +125,16 @@ export class Invitation {
   isRSVP: boolean;
 
   @Column({
+    nullable: true,
+    default: false,
+  })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Guest invitation accessed status',
+  })
+  isInvitationAccessed: boolean;
+
+  @Column({
     default: '',
     nullable: true,
   })

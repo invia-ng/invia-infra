@@ -50,7 +50,7 @@ export class EventEmailNotificationService {
 
       await this.initializeAdminSettings();
 
-      const htmlContent = await share_event_guest_form_email_html_content({
+      const htmlContent = share_event_guest_form_email_html_content({
         passcode: payload.event.passcode,
         shareFormLink: this.configService.get<string>('WEB_APP_URL').concat(`/events/shareform/authenticate?hash=${payload.event.hash}`),
       });
@@ -98,7 +98,7 @@ export class EventEmailNotificationService {
 
       await this.initializeAdminSettings();
 
-      const htmlContent = await event_guest_invitation_rsvp_email_html_content({
+      const htmlContent = event_guest_invitation_rsvp_email_html_content({
         event: invitation.event.name,
         hasCoverImage: invitation.image.length > 0,
         businessName: invitation.event.business.name,
@@ -164,7 +164,7 @@ export class EventEmailNotificationService {
 
       await this.initializeAdminSettings();
 
-      const htmlContent = await invite_event_guest_email_html_content({
+      const htmlContent = invite_event_guest_email_html_content({
         message: `Hi ${invitation.guest.name}, you've received an invitation to ${invitation.event.name}. Check the details and let us know if you'll be joining us.`,
         event: invitation.event.name,
         hasCoverImage: invitation.image.length > 0,
@@ -231,7 +231,7 @@ export class EventEmailNotificationService {
 
       await this.initializeAdminSettings();
 
-      const htmlContent = await invite_event_guest_followup_email_html_content({
+      const htmlContent = invite_event_guest_followup_email_html_content({
         message: `Hi ${followupInvitation.invitation.guest.name}, you’ve received a new message.`,
         event: followupInvitation.invitation.event.name,
         webappUrl: this.configService.get<string>('WEB_APP_URL'),
@@ -293,7 +293,7 @@ export class EventEmailNotificationService {
 
       await this.initializeAdminSettings();
 
-      const htmlContent = await event_guest_accept_reject_invitation_email_html_content({
+      const htmlContent = event_guest_accept_reject_invitation_email_html_content({
         hasCoverImage: payload.invitation.image.length > 0,
         message: payload.invitation.message,
         event: payload.invitation.event.name,
@@ -306,7 +306,7 @@ export class EventEmailNotificationService {
             : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
       });
 
-      const adminHtmlContent = await event_admin_guest_accept_reject_invitation_email_html_content({
+      const adminHtmlContent = event_admin_guest_accept_reject_invitation_email_html_content({
         guestName: payload.invitation.guest.name,
         event: payload.invitation.event.name,
         webappUrl: this.configService.get<string>('WEB_APP_URL'),
