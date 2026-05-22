@@ -7,7 +7,7 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { Invitation } from '@app/common/src/models/invitation.model';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { Guest, GuestsResponse } from '@app/common/src/models/guest.model';
-import { AccountRole, InvitationStatusEnum } from '@app/common/src/constants/enums';
+import { AccountRole, InvitationRSVPEnum, InvitationStatusEnum } from '@app/common/src/constants/enums';
 
 @QueryHandler(SearchEventGuestsQuery)
 export class SearchEventGuestsQueryHandler implements IQueryHandler<
@@ -113,13 +113,13 @@ export class SearchEventGuestsQueryHandler implements IQueryHandler<
         if (inviteStatus) {
           formattedGuests = formattedGuests.filter((g) => {
             const status = g.invitationStatus || InvitationStatusEnum.PENDING;
-            return status === inviteStatus;
+            return status === inviteStatus as InvitationStatusEnum;
           });
         }
 
         if (rsvpStatus) {
           formattedGuests = formattedGuests.filter(
-            (g) => g.rsvpStatus === rsvpStatus
+            (g) => g.rsvpStatus === rsvpStatus as InvitationRSVPEnum
           );
         }
 

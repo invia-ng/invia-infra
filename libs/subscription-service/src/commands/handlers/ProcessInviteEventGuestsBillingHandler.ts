@@ -149,7 +149,7 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
 
         const payloadData = {
           reference,
-          email: secureUser.email!,
+          email: secureUser.email,
           bank_transfer: {
             account_expires_at: new Date(
               Date.now() + 1000 * 60 * 15,

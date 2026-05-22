@@ -10,15 +10,15 @@ import { Guest } from '@app/common/src/models/guest.model';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
-import { FollowupInvitation, Invitation } from '@app/common/src/models/invitation.model';
 import { GuestFetchEventFollowupInvitationInfoQuery } from '../../impl';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
-import { GuestEventInvitationInfo } from '@app/event-service/src/interface/schema';
+import { FollowupInvitation, Invitation } from '@app/common/src/models/invitation.model';
+import { GuestEventFollowupInvitationInfo } from '@app/event-service/src/interface/schema';
 
 @QueryHandler(GuestFetchEventFollowupInvitationInfoQuery)
 export class GuestFetchEventFollowupInvitationInfoQueryHandler implements IQueryHandler<
   GuestFetchEventFollowupInvitationInfoQuery,
-  GuestEventInvitationInfo
+  GuestEventFollowupInvitationInfo
 > {
   constructor(
     @Inject('Logger') private readonly logger: AppLogger,

@@ -680,6 +680,13 @@ export function FormatGuestEventInvitationInfo(
     invitationImage: invitation.image,
     guestEmail: invitation.guest.email,
     invitationMessage: invitation.message,
+    rsvpStatus: invitation
+      ? invitation.isRSVP && invitation.isInvitationAccessed
+        ? InvitationRSVPEnum.CONFIRMED
+        : !invitation.isInvitationAccessed
+          ? InvitationRSVPEnum.AWAITING
+          : InvitationRSVPEnum.REJECTED
+      : '',
     businessName: invitation.event.business.name,
     businessEmail: invitation.event.business.email,
   } as unknown as GuestEventInvitationInfo;
@@ -689,10 +696,10 @@ export function FormatGuestEventFollowupInvitationInfo(
   followupInvitation: FollowupInvitation,
 ): GuestEventFollowupInvitationInfo {
   return {
+    invitationMessage: followupInvitation.message,
     eventName: followupInvitation.invitation.event.name,
     invitationImage: followupInvitation.invitation.image,
     guestEmail: followupInvitation.invitation.guest.email,
-    invitationMessage: followupInvitation.message,
     businessName: followupInvitation.invitation.event.business.name,
     businessEmail: followupInvitation.invitation.event.business.email,
   } as unknown as GuestEventFollowupInvitationInfo;

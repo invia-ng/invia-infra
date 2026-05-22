@@ -163,7 +163,8 @@ export class GuestEventInvitationInfo {
 
   @ApiProperty({
     description: 'Invitation image',
-    example: 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
+    example:
+      'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
   })
   invitationImage: string;
 
@@ -172,6 +173,12 @@ export class GuestEventInvitationInfo {
     example: 'You are invited to our wedding',
   })
   invitationMessage: string;
+
+  @ApiProperty({
+    example: 'RSVP Status',
+    description: "Guest's invitation status",
+  })
+  rsvpStatus: string;
 
   @ApiProperty({
     description: 'Business name',
