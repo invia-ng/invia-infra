@@ -24,7 +24,7 @@ export class GuestFetchEventInvitationInfoQueryHandler implements IQueryHandler<
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Invitation)
     private readonly invitationRepository: Repository<Invitation>,
-  ) { }
+  ) {}
 
   async execute(query: GuestFetchEventInvitationInfoQuery) {
     try {
@@ -36,6 +36,9 @@ export class GuestFetchEventInvitationInfoQueryHandler implements IQueryHandler<
         where: {
           hash: invitationHash,
         },
+        order: {
+          createdAt: 'DESC',
+        },
       });
 
       if (!invitation) {
@@ -46,9 +49,12 @@ export class GuestFetchEventInvitationInfoQueryHandler implements IQueryHandler<
 
       return modelsFormatter.FormatGuestEventInvitationInfo(invitation);
     } catch (error) {
-      this.logger.error('[FETCH-GUEST-EVENT-INVITATION-INFO-QUERY-ERROR]', error);
+      this.logger.error(
+        '[FETCH-GUEST-EVENT-INVITATION-INFO-QUERY-ERROR]',
+        error,
+      );
 
       throw error;
     }
   }
-} 
+}
