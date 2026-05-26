@@ -17,7 +17,7 @@ import { EventAuthorInviteEventGuestsCommand } from '../../impl';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { FollowupIntervalEnum } from '@app/common/src/constants/enums';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { MessageTemplateParser } from '../../../middlewares/messsage.template.parser';
+import { MessageTemplateParser } from '../../../middlewares/message.template.parser';
 import {
   FollowupInvitation,
   Invitation,
@@ -122,7 +122,7 @@ export class EventAuthorInviteEventGuestsHandler implements ICommandHandler<Even
 
             const invitation = await this.invitationRepository.save(instance);
 
-            await invitations.push(invitation);
+            invitations.push(invitation);
 
             if (
               payload.followupInvitations &&

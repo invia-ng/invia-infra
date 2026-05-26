@@ -14,7 +14,7 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { FollowupIntervalEnum } from '@app/common/src/constants/enums';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
-import { MessageTemplateParser } from '../../middlewares/messsage.template.parser';
+import { MessageTemplateParser } from '../../middlewares/message.template.parser';
 import { PaymentEmailNotificationService } from '@app/notification-service/src/services/email/payment.email.notification.service';
 
 @CommandHandler(InviteEventGuestsAfterPaymentCommand)
@@ -33,13 +33,14 @@ export class InviteEventGuestsAfterPaymentHandler implements ICommandHandler<Inv
     @InjectRepository(FollowupInvitation)
     private readonly followupInvitationRepository: Repository<FollowupInvitation>,
     private readonly paymentEmailNotificationService: PaymentEmailNotificationService,
-  ) { }
+  ) {}
 
   async execute(command: InviteEventGuestsAfterPaymentCommand) {
     try {
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-PROCESSING]`);
 
-      const { eventId, amountPaid, paymentReference, payload, secureUser } = command;
+      const { eventId, amountPaid, paymentReference, payload, secureUser } =
+        command;
 
       const invitations: Invitation[] = [];
 
@@ -98,7 +99,7 @@ export class InviteEventGuestsAfterPaymentHandler implements ICommandHandler<Inv
 
             const invitation = await this.invitationRepository.save(instance);
 
-            await invitations.push(invitation);
+            invitations.push(invitation);
 
             if (
               payload.followupInvitations &&
@@ -153,19 +154,21 @@ export class InviteEventGuestsAfterPaymentHandler implements ICommandHandler<Inv
 
       await this.invitationPaymentRepository.save(payment);
 
-      this.paymentEmailNotificationService.eventInvitationPaymentReceiptNotification({
-        amount: amountPaid.toString(),
-        eventName: event.name,
-        recipientEmail: event.business.email,
-        paymentReference: payment.paymentReference,
-      });
+      this.paymentEmailNotificationService.eventInvitationPaymentReceiptNotification(
+        {
+          eventName: event.name,
+          amount: amountPaid.toString(),
+          recipientEmail: event.business.email,
+          paymentReference: payment.paymentReference,
+        },
+      );
 
       this.eventBus.publish(
         new InviteEventGuestsEvent(invitations, secureUser),
       );
 
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-SUCCESS]`);
-      
+
       return;
     } catch (error) {
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-ERROR] :: ${error}`);

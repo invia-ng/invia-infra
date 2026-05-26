@@ -14,7 +14,7 @@ import authUtils from '@app/common/src/security/auth.utils';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { FollowupIntervalEnum } from '@app/common/src/constants/enums';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { MessageTemplateParser } from '../../middlewares/messsage.template.parser';
+import { MessageTemplateParser } from '../../middlewares/message.template.parser';
 
 @CommandHandler(InviteEventGuestsCommand)
 export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGuestsCommand> {
@@ -29,7 +29,7 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
     private readonly invitationRepository: Repository<Invitation>,
     @InjectRepository(FollowupInvitation)
     private readonly followupInvitationRepository: Repository<FollowupInvitation>,
-  ) { }
+  ) {}
 
   async execute(command: InviteEventGuestsCommand) {
     try {
@@ -64,23 +64,6 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
               return;
             }
 
-            // const existingInvite = await this.invitationRepository.exists({
-            //   where: {
-            //     event: {
-            //       id: event.id,
-            //     },
-            //     guest: {
-            //       id: guest.id,
-            //     },
-            //   },
-            // });
-
-            // if (existingInvite) {
-            //   throw new BadRequestException(
-            //     `Your guest ${guest.name} has already been invited!`,
-            //   );
-            // }
-
             const hash = authUtils.generateEventInvitationHash({
               eventId: event.id,
               guestId: guest.id,
@@ -101,7 +84,7 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
 
             const invitation = await this.invitationRepository.save(instance);
 
-            await invitations.push(invitation);
+            invitations.push(invitation);
 
             if (
               payload.followupInvitations &&
@@ -119,7 +102,9 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
                       guestId: guest.id,
                       eventHash: event.hash,
                       interval: followupInvitation.interval,
-                      date: this.calculateFollowupDate(followupInvitation.interval),
+                      date: this.calculateFollowupDate(
+                        followupInvitation.interval,
+                      ),
                     });
 
                     const _instance = this.followupInvitationRepository.create({
@@ -160,7 +145,7 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
 
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-SUCCESS]`);
 
-      await this.eventBus.publish(
+      this.eventBus.publish(
         new InviteEventGuestsEvent(invitations, secureUser),
       );
 

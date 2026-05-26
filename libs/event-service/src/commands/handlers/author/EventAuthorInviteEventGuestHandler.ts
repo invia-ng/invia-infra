@@ -18,7 +18,7 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { FollowupIntervalEnum } from '@app/common/src/constants/enums';
 import { EventAuthorInviteEventGuestEvent } from '../../../events/impl';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { MessageTemplateParser } from '../../../middlewares/messsage.template.parser';
+import { MessageTemplateParser } from '../../../middlewares/message.template.parser';
 
 @CommandHandler(EventAuthorInviteEventGuestCommand)
 export class EventAuthorInviteEventGuestHandler implements ICommandHandler<EventAuthorInviteEventGuestCommand> {

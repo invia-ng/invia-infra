@@ -13,7 +13,7 @@ import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { FollowupIntervalEnum } from '@app/common/src/constants/enums';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
-import { MessageTemplateParser } from '../../middlewares/messsage.template.parser';
+import { MessageTemplateParser } from '../../middlewares/message.template.parser';
 
 @CommandHandler(InviteEventGuestCommand)
 export class InviteEventGuestHandler implements ICommandHandler<InviteEventGuestCommand> {
@@ -28,7 +28,7 @@ export class InviteEventGuestHandler implements ICommandHandler<InviteEventGuest
     private readonly invitationRepository: Repository<Invitation>,
     @InjectRepository(FollowupInvitation)
     private readonly followupInvitationRepository: Repository<FollowupInvitation>,
-  ) { }
+  ) {}
 
   async execute(command: InviteEventGuestCommand) {
     try {
