@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Repository } from 'typeorm';
-import { Inject } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
+import { Business } from '@app/common/src/models/business.model';
 import { ConfigService } from '@nestjs/config';
 import {
   Invitation
@@ -29,6 +30,8 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
     private readonly invitationRepository: Repository<Invitation>,
     @InjectRepository(Subscription)
     private readonly subscriptionRepository: Repository<Subscription>,
+    @InjectRepository(Business)
+    private readonly businessRepository: Repository<Business>,
   ) { }
 
   async execute(command: ProcessInviteEventGuestsBillingCommand) {
@@ -47,12 +50,29 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         },
       });
 
-      const subscription = await this.subscriptionRepository.findOne({
-        where: {
-          business: {
+      const business = await this.businessRepository.findOne({
+        where: [
+          {
+            members: {
+              id: secureUser.id,
+            },
+          },
+          {
             account: {
               id: secureUser.id,
             },
+          },
+        ],
+      });
+
+      if (!business) {
+        throw new NotFoundException(`Business record not found for user`);
+      }
+
+      const subscription = await this.subscriptionRepository.findOne({
+        where: {
+          business: {
+            id: business.id,
           },
           isExpired: false,
         },
