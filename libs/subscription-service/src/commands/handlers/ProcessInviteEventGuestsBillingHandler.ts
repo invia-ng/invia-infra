@@ -1,18 +1,19 @@
 import axios from 'axios';
 import { Repository } from 'typeorm';
-import { Inject, NotFoundException } from '@nestjs/common';
-import { Business } from '@app/common/src/models/business.model';
 import { ConfigService } from '@nestjs/config';
 import {
   Invitation
 } from '@app/common/src/models/invitation.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Guest } from '@app/common/src/models/guest.model';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { Billing } from '@app/common/src/models/billing.model';
 import { ProcessInviteEventGuestsBillingCommand } from '../impl';
+import { Business } from '@app/common/src/models/business.model';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { Subscription } from '@app/common/src/models/subscription.model';
+import { SubscriptionStatusEnum } from '@app/common/src/constants/enums';
 import { TransactionRefHelpers } from '@app/common/src/helpers/reference';
 import modelsFormatter from '@app/common/src/middlewares/models.formatter';
 import { InvitationChargeResponse } from '@app/subscription-service/src/interface/schema';
@@ -69,14 +70,28 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         throw new NotFoundException(`Business record not found for user`);
       }
 
-      const subscription = await this.subscriptionRepository.findOne({
+      let subscription: Subscription;
+
+      subscription = await this.subscriptionRepository.findOne({
         where: {
           business: {
             id: business.id,
           },
           isExpired: false,
+          status: SubscriptionStatusEnum.ACTIVE,
         },
       });
+
+      if (!subscription) {
+        subscription = await this.subscriptionRepository.findOne({
+          where: {
+            business: {
+              id: business.id,
+            },
+            status: SubscriptionStatusEnum.DEFAULT,
+          },
+        });
+      }
 
       let emailCount = 0;             // total messages to send (display)
       let whatsappCount = 0;          // total messages to send (display)
@@ -85,6 +100,8 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
       let hasPreviouslyInvitedGuests = false;
       const isPayAsYouGo = !subscription || Boolean(subscription.plan?.name?.toLowerCase().includes('pay as you go'));
       const isProOrStudio = Boolean(subscription && (subscription.plan?.name?.toLowerCase().includes('pro') || subscription.plan?.name?.toLowerCase().includes('studio')));
+
+      // console.table({isPayAsYouGo, isProOrStudio })
 
       await Promise.all(
         payload.guestIds.map(async (guestId) => {
@@ -111,7 +128,7 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
             const hasBeenInvited = await this.invitationRepository.findOne({
               where: {
                 event: { id: eventId },
-                guest: { id: guest.id },
+                guest: { id: guestId },
               },
             });
 

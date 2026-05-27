@@ -50,7 +50,9 @@ export class FetchBusinessSubscriptionInfoQueryHandler implements IQueryHandler<
         throw new NotFoundException(`Business record not found for user`);
       }
 
-      const subscription = await this.subscriptionRepository.findOne({
+      let subscription: Subscription;
+
+      subscription = await this.subscriptionRepository.findOne({
         where: {
           isExpired: false,
           status: SubscriptionStatusEnum.ACTIVE,
@@ -61,8 +63,10 @@ export class FetchBusinessSubscriptionInfoQueryHandler implements IQueryHandler<
         },
       });
 
+      console.log(subscription);
+
       if (!subscription) {
-        const _subscription = await this.subscriptionRepository.findOne({
+        subscription = await this.subscriptionRepository.findOne({
           where: {
             business: {
               id: business.id,
@@ -71,7 +75,7 @@ export class FetchBusinessSubscriptionInfoQueryHandler implements IQueryHandler<
           },
         });
 
-        return modelsFormatter.FormatSubscriptionInfo(_subscription);
+        return modelsFormatter.FormatSubscriptionInfo(subscription);
       }
 
       this.logger.log('[FETCH-BUSINESS-SUBSCRIPTION-INFO-QUERY-SUCCESS]');
