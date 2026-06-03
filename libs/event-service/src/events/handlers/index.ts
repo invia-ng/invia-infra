@@ -3,8 +3,10 @@ import { CreateNewEventPartyEventHandler } from './CreateNewEventPartyEventHandl
 import { ReplaceEventGuestPartyEventHandler } from './ReplaceEventGuestPartyEventHandler';
 import { EventAuthorInviteEventGuestEventHandler } from './EventAuthorInviteEventGuestEventHandler';
 import { EventAuthorInviteEventGuestsEventHandler } from './EventAuthorInviteEventGuestsEventHandler';
+import { InviteEventGuestEventHandler } from './InviteEventGuestEventHandler';
 
 export const EventServiceEventHandlers = [
+  InviteEventGuestEventHandler,
   InviteEventGuestsEventHandler,
   CreateNewEventPartyEventHandler,
   ReplaceEventGuestPartyEventHandler,
