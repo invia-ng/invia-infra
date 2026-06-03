@@ -28,7 +28,7 @@ export class InviteEventGuestEventHandler implements IEventHandler<InviteEventGu
   async handle(event: InviteEventGuestEvent) {
     try {
       this.logger.log(
-        `[INVITE-EVENT-GUEST-EVENT-PROCESSING]: ${JSON.stringify(event)}`,
+        `[INVITE-SINGLE-EVENT-GUEST-EVENT-PROCESSING]: ${JSON.stringify(event)}`,
       );
 
       const { invitation, secureUser } = event;
@@ -140,9 +140,9 @@ export class InviteEventGuestEventHandler implements IEventHandler<InviteEventGu
         }
       }
 
-      this.logger.log(`[INVITE-EVENT-GUEST-EVENT-SUCCESS]`);
+      this.logger.log(`[INVITE-SINGLE-EVENT-GUEST-EVENT-SUCCESS]`);
     } catch (error) {
-      this.logger.log(`[INVITE-EVENT-GUEST-EVENT-ERROR]: ${error}`);
+      this.logger.log(`[INVITE-SINGLE-EVENT-GUEST-EVENT-ERROR]: ${error}`);
 
       throw error;
     }

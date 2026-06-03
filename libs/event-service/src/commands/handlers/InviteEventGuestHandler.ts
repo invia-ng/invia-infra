@@ -32,7 +32,7 @@ export class InviteEventGuestHandler implements ICommandHandler<InviteEventGuest
 
   async execute(command: InviteEventGuestCommand) {
     try {
-      this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-PROCESSING]`);
+      this.logger.log(`[INVITE-SINGLE-EVENT-GUEST-HANDLER-PROCESSING]`);
 
       const { eventId, guestId, payload, secureUser } = command;
 
@@ -55,23 +55,6 @@ export class InviteEventGuestHandler implements ICommandHandler<InviteEventGuest
       if (!guest) {
         return;
       }
-
-      // const existingInvite = await this.invitationRepository.exists({
-      //   where: {
-      //     event: {
-      //       id: event.id,
-      //     },
-      //     guest: {
-      //       id: guest.id,
-      //     },
-      //   },
-      // });
-
-      // if (existingInvite) {
-      //   throw new BadRequestException(
-      //     `Your guest ${guest.name} has already been invited!`,
-      //   );
-      // }
 
       const hash = authUtils.generateEventInvitationHash({
         eventId: event.id,
@@ -128,13 +111,13 @@ export class InviteEventGuestHandler implements ICommandHandler<InviteEventGuest
         );
       }
 
-      this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-SUCCESS]`);
+      this.logger.log(`[INVITE-SINGLE-EVENT-GUEST-HANDLER-SUCCESS]`);
 
       this.eventBus.publish(new InviteEventGuestEvent(invitation, secureUser));
 
       return;
     } catch (error) {
-      this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-ERROR] :: ${error}`);
+      this.logger.log(`[INVITE-SINGLE-EVENT-GUEST-HANDLER-ERROR] :: ${error}`);
 
       throw error;
     }
