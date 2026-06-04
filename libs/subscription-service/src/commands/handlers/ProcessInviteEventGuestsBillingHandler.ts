@@ -103,6 +103,16 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
 
       // console.table({isPayAsYouGo, isProOrStudio })
 
+      let discountPercentage = 0;
+      if (isPayAsYouGo) {
+        const existingInvitation = await this.invitationRepository.findOne({
+          where: { event: { id: eventId } },
+        });
+        if (!existingInvitation) {
+          discountPercentage = 30;
+        }
+      }
+
       await Promise.all(
         payload.guestIds.map(async (guestId) => {
           try {
@@ -167,7 +177,9 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
 
       const totalEmailCharge = emailRaw > 0 && emailRaw < 100 ? 100 : emailRaw;
       const totalWhatsappCharge = whatsappRaw > 0 && whatsappRaw < 100 ? 100 : whatsappRaw;
-      const amountToCharge = totalEmailCharge + totalWhatsappCharge;
+      const rawAmountToCharge = totalEmailCharge + totalWhatsappCharge;
+      const discountAmount = Number((rawAmountToCharge * (discountPercentage / 100)).toFixed(2));
+      const amountToCharge = Number((rawAmountToCharge - discountAmount).toFixed(2));
 
       this.logger.log(`[INVITE-EVENT-GUESTS-HANDLER-SUCCESS]`);
 
@@ -179,6 +191,8 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         whatsappCount,
         chargeableEmailCount,
         chargeableWhatsappCount,
+        discountAmount,
+        discountPercentage,
       });
 
       if (amountToCharge > 0) {
@@ -264,7 +278,7 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
           amountToCharge,
           totalEmailCharge,
           totalWhatsappCharge,
-          0,
+          discountAmount,
           billing.emailDiscount,
           billing.whatsAppDiscount,
           emailCount,
@@ -284,9 +298,9 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
         } as any,
         emailCharge: 0,
         whatsAppCharge: 0,
-        discount: 0,
-        emailDiscount: 0,
-        whatsAppDiscount: 0,
+        discount: discountAmount,
+        emailDiscount: billing?.emailDiscount || 0,
+        whatsAppDiscount: billing?.whatsAppDiscount || 0,
         emailCount,
         whatsappCount,
         hasPreviouslyInvitedGuests,
