@@ -27,5 +27,6 @@ export interface SecureUserPayload {
   name: string;
   email: string;
   role: AccountRole;
+  businessId: number;
   status: AccountStatus;
 }

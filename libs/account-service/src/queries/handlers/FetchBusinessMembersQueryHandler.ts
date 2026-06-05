@@ -17,7 +17,7 @@ export class FetchBusinessMembersQueryHandler implements IQueryHandler<
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
-  ) { }
+  ) {}
 
   async execute(query: FetchBusinessMembersInfoQuery) {
     try {
@@ -32,24 +32,21 @@ export class FetchBusinessMembersQueryHandler implements IQueryHandler<
               id: secureUser.id,
             },
           },
-          {
-            account: {
-              id: secureUser.id,
-            },
-          },
         ],
-        relations: ['members'],
       });
 
       if (!business) {
         throw new NotFoundException(`Business record not found for user`);
       }
 
+      console.log('[BUSINESS-INFO] :: ', business);
+
       this.logger.log('[FETCH-BUSINESS-MEMBERS-SUCCESS]');
 
-      return business.members.filter((member) => member.id !== secureUser.id).map((member) =>
-        modelsFormatter.FormatBusinessMemberInfo(member),
-      );
+      return business.members
+        .concat(business.account)
+        .filter((member) => member.id !== secureUser.id)
+        .map((member) => modelsFormatter.FormatBusinessMemberInfo(member));
     } catch (error) {
       this.logger.log(`[FETCH-BUSINESS-MEMBERS-HANDLER]: ${error}`);
       throw error;
