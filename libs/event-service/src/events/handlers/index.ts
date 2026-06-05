@@ -1,9 +1,10 @@
+import { InviteEventGuestEventHandler } from './InviteEventGuestEventHandler';
 import { InviteEventGuestsEventHandler } from './InviteEventGuestsEventHandler';
 import { CreateNewEventPartyEventHandler } from './CreateNewEventPartyEventHandler';
 import { ReplaceEventGuestPartyEventHandler } from './ReplaceEventGuestPartyEventHandler';
 import { EventAuthorInviteEventGuestEventHandler } from './EventAuthorInviteEventGuestEventHandler';
 import { EventAuthorInviteEventGuestsEventHandler } from './EventAuthorInviteEventGuestsEventHandler';
-import { InviteEventGuestEventHandler } from './InviteEventGuestEventHandler';
+import { ProcessGuestEventInvitationAsSeenEventHandler } from './ProcessGuestEventInvitationAsSeenEventHandler';
 
 export const EventServiceEventHandlers = [
   InviteEventGuestEventHandler,
@@ -12,4 +13,5 @@ export const EventServiceEventHandlers = [
   ReplaceEventGuestPartyEventHandler,
   EventAuthorInviteEventGuestEventHandler,
   EventAuthorInviteEventGuestsEventHandler,
+  ProcessGuestEventInvitationAsSeenEventHandler,
 ];

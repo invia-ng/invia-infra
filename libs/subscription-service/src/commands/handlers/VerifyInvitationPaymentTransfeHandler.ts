@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import axios from 'axios';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { VerifyInvitationPaymentTransferCommand } from '../impl';

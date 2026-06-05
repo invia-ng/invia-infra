@@ -21,7 +21,7 @@ export class PaymentEmailNotificationService {
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Setting)
     private readonly settingRepository: Repository<Setting>,
-  ) { }
+  ) {}
 
   async initializeAdminSettings() {
     this.adminSettings = await this.settingRepository.findOne({
@@ -40,27 +40,29 @@ export class PaymentEmailNotificationService {
     await this.initializeAdminSettings();
 
     try {
-      this.logger.log(`[EVENT-INVITATION-PAYMENT-RECEIPT-NOTIFICATION-PROCESSING]`);
-
-      const htmlContent = await event_invitation_payment_receipt_html_content(
-        {
-          amount: String(Number(payload.amount) / 100),
-          paymentReference: payload.paymentReference,
-          paymentDate: new Date().toString().slice(0, 10),
-          eventName: payload.eventName,
-        },
+      this.logger.log(
+        `[EVENT-INVITATION-PAYMENT-RECEIPT-NOTIFICATION-PROCESSING]`,
       );
+
+      const htmlContent = event_invitation_payment_receipt_html_content({
+        amount: String(Number(payload.amount)),
+        paymentReference: payload.paymentReference,
+        paymentDate: new Date().toString().slice(0, 10),
+        eventName: payload.eventName,
+      });
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
         this.adminSettings.isKibaMailEnabled === false
       ) {
-        return await this.gmailMailerService.sendMail({
+        await this.gmailMailerService.sendMail({
           html: htmlContent,
           to: payload.recipientEmail,
           subject: 'Event Invitation Payment Receipt',
           from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
         });
+
+        return;
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
         this.adminSettings.isSMTPEnabled === false
@@ -72,7 +74,9 @@ export class PaymentEmailNotificationService {
         });
       }
 
-      this.logger.log(`[EVENT-INVITATION-PAYMENT-RECEIPT-NOTIFICATION-SUCCESS]`);
+      this.logger.log(
+        `[EVENT-INVITATION-PAYMENT-RECEIPT-NOTIFICATION-SUCCESS]`,
+      );
 
       return true;
     } catch (error) {

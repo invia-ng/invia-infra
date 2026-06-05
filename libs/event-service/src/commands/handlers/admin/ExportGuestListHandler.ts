@@ -5,7 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ExportGuestListCommand } from '../../impl';
 import { Event } from '@app/common/src/models/event.model';
 import { Guest } from '@app/common/src/models/guest.model';
-import { AccountRole } from '@app/common/src/constants/enums';
+import { Invitation } from '@app/common/src/models/invitation.model';
+import { AccountRole, InvitationRSVPEnum, InvitationStatusEnum } from '@app/common/src/constants/enums';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { ExportGuestListInfo } from '@app/event-service/src/interface/schema';
@@ -23,6 +24,8 @@ export class ExportGuestListHandler implements ICommandHandler<
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Guest)
     private readonly guestRepository: Repository<Guest>,
+    @InjectRepository(Invitation)
+    private readonly invitationRepository: Repository<Invitation>,
     private readonly fileUploadService: FileUploadService,
   ) { }
 
@@ -58,16 +61,50 @@ export class ExportGuestListHandler implements ICommandHandler<
         },
       });
 
+      // Get all invitations for the selected guests
+      const invitations = await this.invitationRepository.find({
+        where: {
+          guest: { id: In(payload.guestIds) },
+          event: { id: eventId },
+        },
+      });
+
+      const invitationMap = new Map<string, Invitation>();
+      for (const invitation of invitations) {
+        if (invitation.guest) {
+          invitationMap.set(invitation.guest.id.toString(), invitation);
+        }
+      }
+
       const data = guests.map((guest) => {
         const row: any = {};
         if (payload.guestName) row['Guest Name'] = guest.name;
         if (payload.phoneNumber) row['Phone Number'] = guest.phone;
         if (payload.emailAddress) row['Email Address'] = guest.email;
         if (payload.party) row['Party'] = guest.party;
-        if (payload.isRSVP) row['RSVP'] = guest.isInviteRSVP ? 'Yes' : 'No';
+
+        const invitation = invitationMap.get(guest.id.toString());
+
+        if (payload.isRSVP) {
+          row['RSVP'] = invitation
+            ? invitation.isRSVP && invitation.isInvitationAccessed
+              ? InvitationRSVPEnum.CONFIRMED
+              : !invitation.isInvitationAccessed
+                ? InvitationRSVPEnum.AWAITING
+                : InvitationRSVPEnum.REJECTED
+            : '';
+        }
         if (payload.inviteStatus) {
-          row['Invite Sent'] = guest.isInviteSent ? 'Yes' : 'No';
-          row['Invite Delivered'] = guest.isInviteDelivered ? 'Yes' : 'No';
+          row['Invite Status'] = invitation
+            ? invitation.isInvitationSeen
+              ? InvitationStatusEnum.SEEN
+              : invitation.isEmailInviteDelivered ||
+                invitation.isWhatsAppInviteDelivered
+                ? InvitationStatusEnum.DELIVERED
+                : invitation.isEmailInviteSent || invitation.isWhatsAppInviteSent
+                  ? InvitationStatusEnum.SENT
+                  : InvitationStatusEnum.PENDING
+            : '';
         }
         return row;
       });
@@ -100,9 +137,8 @@ export class ExportGuestListHandler implements ICommandHandler<
           { key: 'Phone Number', label: 'Phone Number', width: 100 },
           { key: 'Email Address', label: 'Email Address', width: 180 },
           { key: 'Party', label: 'Party', width: 100 },
-          { key: 'RSVP', label: 'RSVP', width: 50 },
-          { key: 'Invite Sent', label: 'Invite Sent', width: 60 },
-          { key: 'Invite Delivered', label: 'Invite Delivered', width: 80 },
+          { key: 'RSVP', label: 'RSVP', width: 80 },
+          { key: 'Invite Status', label: 'Invite Status', width: 100 },
         ];
 
         // Filter columns based on what's actually present in the data (or requested payload)
@@ -114,11 +150,7 @@ export class ExportGuestListHandler implements ICommandHandler<
           if (col.key === 'Email Address' && payload.emailAddress) return true;
           if (col.key === 'Party' && payload.party) return true;
           if (col.key === 'RSVP' && payload.isRSVP) return true;
-          if (
-            (col.key === 'Invite Sent' || col.key === 'Invite Delivered') &&
-            payload.inviteStatus
-          )
-            return true;
+          if (col.key === 'Invite Status' && payload.inviteStatus) return true;
           return false;
         });
 

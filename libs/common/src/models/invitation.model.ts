@@ -130,6 +130,16 @@ export class Invitation {
   })
   @ApiPropertyOptional({
     example: false,
+    description: 'Guest invitation seen status',
+  })
+  isInvitationSeen: boolean;
+
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  @ApiPropertyOptional({
+    example: false,
     description: 'Guest invitation accessed status',
   })
   isInvitationAccessed: boolean;

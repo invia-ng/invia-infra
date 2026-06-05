@@ -44,3 +44,9 @@ export class ReplaceEventGuestPartyEvent {
     public readonly newPartyId: number,
   ) {}
 }
+
+export class ProcessGuestEventInvitationAsSeenEvent {
+  constructor(
+    public readonly invitation: Invitation,
+  ) {}
+}

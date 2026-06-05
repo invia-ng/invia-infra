@@ -178,12 +178,14 @@ export function FormatGuestInfo(
           : InvitationRSVPEnum.REJECTED
       : '',
     invitationStatus: invitation
-      ? invitation.isEmailInviteDelivered ||
-        invitation.isWhatsAppInviteDelivered
-        ? InvitationStatusEnum.DELIVERED
-        : invitation.isEmailInviteSent || invitation.isWhatsAppInviteSent
-          ? InvitationStatusEnum.SENT
-          : InvitationStatusEnum.PENDING
+      ? invitation.isInvitationSeen
+        ? InvitationStatusEnum.SEEN
+        : invitation.isEmailInviteDelivered ||
+          invitation.isWhatsAppInviteDelivered
+          ? InvitationStatusEnum.DELIVERED
+          : invitation.isEmailInviteSent || invitation.isWhatsAppInviteSent
+            ? InvitationStatusEnum.SENT
+            : InvitationStatusEnum.PENDING
       : '',
   } as unknown as GuestInfo;
 }

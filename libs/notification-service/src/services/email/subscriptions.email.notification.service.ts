@@ -42,7 +42,7 @@ export class SubscriptionsEmailNotificationService {
     try {
       this.logger.log(`[PREMIUM-SUBSCRIPTION-PAYMENT-RECEIPT-NOTIFICATION-PROCESSING]`);
 
-      const htmlContent = await premium_subscription_payment_receipt_html_content(
+      const htmlContent = premium_subscription_payment_receipt_html_content(
         {
           amount: payload.amount,
           paymentReference: payload.paymentReference,
@@ -55,12 +55,14 @@ export class SubscriptionsEmailNotificationService {
         this.adminSettings.isSMTPEnabled === true &&
         this.adminSettings.isKibaMailEnabled === false
       ) {
-        return await this.gmailMailerService.sendMail({
+        await this.gmailMailerService.sendMail({
           html: htmlContent,
           to: payload.recipientEmail,
           subject: 'Payment Receipt',
           from: `"Invia" <${this.configService.get<string>('GMAIL_SMTP_EMAIL')}>`,
         });
+
+        return;
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
         this.adminSettings.isSMTPEnabled === false

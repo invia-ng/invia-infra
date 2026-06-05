@@ -1,9 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Inject } from '@nestjs/common';
 import { PaystackWebhookCallbackCommand } from '../impl';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { ProcessPremiumSubscriptionEvent } from '../../events/impl';
-import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { InviteEventGuestsAfterPaymentCommand, InviteEventGuestsCommand } from '@app/event-service/src/commands/impl';
+import {
+  CommandBus,
+  CommandHandler,
+  EventBus,
+  ICommandHandler,
+} from '@nestjs/cqrs';
+import {
+  InviteEventGuestsAfterPaymentCommand,
+  InviteEventGuestsCommand,
+} from '@app/event-service/src/commands/impl';
 
 @CommandHandler(PaystackWebhookCallbackCommand)
 export class ProcessPaystackWebhookCallbackHandler implements ICommandHandler<PaystackWebhookCallbackCommand> {
@@ -11,7 +20,7 @@ export class ProcessPaystackWebhookCallbackHandler implements ICommandHandler<Pa
     private readonly eventBus: EventBus,
     private readonly commandBus: CommandBus,
     @Inject('Logger') private readonly logger: AppLogger,
-  ) { }
+  ) {}
 
   async execute(command: PaystackWebhookCallbackCommand) {
     try {
@@ -45,38 +54,50 @@ export class ProcessPaystackWebhookCallbackHandler implements ICommandHandler<Pa
               payload.reference,
             ),
           );
-        }
-        else if (
+        } else if (
           payload?.metadata?.custom_fields.some(
             (field) => field.value === 'INVITE_GUESTS_BILLING',
           )
         ) {
           console.log('HANDLE-INVITE_GUESTS_BILLING-PAYMENT');
 
-          const eventId = Number(payload?.metadata?.custom_fields.find(
-            (field: any) => field.variable_name === 'EVENT_ID',
-          )?.value);
+          const eventId = Number(
+            payload?.metadata?.custom_fields.find(
+              (field: any) => field.variable_name === 'EVENT_ID',
+            )?.value,
+          );
 
           const guestIdsStr = payload?.metadata?.custom_fields.find(
             (field: any) => field.variable_name === 'GUEST_IDS',
           )?.value;
-          const guestIds = guestIdsStr ? String(guestIdsStr).split(',').map((id: string) => Number(id)) : [];
+          const guestIds = guestIdsStr
+            ? String(guestIdsStr)
+                .split(',')
+                .map((id: string) => Number(id))
+            : [];
 
           const sendEmailInviteValue = payload?.metadata?.custom_fields.find(
             (field: any) => field.variable_name === 'SEND_EMAIL_INVITE',
           )?.value;
-          const sendEmailInvite = sendEmailInviteValue === true || String(sendEmailInviteValue) === 'true';
+          const sendEmailInvite =
+            sendEmailInviteValue === true ||
+            String(sendEmailInviteValue) === 'true';
 
           const sendWhatsAppInviteValue = payload?.metadata?.custom_fields.find(
             (field: any) => field.variable_name === 'SEND_WHATSAPP_INVITE',
           )?.value;
-          const sendWhatsAppInvite = sendWhatsAppInviteValue === true || String(sendWhatsAppInviteValue) === 'true';
+          const sendWhatsAppInvite =
+            sendWhatsAppInviteValue === true ||
+            String(sendWhatsAppInviteValue) === 'true';
 
           const followupInvitationsStr = payload?.metadata?.custom_fields.find(
             (field: any) => field.variable_name === 'FOLLOWUP_INVITATIONS',
           )?.value;
           let followupInvitations = undefined;
-          if (followupInvitationsStr && followupInvitationsStr !== 'undefined') {
+          if (
+            followupInvitationsStr &&
+            followupInvitationsStr !== 'undefined'
+          ) {
             try {
               followupInvitations = JSON.parse(followupInvitationsStr);
             } catch (e) {
@@ -92,9 +113,11 @@ export class ProcessPaystackWebhookCallbackHandler implements ICommandHandler<Pa
             (field: any) => field.variable_name === 'MESSAGE',
           )?.value;
 
-          const secureUser = JSON.parse(payload?.metadata?.custom_fields.find(
-            (field: any) => field.variable_name === 'SECURE_USER',
-          )?.value);
+          const secureUser = JSON.parse(
+            payload?.metadata?.custom_fields.find(
+              (field: any) => field.variable_name === 'SECURE_USER',
+            )?.value,
+          );
 
           this.commandBus.execute(
             new InviteEventGuestsAfterPaymentCommand(
