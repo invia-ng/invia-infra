@@ -127,9 +127,11 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
             guests.push(guest);
 
             // Count messages per guest
-            const guestEmailCount =
-              (payload.sendEmailInvite ? 1 : 0) +
-              (payload.followupInvitations?.length || 0);
+            const hasEmail = Boolean(guest.email && guest.email.trim() !== '');
+            const guestEmailCount = hasEmail
+              ? (payload.sendEmailInvite ? 1 : 0) +
+                (payload.followupInvitations?.length || 0)
+              : 0;
             const guestWhatsappCount = payload.sendWhatsAppInvite ? 1 : 0;
 
             emailCount += guestEmailCount;
@@ -155,7 +157,7 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
                 chargeableWhatsappCount += guestWhatsappCount;
               } else {
                 // Pro/Studio: first invite is free. Only charge for follow-up invitations
-                chargeableEmailCount += (payload.followupInvitations?.length || 0);
+                chargeableEmailCount += hasEmail ? (payload.followupInvitations?.length || 0) : 0;
               }
             }
 
@@ -172,7 +174,8 @@ export class ProcessInviteEventGuestsBillingHandler implements ICommandHandler<P
       const effectiveEmailPrice = Number(billing?.pricePerEmail || 0) * (1 - emailDiscount / 100);
       const effectiveWhatsappPrice = Number(billing?.pricePerWhatsappMessage || 0) * (1 - whatsappDiscount / 100);
 
-      const emailRaw = effectiveEmailPrice * chargeableEmailCount;
+      // Email Fee is flat irrespective of the number of emails sent
+      const emailRaw = chargeableEmailCount > 0 ? effectiveEmailPrice : 0;
       const whatsappRaw = effectiveWhatsappPrice * chargeableWhatsappCount;
 
       const totalEmailCharge = emailRaw > 0 && emailRaw < 100 ? 100 : emailRaw;
