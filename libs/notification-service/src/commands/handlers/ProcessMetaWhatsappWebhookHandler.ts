@@ -24,6 +24,7 @@ export class ProcessMetaWhatsappWebhookHandler implements ICommandHandler<
 
       const { payload } = query;
 
+      
       console.log('[PROCESS-META-WHATSAPP-WEBHOOK-PAYLOAD] :: ', payload);
 
       this.logger.log(`[PROCESS-META-WHATSAPP-WEBHOOK-HANDLER-SUCCESS]`);
