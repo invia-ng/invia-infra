@@ -64,10 +64,18 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
               return;
             }
 
+            const templateMessage = MessageTemplateParser(
+              payload.message,
+              event,
+              guest,
+            );
+
             const hash = authUtils.generateEventInvitationHash({
               eventId: event.id,
               guestId: guest.id,
               eventHash: event.hash,
+              message: templateMessage,
+              imageUrl: payload?.image || '',
             });
 
             const instance = this.invitationRepository.create({
@@ -75,11 +83,11 @@ export class InviteEventGuestsHandler implements ICommandHandler<InviteEventGues
               guest,
               hash,
               image: payload?.image,
+              message: templateMessage,
               isEmailInviteDelivered: true,
               isWhatsAppInviteDelivered: true,
               sendEmailInvite: payload.sendEmailInvite,
               sendWhatsAppInvite: payload.sendWhatsAppInvite,
-              message: MessageTemplateParser(payload.message, event, guest),
             });
 
             const invitation = await this.invitationRepository.save(instance);

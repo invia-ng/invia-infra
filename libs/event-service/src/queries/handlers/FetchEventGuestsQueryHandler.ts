@@ -68,7 +68,7 @@ export class FetchEventGuestsQueryHandler implements IQueryHandler<
 
           this.logger.log('[FETCH-EVENT-GUEST-INVITATION-MANAGER-SUCCESS]');
         } catch (error) {
-          this.logger.error('[FETCH-EVENT-GUEST-INVITATION-MANAGER-ERROR]', error);
+          this.logger.error(`[FETCH-EVENT-GUEST-INVITATION-MANAGER-ERROR] :: ${error}`);
         }
       }))
 
