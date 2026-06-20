@@ -1,5 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as bcrypt from 'bcrypt';
-import { AccessTokenPayload, EventInvitationHashPayload, EventFollowupInvitationHashPayload } from '../interface';
+import {
+  AccessTokenPayload,
+  EventInvitationHashPayload,
+  EventFollowupInvitationHashPayload,
+} from '../interface';
 
 const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, parseInt(process.env.AUTH_SALT_ROUNDS));
@@ -12,7 +20,7 @@ const getOriginHeader = ({ headers: { origin } }: any): string => {
   if (origin) {
     return typeof origin === 'string' ? origin : origin[0];
   }
-  return 'https://medexer.com.ng';
+  return 'https://tryinvia.com';
 };
 
 function generateRandomPin() {
@@ -22,7 +30,7 @@ function generateRandomPin() {
 function isDatePastThreeMonths(date: string): boolean {
   const currentDate = new Date();
   const threeMonthsAgo = new Date();
-  threeMonthsAgo.setMonth(currentDate.getMonth() - 3); 
+  threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
 
   return new Date(date) <= threeMonthsAgo;
 }
@@ -52,23 +60,29 @@ function generateFutureDate(
   return futureDate;
 }
 
-function generateEventInvitationHash(payload: EventInvitationHashPayload): string {
+function generateEventInvitationHash(
+  payload: EventInvitationHashPayload,
+): string {
   return Buffer.from(JSON.stringify(payload)).toString('base64');
 }
 
-function generateEventFollowupInvitationHash(payload: EventFollowupInvitationHashPayload): string {
+function generateEventFollowupInvitationHash(
+  payload: EventFollowupInvitationHashPayload,
+): string {
   return Buffer.from(JSON.stringify(payload)).toString('base64');
 }
 
-function decodeEventFollowupInvitationHash(code: string): EventFollowupInvitationHashPayload {
-  const { jti, iat, ...payload } = JSON.parse(
+function decodeEventFollowupInvitationHash(
+  code: string,
+): EventFollowupInvitationHashPayload {
+  const { ...payload } = JSON.parse(
     Buffer.from(code, 'base64').toString('utf8'),
   );
   return payload;
 }
 
 function decodeEventInvitationHash(code: string): EventInvitationHashPayload {
-  const { jti, iat, ...payload } = JSON.parse(
+  const { ...payload } = JSON.parse(
     Buffer.from(code, 'base64').toString('utf8'),
   );
   return payload;
@@ -79,7 +93,7 @@ function generateAccessToken(payload: AccessTokenPayload): string {
 }
 
 function decodeAccessToken(code: string): AccessTokenPayload {
-  const { jti, iat, ...payload } = JSON.parse(
+  const { ...payload } = JSON.parse(
     Buffer.from(code, 'base64').toString('utf8'),
   );
   return payload;

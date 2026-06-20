@@ -23,7 +23,7 @@ export class InviteEventGuestsEventHandler implements IEventHandler<InviteEventG
     private readonly guestTimelineRepository: Repository<GuestTimeline>,
     private readonly eventEmailNotificationService: EventEmailNotificationService,
     private readonly eventWhatsappNotificationService: EventWhatsAppNotificationService,
-  ) { }
+  ) {}
 
   async handle(event: InviteEventGuestsEvent) {
     try {

@@ -11,6 +11,8 @@ export interface EventInvitationHashPayload {
   eventHash: string;
   eventId: number;
   guestId: number;
+  message: string;
+  imageUrl?: string;
 }
 
 export interface EventFollowupInvitationHashPayload {
