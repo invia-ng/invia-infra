@@ -1,16 +1,20 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ApiTags,
   ApiOkResponse,
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 import { CommandBus } from '@nestjs/cqrs';
-import { Get, Req, Post, Controller, Body, Query, Res } from '@nestjs/common';
-import { ProcessMetaWhatsappWebhookQuery } from '../queries/impl';
+import { ProcessMetaWhatsappWebhookCommand } from '../commands/impl';
+import { Get, Post, Controller, Body, Query, Res } from '@nestjs/common';
 
 @ApiTags('notification')
 @Controller({ path: 'notification' })
 export class NotificationController {
-  constructor(private readonly commandBus: CommandBus) { }
+  constructor(private readonly commandBus: CommandBus) {}
 
   @Get('webhook/meta-whatsapp')
   verifyMetaWhatsappWebhook(
@@ -20,7 +24,7 @@ export class NotificationController {
     @Res() res: any,
   ) {
     const expectedToken = process.env.META_WHATSAPP_VERIFY_TOKEN || 'ABCD';
-    
+
     if (mode === 'subscribe' && token === expectedToken) {
       console.log('Webhook Verified!');
       return res.status(200).send(challenge);
@@ -33,6 +37,8 @@ export class NotificationController {
   @ApiOkResponse()
   @ApiInternalServerErrorResponse()
   async webhookMetaWhatsapp(@Body() body: any) {
-    return await this.commandBus.execute(new ProcessMetaWhatsappWebhookQuery(body));
+    return await this.commandBus.execute(
+      new ProcessMetaWhatsappWebhookCommand(body),
+    );
   }
 }

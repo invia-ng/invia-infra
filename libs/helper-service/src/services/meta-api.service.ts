@@ -11,7 +11,9 @@ export class MetaApiService {
     @Inject('Logger') private readonly logger: AppLogger,
     private configService: ConfigService,
   ) {
-    this.metaAccessToken = this.configService.get<string>('INVIA_META_ACCESS_TOKEN');
+    this.metaAccessToken = this.configService.get<string>(
+      'INVIA_META_ACCESS_TOKEN',
+    );
   }
 
   async sendWhatsAppMessage(params: {
@@ -31,10 +33,6 @@ export class MetaApiService {
           messaging_product: 'whatsapp',
           to: params.to_phone,
           type: 'template',
-          // text: {
-          //   body: params.message,
-          // },
-          // type: params.message ? 'text' : 'template',
           template: {
             name: 'invitation',
             language: { code: 'en' },

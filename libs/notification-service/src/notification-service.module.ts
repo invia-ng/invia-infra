@@ -10,7 +10,7 @@ import { Account } from 'libs/common/src/models/account.model';
 import { setupSwaggerDocument } from '@app/common/src/swagger';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { SupportController } from './controllers/support.controller';
-import { NotificationServiceQueryHandlers } from './queries/handlers';
+import { NotificationServiceQueryHandlers } from './commands/handlers';
 import { Notification } from 'libs/common/src/models/notification.model';
 import { NotificationController } from './controllers/notification.controller';
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
@@ -26,11 +26,7 @@ import { SubscriptionsEmailNotificationService } from './services/email/subscrip
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Account,
-      Setting,
-      Notification,
-    ]),
+    TypeOrmModule.forFeature([Account, Setting, Notification]),
     CqrsModule,
     ConfigModule,
     HelperServiceModule,
@@ -61,7 +57,11 @@ import { SubscriptionsEmailNotificationService } from './services/email/subscrip
     AdminAlertEmailNotificationService,
     SubscriptionsEmailNotificationService,
   ],
-  controllers: [NotificationController, SupportController, AccountNotificationController],
+  controllers: [
+    NotificationController,
+    SupportController,
+    AccountNotificationController,
+  ],
 })
 export class NotificationServiceModule {
   constructor(private configService: ConfigService) {
