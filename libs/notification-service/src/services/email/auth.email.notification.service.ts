@@ -30,7 +30,7 @@ export class AuthEmailNotificationService {
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Setting)
     private readonly settingRepository: Repository<Setting>,
-  ) { }
+  ) {}
 
   async initializeAdminSettings() {
     this.adminSettings = await this.settingRepository.findOne({
@@ -40,23 +40,28 @@ export class AuthEmailNotificationService {
     });
   }
 
-  async inviteBusinessMemberEmailNotification(payload: { account: Account, business: Business }) {
+  async inviteBusinessMemberEmailNotification(payload: {
+    account: Account;
+    business: Business;
+  }) {
     await this.initializeAdminSettings();
 
     try {
       this.logger.log(`[INVITE-BUSINESS-MEMBER-EMAIL-NOTIFICATION-PROCESSING]`);
 
-
-      const htmlContent = await invite_business_member_email_html_content({
+      const htmlContent = invite_business_member_email_html_content({
         businessName: payload.business.name,
         activationLink: this.configService
           .get<string>('WEB_APP_URL')
-          .concat(`/auth/accept-membership?hash=${payload.account.invitationHash}&email=${payload.account.email}&businessId=${payload.business.name}&businessLogo=${payload.business.avatar}`),
+          .concat(
+            `/auth/accept-membership?hash=${payload.account.invitationHash}&email=${payload.account.email}&businessId=${payload.business.name}&businessLogo=${payload.business.avatar}`,
+          ),
       });
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         return await this.gmailMailerService.sendMail({
           html: htmlContent,
@@ -66,9 +71,20 @@ export class AuthEmailNotificationService {
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
-        this.adminSettings.isSMTPEnabled === false
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         return this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          to_email: payload.account.email,
+          sub: `Invitation To Join ${payload.business.name}`,
+        });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        return this.emailSenderService.sendEmailViaResend({
           html: htmlContent,
           to_email: payload.account.email,
           sub: `Invitation To Join ${payload.business.name}`,
@@ -79,7 +95,9 @@ export class AuthEmailNotificationService {
 
       return true;
     } catch (error) {
-      this.logger.log(`[INVITE-BUSINESS-MEMBER-EMAIL-NOTIFICATION-ERROR]: ${error}`);
+      this.logger.log(
+        `[INVITE-BUSINESS-MEMBER-EMAIL-NOTIFICATION-ERROR]: ${error}`,
+      );
       return false;
     }
   }
@@ -90,18 +108,18 @@ export class AuthEmailNotificationService {
     try {
       this.logger.log(`[VERIFY-NEW-ACCOUNT-EMAIL-NOTIFICATION-PROCESSING]`);
 
-
-      const htmlContent = await update_account_email_html_content({
+      const htmlContent = update_account_email_html_content({
         name: account.name,
         activationCode: account.activationCode,
         resetPasswordLink: this.configService
           .get<string>('WEB_APP_URL')
-          .concat(`/auth/update-email?hash=${account.emailVerificationHash}`)
+          .concat(`/auth/update-email?hash=${account.emailVerificationHash}`),
       });
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         return await this.gmailMailerService.sendMail({
           html: htmlContent,
@@ -111,9 +129,20 @@ export class AuthEmailNotificationService {
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
-        this.adminSettings.isSMTPEnabled === false
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         return this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          to_email: account.email,
+          sub: 'Verify New Account Email',
+        });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        return this.emailSenderService.sendEmailViaResend({
           html: htmlContent,
           to_email: account.email,
           sub: 'Verify New Account Email',
@@ -124,7 +153,9 @@ export class AuthEmailNotificationService {
 
       return true;
     } catch (error) {
-      this.logger.log(`[VERIFY-NEW-ACCOUNT-EMAIL-NOTIFICATION-ERROR]: ${error}`);
+      this.logger.log(
+        `[VERIFY-NEW-ACCOUNT-EMAIL-NOTIFICATION-ERROR]: ${error}`,
+      );
 
       return false;
     }
@@ -136,14 +167,15 @@ export class AuthEmailNotificationService {
     try {
       this.logger.log(`[VERIFY-NEW-BUSINESS-EMAIL-NOTIFICATION-PROCESSING]`);
 
-      const htmlContent = await update_business_email_html_content(
+      const htmlContent = update_business_email_html_content(
         account.name,
         account.activationCode,
       );
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         return await this.gmailMailerService.sendMail({
           html: htmlContent,
@@ -160,13 +192,25 @@ export class AuthEmailNotificationService {
           to_email: account.email,
           sub: 'Verify New Business Email',
         });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        return this.emailSenderService.sendEmailViaResend({
+          html: htmlContent,
+          to_email: account.email,
+          sub: 'Verify New Business Email',
+        });
       }
 
       this.logger.log(`[VERIFY-NEW-BUSINESS-EMAIL-NOTIFICATION-SUCCESS]`);
 
       return true;
     } catch (error) {
-      this.logger.log(`[VERIFY-NEW-BUSINESS-EMAIL-NOTIFICATION-ERROR]: ${error}`);
+      this.logger.log(
+        `[VERIFY-NEW-BUSINESS-EMAIL-NOTIFICATION-ERROR]: ${error}`,
+      );
 
       return false;
     }
@@ -178,13 +222,14 @@ export class AuthEmailNotificationService {
     try {
       this.logger.log(`[RESET-PASSWORD-NOTIFICATION-PROCESSING]`);
 
-      const htmlContent = await reset_password_html_content();
+      const htmlContent = reset_password_html_content();
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
-        return await this.gmailMailerService.sendMail({
+        await this.gmailMailerService.sendMail({
           html: htmlContent,
           to: account.email,
           subject: 'Password Reset',
@@ -194,7 +239,17 @@ export class AuthEmailNotificationService {
         this.adminSettings.isKibaMailEnabled === true &&
         this.adminSettings.isSMTPEnabled === false
       ) {
-        return this.emailSenderService.sendEmailViaKibaAdmin({
+        await this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          sub: 'Password Reset',
+          to_email: account.email,
+        });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.emailSenderService.sendEmailViaResend({
           html: htmlContent,
           sub: 'Password Reset',
           to_email: account.email,
@@ -217,15 +272,16 @@ export class AuthEmailNotificationService {
     try {
       this.logger.log(`[FORGOT-PASSWORD-NOTIFICATION-PROCESSING]`);
 
-      const htmlContent = await forgot_password_html_content(
+      const htmlContent = forgot_password_html_content(
         account.passwordResetCode,
       );
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
-        return await this.gmailMailerService.sendMail({
+        await this.gmailMailerService.sendMail({
           html: htmlContent,
           to: account.email,
           subject: 'Reset Your Password',
@@ -233,21 +289,25 @@ export class AuthEmailNotificationService {
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
-        this.adminSettings.isSMTPEnabled === false
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
-        return await this.emailSenderService.sendEmailViaKibaAdmin({
+        await this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
           to_email: account.email,
           sub: 'Reset Your Password',
         });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.emailSenderService.sendEmailViaResend({
+          html: htmlContent,
+          sub: 'Reset Your Password',
+          to_email: account.email,
+        });
       }
-      // else {
-      //   return this.emailSenderService.sendEmail({
-      //     html: htmlContent,
-      //     sub: 'Reset Your Password',
-      //     to_email: account.email,
-      //   });
-      // }
 
       this.logger.log(`[FORGOT-PASSWORD-NOTIFICATION-SUCCESS]`);
 
@@ -266,13 +326,12 @@ export class AuthEmailNotificationService {
       this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-PROCESSING]`);
 
       if (account.status === AccountStatus.ACTIVE) {
-        const htmlContent = await welcome_customer_email_html_content(
-          account.name,
-        );
+        const htmlContent = welcome_customer_email_html_content(account.name);
 
         if (
           this.adminSettings.isSMTPEnabled === true &&
-          this.adminSettings.isKibaMailEnabled === false
+          this.adminSettings.isKibaMailEnabled === false &&
+          this.adminSettings.isResendAPIEnabled === false
         ) {
           await this.gmailMailerService.sendMail({
             html: htmlContent,
@@ -284,7 +343,8 @@ export class AuthEmailNotificationService {
           return this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-SUCCESS]`);
         } else if (
           this.adminSettings.isKibaMailEnabled === true &&
-          this.adminSettings.isSMTPEnabled === false
+          this.adminSettings.isSMTPEnabled === false &&
+          this.adminSettings.isResendAPIEnabled === false
         ) {
           await this.emailSenderService.sendEmailViaKibaAdmin({
             html: htmlContent,
@@ -293,16 +353,29 @@ export class AuthEmailNotificationService {
           });
 
           return this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-SUCCESS]`);
+        } else if (
+          this.adminSettings.isResendAPIEnabled === true &&
+          this.adminSettings.isSMTPEnabled === false &&
+          this.adminSettings.isKibaMailEnabled === false
+        ) {
+          await this.emailSenderService.sendEmailViaResend({
+            html: htmlContent,
+            sub: 'Welcome to Invia!',
+            to_email: account.email,
+          });
+
+          return this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-SUCCESS]`);
         }
       } else if (account.status === AccountStatus.PENDING) {
-        const htmlContent = await email_verification_html_content(
+        const htmlContent = email_verification_html_content(
           account.name,
           account.activationCode,
         );
 
         if (
           this.adminSettings.isSMTPEnabled === true &&
-          this.adminSettings.isKibaMailEnabled === false
+          this.adminSettings.isKibaMailEnabled === false &&
+          this.adminSettings.isResendAPIEnabled === false
         ) {
           await this.gmailMailerService.sendMail({
             html: htmlContent,
@@ -314,9 +387,22 @@ export class AuthEmailNotificationService {
           return this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-SUCCESS]`);
         } else if (
           this.adminSettings.isKibaMailEnabled === true &&
-          this.adminSettings.isSMTPEnabled === false
+          this.adminSettings.isSMTPEnabled === false &&
+          this.adminSettings.isResendAPIEnabled === false
         ) {
           await this.emailSenderService.sendEmailViaKibaAdmin({
+            html: htmlContent,
+            sub: 'Email Verification',
+            to_email: account.email,
+          });
+
+          return this.logger.log(`[NEW-ACCOUNT-NOTIFICATIONS-SUCCESS]`);
+        } else if (
+          this.adminSettings.isResendAPIEnabled === true &&
+          this.adminSettings.isSMTPEnabled === false &&
+          this.adminSettings.isKibaMailEnabled === false
+        ) {
+          await this.emailSenderService.sendEmailViaResend({
             html: htmlContent,
             sub: 'Email Verification',
             to_email: account.email,

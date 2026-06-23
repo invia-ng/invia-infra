@@ -8,7 +8,10 @@ import {
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 import { CommandBus } from '@nestjs/cqrs';
-import { ProcessMetaWhatsappWebhookCommand } from '../commands/impl';
+import {
+  ProcessMetaWhatsappWebhookCommand,
+  ProcessResendWebhookCommand,
+} from '../commands/impl';
 import { Get, Post, Controller, Body, Query, Res } from '@nestjs/common';
 
 @ApiTags('notification')
@@ -40,5 +43,12 @@ export class NotificationController {
     return await this.commandBus.execute(
       new ProcessMetaWhatsappWebhookCommand(body),
     );
+  }
+
+  @Post('webhook/resend')
+  @ApiOkResponse()
+  @ApiInternalServerErrorResponse()
+  async processResendWebhook(@Body() body: any) {
+    return await this.commandBus.execute(new ProcessResendWebhookCommand(body));
   }
 }

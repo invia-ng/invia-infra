@@ -24,6 +24,12 @@ export class Setting {
   isKibaMailEnabled: boolean;
 
   @Column({
+    nullable: true,
+    default: false,
+  })
+  isResendAPIEnabled: boolean;
+
+  @Column({
     default: 0,
     nullable: true,
   })

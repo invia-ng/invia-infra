@@ -31,7 +31,7 @@ export class EventEmailNotificationService {
     @Inject('Logger') private readonly logger: AppLogger,
     @InjectRepository(Setting)
     private readonly settingRepository: Repository<Setting>,
-  ) { }
+  ) {}
 
   async initializeAdminSettings() {
     this.adminSettings = await this.settingRepository.findOne({
@@ -42,22 +42,27 @@ export class EventEmailNotificationService {
   }
 
   async sendEventShareFormPasscodeEmailNotification(payload: {
-    event: Event,
-    guestEmail: string
+    event: Event;
+    guestEmail: string;
   }): Promise<boolean> {
     try {
-      this.logger.log(`[SEND-EVENT-SHARE-FORM-PASSCODE-EMAIL-NOTIFICATION-PROCESSING]`);
+      this.logger.log(
+        `[SEND-EVENT-SHARE-FORM-PASSCODE-EMAIL-NOTIFICATION-PROCESSING]`,
+      );
 
       await this.initializeAdminSettings();
 
       const htmlContent = share_event_guest_form_email_html_content({
         passcode: payload.event.passcode,
-        shareFormLink: this.configService.get<string>('WEB_APP_URL').concat(`/events/shareform/authenticate?hash=${payload.event.hash}`),
+        shareFormLink: this.configService
+          .get<string>('WEB_APP_URL')
+          .concat(`/events/shareform/authenticate?hash=${payload.event.hash}`),
       });
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
@@ -67,9 +72,22 @@ export class EventEmailNotificationService {
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
-        this.adminSettings.isSMTPEnabled === false
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
-        this.emailSenderService.sendEmailViaKibaAdmin({
+        await this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          sub: `Event Share Form Access: ${payload.event.name}`,
+          to_email: payload.guestEmail,
+          from_email: payload.event.business.sendFromEmail,
+          from_name: payload.event.business.name,
+        });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.emailSenderService.sendEmailViaResend({
           html: htmlContent,
           sub: `Event Share Form Access: ${payload.event.name}`,
           to_email: payload.guestEmail,
@@ -78,7 +96,9 @@ export class EventEmailNotificationService {
         });
       }
 
-      this.logger.log(`[SEND-EVENT-SHARE-FORM-PASSCODE-EMAIL-NOTIFICATION-SUCCESS]`);
+      this.logger.log(
+        `[SEND-EVENT-SHARE-FORM-PASSCODE-EMAIL-NOTIFICATION-SUCCESS]`,
+      );
 
       return true;
     } catch (error) {
@@ -94,7 +114,9 @@ export class EventEmailNotificationService {
     invitation: Invitation,
   ): Promise<boolean> {
     try {
-      this.logger.log(`[EVENT-GUEST-INVITATION-RSVP-EMAIL-NOTIFICATION-PROCESSING]`);
+      this.logger.log(
+        `[EVENT-GUEST-INVITATION-RSVP-EMAIL-NOTIFICATION-PROCESSING]`,
+      );
 
       await this.initializeAdminSettings();
 
@@ -105,11 +127,11 @@ export class EventEmailNotificationService {
         webappUrl: this.configService.get<string>('WEB_APP_URL'),
         date: invitation.event.date
           ? new Date(invitation.event.date).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })
           : '',
         time: invitation.event.time ?? '',
         location: invitation.event.location ?? '',
@@ -123,7 +145,8 @@ export class EventEmailNotificationService {
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
@@ -133,9 +156,22 @@ export class EventEmailNotificationService {
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
-        this.adminSettings.isSMTPEnabled === false
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
-        this.emailSenderService.sendEmailViaKibaAdmin({
+        await this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          sub: `Event RSVP: ${invitation.event.name}`,
+          to_email: invitation.guest.email,
+          from_email: invitation.event.business.sendFromEmail,
+          from_name: invitation.event.business.name,
+        });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.emailSenderService.sendEmailViaResend({
           html: htmlContent,
           sub: `Event RSVP: ${invitation.event.name}`,
           to_email: invitation.guest.email,
@@ -144,7 +180,9 @@ export class EventEmailNotificationService {
         });
       }
 
-      this.logger.log(`[EVENT-GUEST-INVITATION-RSVP-EMAIL-NOTIFICATION-SUCCESS]`);
+      this.logger.log(
+        `[EVENT-GUEST-INVITATION-RSVP-EMAIL-NOTIFICATION-SUCCESS]`,
+      );
 
       return true;
     } catch (error) {
@@ -188,7 +226,8 @@ export class EventEmailNotificationService {
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
@@ -198,9 +237,22 @@ export class EventEmailNotificationService {
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
-        this.adminSettings.isSMTPEnabled === false
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
-        this.emailSenderService.sendEmailViaKibaAdmin({
+        await this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          sub: `You're invited to ${invitation.event.name}. Will you be there?`,
+          to_email: invitation.guest.email,
+          from_email: invitation.event.business.sendFromEmail,
+          from_name: invitation.event.business.name,
+        });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.emailSenderService.sendEmailViaResend({
           html: htmlContent,
           sub: `You're invited to ${invitation.event.name}. Will you be there?`,
           to_email: invitation.guest.email,
@@ -245,7 +297,8 @@ export class EventEmailNotificationService {
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
@@ -256,14 +309,29 @@ export class EventEmailNotificationService {
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
-        this.adminSettings.isSMTPEnabled === false
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
-        this.emailSenderService.sendEmailViaKibaAdmin({
+        await this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
           sub: `New message for ${followupInvitation.invitation.event.name}`,
 
           to_email: followupInvitation.invitation.guest.email,
-          from_email: followupInvitation.invitation.event.business.sendFromEmail,
+          from_email:
+            followupInvitation.invitation.event.business.sendFromEmail,
+          from_name: followupInvitation.invitation.event.business.name,
+        });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.emailSenderService.sendEmailViaResend({
+          html: htmlContent,
+          sub: `New message for ${followupInvitation.invitation.event.name}`,
+          to_email: followupInvitation.invitation.guest.email,
+          from_email:
+            followupInvitation.invitation.event.business.sendFromEmail,
           from_name: followupInvitation.invitation.event.business.name,
         });
       }
@@ -283,8 +351,8 @@ export class EventEmailNotificationService {
   }
 
   async eventGuestAcceptRejectInvitationEmailNotification(payload: {
-    isAccept: boolean,
-    invitation: Invitation,
+    isAccept: boolean;
+    invitation: Invitation;
   }): Promise<boolean> {
     try {
       this.logger.log(
@@ -293,31 +361,34 @@ export class EventEmailNotificationService {
 
       await this.initializeAdminSettings();
 
-      const htmlContent = event_guest_accept_reject_invitation_email_html_content({
-        hasCoverImage: payload.invitation.image.length > 0,
-        message: payload.invitation.message,
-        event: payload.invitation.event.name,
-        webappUrl: this.configService.get<string>('WEB_APP_URL'),
-        businessName: payload.invitation.event.business.name,
-        isAccept: payload.isAccept,
-        image:
-          payload.invitation.image.length > 0
-            ? payload.invitation.image
-            : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
-      });
+      const htmlContent =
+        event_guest_accept_reject_invitation_email_html_content({
+          hasCoverImage: payload.invitation.image.length > 0,
+          message: payload.invitation.message,
+          event: payload.invitation.event.name,
+          webappUrl: this.configService.get<string>('WEB_APP_URL'),
+          businessName: payload.invitation.event.business.name,
+          isAccept: payload.isAccept,
+          image:
+            payload.invitation.image.length > 0
+              ? payload.invitation.image
+              : 'https://res.cloudinary.com/dt0epuz7w/image/upload/v1767585910/invite-mail_feajcp.png',
+        });
 
-      const adminHtmlContent = event_admin_guest_accept_reject_invitation_email_html_content({
-        guestName: payload.invitation.guest.name,
-        event: payload.invitation.event.name,
-        webappUrl: this.configService.get<string>('WEB_APP_URL'),
-        businessName: payload.invitation.event.business.name,
-        isAccept: payload.isAccept,
-        eventDashboardUrl: `${this.configService.get<string>('WEB_APP_URL')}/events/${payload.invitation.event.id}`,
-      });
+      const adminHtmlContent =
+        event_admin_guest_accept_reject_invitation_email_html_content({
+          guestName: payload.invitation.guest.name,
+          event: payload.invitation.event.name,
+          webappUrl: this.configService.get<string>('WEB_APP_URL'),
+          businessName: payload.invitation.event.business.name,
+          isAccept: payload.isAccept,
+          eventDashboardUrl: `${this.configService.get<string>('WEB_APP_URL')}/events/${payload.invitation.event.id}`,
+        });
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
@@ -334,7 +405,8 @@ export class EventEmailNotificationService {
         });
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
-        this.adminSettings.isSMTPEnabled === false
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         await this.emailSenderService.sendEmailViaKibaAdmin({
           html: htmlContent,
@@ -345,6 +417,26 @@ export class EventEmailNotificationService {
         });
 
         await this.emailSenderService.sendEmailViaKibaAdmin({
+          html: adminHtmlContent,
+          sub: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}: ${payload.invitation.event.name}`,
+          to_email: payload.invitation.event.business.email,
+          from_email: 'no-reply@tryinvia.com',
+          from_name: 'Invia',
+        });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.emailSenderService.sendEmailViaResend({
+          html: htmlContent,
+          sub: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}: ${payload.invitation.event.name}`,
+          to_email: payload.invitation.guest.email,
+          from_email: 'no-reply@tryinvia.com',
+          from_name: 'Invia',
+        });
+
+        await this.emailSenderService.sendEmailViaResend({
           html: adminHtmlContent,
           sub: `Event Invitation ${payload.isAccept ? 'Accepted' : 'Rejected'}: ${payload.invitation.event.name}`,
           to_email: payload.invitation.event.business.email,

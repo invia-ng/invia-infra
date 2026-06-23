@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/only-throw-error */
 import axios from 'axios';
 import { Kibamail } from 'kibamail';
 import { ConfigService } from '@nestjs/config';
 import { Inject, Injectable } from '@nestjs/common';
 import { AppLogger } from '@app/common/src/logger/logger.service';
 import { EmailRequest } from 'libs/notification-service/src/interface';
+import { CreateEmailOptions, Resend } from 'resend';
 
 @Injectable()
 export class EmailSenderService {
+  private resend: Resend;
   private kibamail: Kibamail;
 
   constructor(
@@ -16,6 +19,8 @@ export class EmailSenderService {
     this.kibamail = new Kibamail(
       this.configService.get<string>('KIBA_MAIL_API_KEY'),
     );
+
+    this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
   }
 
   async sendEmail(config: {
@@ -70,6 +75,48 @@ export class EmailSenderService {
     }
   }
 
+  async sendEmailViaResend(config: {
+    from_name?: string;
+    from_email?: string;
+    to_email: string;
+    html: string;
+    sub: string;
+    attachments?: { filename: string; content: Buffer }[];
+  }): Promise<void> {
+    try {
+      this.logger.log('[SEND-EMAIL-VIA-RESEND-GATEWAY-PROCESSING]');
+
+      const emailRequest: CreateEmailOptions = {
+        from: `${config.from_name || 'Invia'} <${config.from_email || this.configService.get<string>('MAIL_FROM_EMAIL')}>`,
+        html: config.html,
+        subject: config.sub,
+        to: [config.to_email],
+        attachments: config.attachments?.map((attachment) => {
+          return {
+            filename: attachment.filename,
+            content: attachment?.content,
+          };
+        }),
+      };
+
+      const { data, error } = await this.resend.emails.send(emailRequest);
+
+      console.log('Email response data : ', data);
+      console.log('Email response error : ', error);
+
+      if (error) {
+        console.log(error.message);
+
+        throw error;
+      }
+      this.logger.log('[SEND-EMAIL-VIA-RESEND-GATEWAY-SUCCESS]');
+    } catch (error) {
+      console.log(error);
+
+      this.logger.error(`[SEND-EMAIL-VIA-RESEND-GATEWAY-ERROR] :: ${error}`);
+    }
+  }
+
   async sendEmailViaKibaAdmin(config: {
     from_name?: string;
     from_email?: string;
@@ -82,7 +129,9 @@ export class EmailSenderService {
       this.logger.log('[SEND-EMAIL-VIA-KIBA-GATEWAY-PROCESSING]');
 
       const emailRequest = {
-        from: config.from_email || this.configService.get<string>('MAIL_FROM_EMAIL'),
+        from:
+          config.from_email ||
+          this.configService.get<string>('MAIL_FROM_EMAIL'),
         to: config.to_email,
         subject: config.sub,
         html: config.html,
@@ -100,6 +149,7 @@ export class EmailSenderService {
 
       if (error) {
         console.log(error.error.validationErrors);
+
         throw error;
       }
       this.logger.log('[SEND-EMAIL-VIA-KIBA-GATEWAY-SUCCESS]');

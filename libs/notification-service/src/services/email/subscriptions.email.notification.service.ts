@@ -53,7 +53,8 @@ export class SubscriptionsEmailNotificationService {
 
       if (
         this.adminSettings.isSMTPEnabled === true &&
-        this.adminSettings.isKibaMailEnabled === false
+        this.adminSettings.isKibaMailEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         await this.gmailMailerService.sendMail({
           html: htmlContent,
@@ -65,9 +66,20 @@ export class SubscriptionsEmailNotificationService {
         return;
       } else if (
         this.adminSettings.isKibaMailEnabled === true &&
-        this.adminSettings.isSMTPEnabled === false
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isResendAPIEnabled === false
       ) {
         return this.emailSenderService.sendEmailViaKibaAdmin({
+          html: htmlContent,
+          sub: 'Payment Receipt',
+          to_email: payload.recipientEmail,
+        });
+      } else if (
+        this.adminSettings.isResendAPIEnabled === true &&
+        this.adminSettings.isSMTPEnabled === false &&
+        this.adminSettings.isKibaMailEnabled === false
+      ) {
+        await this.emailSenderService.sendEmailViaResend({
           html: htmlContent,
           sub: 'Payment Receipt',
           to_email: payload.recipientEmail,
