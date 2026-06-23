@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ProcessResendWebhookCommand } from '../impl';
 import { Inject } from '@nestjs/common';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
