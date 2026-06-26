@@ -64,6 +64,10 @@ import {
   ChargeResponseData,
   InvitationChargeResponse,
 } from '@app/subscription-service/src/interface/schema';
+import {
+  EmailWhatsappMessageAttempt,
+  EmailWhatsappMessageAttemptInfo,
+} from '../models/email.whatsapp.message.attempt.model';
 
 export function FormatNotification(
   notification: Notification,
@@ -181,7 +185,7 @@ export function FormatGuestInfo(
       ? invitation.isInvitationSeen
         ? InvitationStatusEnum.SEEN
         : invitation.isEmailInviteDelivered ||
-          invitation.isWhatsAppInviteDelivered
+            invitation.isWhatsAppInviteDelivered
           ? InvitationStatusEnum.DELIVERED
           : invitation.isEmailInviteSent || invitation.isWhatsAppInviteSent
             ? InvitationStatusEnum.SENT
@@ -707,6 +711,25 @@ export function FormatGuestEventFollowupInvitationInfo(
   } as unknown as GuestEventFollowupInvitationInfo;
 }
 
+export function FormatEmailWhatsappMessageAttemptInfo(
+  emailWhatsappMessageAttempt: EmailWhatsappMessageAttempt,
+): EmailWhatsappMessageAttemptInfo {
+  return {
+    id: emailWhatsappMessageAttempt.id.toString(),
+    channel: emailWhatsappMessageAttempt.channel,
+    wamid: emailWhatsappMessageAttempt.wamid,
+    resendEmailId: emailWhatsappMessageAttempt.resendEmailId,
+    status: emailWhatsappMessageAttempt.status,
+    errorCode: emailWhatsappMessageAttempt.errorCode,
+    errorMessage: emailWhatsappMessageAttempt.errorMessage,
+    attemptNumber: emailWhatsappMessageAttempt.attemptNumber,
+    nextRetryAt: emailWhatsappMessageAttempt.nextRetryAt,
+    lastAttemptAt: emailWhatsappMessageAttempt.lastAttemptAt,
+    deliveredAt: emailWhatsappMessageAttempt.deliveredAt,
+    invitation: emailWhatsappMessageAttempt.invitation.id,
+  } as unknown as EmailWhatsappMessageAttemptInfo;
+}
+
 export default {
   FormatGuestInfo,
   FormatEventInfo,
@@ -730,5 +753,6 @@ export default {
   FormatGuestTimelineActionEnumInfo,
   FormatMessageFollowupIntervalInfo,
   FormatMessageFollowupConditionInfo,
+  FormatEmailWhatsappMessageAttemptInfo,
   FormatGuestEventFollowupInvitationInfo,
 };

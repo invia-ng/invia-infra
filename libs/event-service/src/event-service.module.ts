@@ -30,13 +30,14 @@ import { EventGuestController } from './controllers/event.guest.controller';
 import { EventHelperController } from './controllers/event.helper.controller';
 import { EventAuthorController } from './controllers/event.author.controller';
 import { EventMessageController } from './controllers/event.message.controller';
+import { MetaApiService } from '@app/helper-service/src/services/meta-api.service';
 import { HelperServiceModule } from '@app/helper-service/src/helper-service.module';
 import { EmailSenderService } from '@app/helper-service/src/services/email-sender.service';
 import { FollowupMessageTemplate, MessageTemplate } from '@app/common/src/models/message.template.model';
+import { EmailWhatsappMessageAttempt } from '@app/common/src/models/email.whatsapp.message.attempt.model';
 import { EventEmailNotificationService } from '@app/notification-service/src/services/email/event.email.notification.service';
 import { PaymentEmailNotificationService } from '@app/notification-service/src/services/email/payment.email.notification.service';
 import { EventWhatsAppNotificationService } from '@app/notification-service/src/services/email/event.whatsapp.notification.service';
-import { MetaApiService } from '@app/helper-service/src/services/meta-api.service';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { MetaApiService } from '@app/helper-service/src/services/meta-api.servic
       InvitationPayment,
       FollowupInvitation,
       FollowupMessageTemplate,
+      EmailWhatsappMessageAttempt,
     ]),
   ],
   controllers: [

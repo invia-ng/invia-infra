@@ -16,6 +16,7 @@ import {
   SearchEventGuestsQuery,
   FetchEventGuestIdsQuery,
   FetchEventGuestInfoQuery,
+  FetchEventGuestEmailWhatsappMessageAttemptsQuery,
 } from '../queries/impl';
 import {
   Get,
@@ -67,7 +68,11 @@ import { JwtAuthGuard } from '@app/common/src/auth/jwt-auth.guard';
 import { SecureUser } from '@app/common/src/decorator/user.decorator';
 import { DeleteDataInstanceInfo, EventGuestIdInfo } from '../interface/schema';
 import { InvitationChargeResponse } from '@app/subscription-service/src/interface/schema';
-import { InvitationRSVPEnum, InvitationStatusEnum } from '@app/common/src/constants/enums';
+import {
+  InvitationRSVPEnum,
+  InvitationStatusEnum,
+} from '@app/common/src/constants/enums';
+import { EmailWhatsappMessageAttemptInfo } from '@app/common/src/models/email.whatsapp.message.attempt.model';
 
 @ApiTags('event')
 @Controller({ path: '' })
@@ -78,7 +83,7 @@ export class EventController {
     public queryBus: QueryBus,
     public command: CommandBus,
     public readonly eventService: EventService,
-  ) { }
+  ) {}
 
   @Get('parties')
   @ApiQuery({
@@ -442,6 +447,46 @@ export class EventController {
   ): Promise<GuestProfileInfo> {
     return await this.queryBus.execute(
       new FetchEventGuestInfoQuery(eventId, guestId, secureUser),
+    );
+  }
+
+  @Get('guests/email-whatsapp-message-attempts')
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'guestId',
+    description: 'Guest Primary ID',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 1,
+    name: 'page',
+    description: 'Page',
+  })
+  @ApiQuery({
+    type: Number,
+    required: true,
+    example: 10,
+    name: 'pageSize',
+    description: 'Page Size',
+  })
+  @ApiOkResponse({ type: EmailWhatsappMessageAttemptInfo, isArray: true })
+  @ApiInternalServerErrorResponse()
+  async fetchEventGuestEmailWhatsappMessageAttempts(
+    @Query('guestId') guestId: number,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+    @SecureUser() secureUser: SecureUserPayload,
+  ): Promise<EmailWhatsappMessageAttemptInfo[]> {
+    return await this.queryBus.execute(
+      new FetchEventGuestEmailWhatsappMessageAttemptsQuery(
+        guestId,
+        page,
+        pageSize,
+        secureUser,
+      ),
     );
   }
 

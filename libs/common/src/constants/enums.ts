@@ -142,3 +142,13 @@ export enum InvitationRSVPEnum {
   REJECTED = 'REJECTED',
   CONFIRMED = 'CONFIRMED',
 }
+
+export enum EmailWhatsappMessageAttemptStatusEnum {
+  ACCEPTED = 'ACCEPTED',
+  SENT = 'SENT',
+  DELIVERED = 'DELIVERED',
+  FAILED = 'FAILED',
+  BOUNCED = 'BOUNCED',
+  COMPLAINED = 'COMPLAINED',
+  PENDING = 'PENDING',
+}

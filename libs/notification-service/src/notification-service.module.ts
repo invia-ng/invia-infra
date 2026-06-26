@@ -7,6 +7,7 @@ import { SupportService } from './services/support.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Setting } from '@app/common/src/models/setting.model';
 import { Account } from 'libs/common/src/models/account.model';
+import { Invitation } from '@app/common/src/models/invitation.model';
 import { setupSwaggerDocument } from '@app/common/src/swagger';
 import { AppLogger } from 'libs/common/src/logger/logger.service';
 import { SupportController } from './controllers/support.controller';
@@ -21,12 +22,19 @@ import { AuthEmailNotificationService } from './services/email/auth.email.notifi
 import { EventEmailNotificationService } from './services/email/event.email.notification.service';
 import { PaymentEmailNotificationService } from './services/email/payment.email.notification.service';
 import { EventWhatsAppNotificationService } from './services/email/event.whatsapp.notification.service';
+import { EmailWhatsappMessageAttempt } from '@app/common/src/models/email.whatsapp.message.attempt.model';
 import { AdminAlertEmailNotificationService } from './services/email/admin.alert.email.notification.service';
 import { SubscriptionsEmailNotificationService } from './services/email/subscriptions.email.notification.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Account, Setting, Notification]),
+    TypeOrmModule.forFeature([
+      Account,
+      Setting,
+      Notification,
+      Invitation,
+      EmailWhatsappMessageAttempt,
+    ]),
     CqrsModule,
     ConfigModule,
     HelperServiceModule,

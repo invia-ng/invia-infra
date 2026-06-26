@@ -39,6 +39,15 @@ export class FetchEventGuestIdsQuery {
   ) { }
 }
 
+export class FetchEventGuestEmailWhatsappMessageAttemptsQuery {
+  constructor(
+    public readonly guestId: number,
+    public readonly page: number,
+    public readonly pageSize: number,
+    public readonly secureUser: SecureUserPayload,
+  ) { }
+}
+
 export class EventAuthorFetchEventGuestIdsQuery {
   constructor(
     public readonly eventId: number,
